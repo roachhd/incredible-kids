@@ -1,3 +1,3 @@
 #summary 사이드바
-* [ProjectRole 업무 분담]
-* [CodeStyle 코딩 스타일]
+ # [ProjectRole 업무 분담]
+ # [CodeStyle 코딩 스타일]
