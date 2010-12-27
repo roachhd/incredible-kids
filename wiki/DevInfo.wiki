@@ -1,8 +1,9 @@
 #summary 개발 이슈 정리
 #sidebar TOC
 
+자세한 사항은 TestProject 소스를 svn을 이용해 받아 볼것
+
  * Andengine을 이용한 드래그&드랍 구현
- * 자세한 사항은 TestProject 소스를 svn을 이용해 받아 볼것
 
 {{{
 final Sprite word = new Sprite(centerX, centerY, this.mFaceTextureRegion) {
@@ -20,6 +21,7 @@ final Sprite word = new Sprite(centerX, centerY, this.mFaceTextureRegion) {
 }}}
 
  * Andengine을 이용한 줄긋기 구현
+
 {{{
 line = new Line(0,0,0,0,5f);
 line.setColor(0.0f,0.0f,0.0f);
