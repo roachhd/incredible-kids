@@ -1,5 +1,5 @@
-##sidebar TOC
 #summary 코딩 스타일에 대해 명시한 페이지
+#sidebar TOC
 
 == 변수이름 명명법 ==
 
