@@ -1,7 +1,7 @@
 #summary 개발 이슈 정리
 #sidebar TOC
 
-자세한 사항은 TestProject 소스를 svn을 이용해 받아 볼것
+선, 박스 등을 하나의 entity로 두고 배경위에 올린뒤에 모양 및 위치를 바꾸는 형식으로 구현 가능함. 자세한 사항은 TestProject 소스를 svn을 이용해 받아 볼것
 
  * Andengine을 이용한 드래그&드랍 구현
 
