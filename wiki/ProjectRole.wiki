@@ -1,4 +1,5 @@
 #summary 프로젝트 업무 분담
+#sidebar TOC
 
 = 프로젝트 업무 분담 =
 
