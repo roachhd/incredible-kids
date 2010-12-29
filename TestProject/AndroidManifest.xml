@@ -19,10 +19,17 @@
 		</activity>
 		<activity
 			android:name=".TouchDragExample"
-			android:label="@string/app_name"/>
-			<activity
+			android:label="@string/app_name" />
+		<activity
 			android:name=".DragLineExample"
-			android:label="@string/app_name"/>
+			android:label="@string/app_name" />
+		<activity
+			android:name=".ViewDragAndDrop"
+			android:label="@string/app_name" />
+		<activity
+			android:name=".DragAndDropCanvas"
+			android:label="@string/app_name" />
+			
 	</application>
 	<uses-permission
 		android:name="android.permission.WAKE_LOCK" />

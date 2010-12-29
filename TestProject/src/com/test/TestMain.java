@@ -14,7 +14,8 @@ public class TestMain extends Activity {
         setContentView(R.layout.main);
         Button btnDrag = (Button)findViewById(R.id.btn_drag);
         Button btnLine = (Button)findViewById(R.id.btn_line);
-        
+        Button btnDragNE = (Button)findViewById(R.id.btn_drag_no_engine);
+        Button btnDragC = (Button)findViewById(R.id.btn_drag_canvas);
         btnDrag.setOnClickListener(new OnClickListener(){
 
 			@Override
@@ -31,6 +32,26 @@ public class TestMain extends Activity {
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
 				Intent dragIntent = new Intent(TestMain.this, DragLineExample.class);
+				startActivity(dragIntent);
+			}
+        	
+        });
+        btnDragNE.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				Intent dragIntent = new Intent(TestMain.this, ViewDragAndDrop.class);
+				startActivity(dragIntent);
+			}
+        	
+        });
+        btnDragC.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				Intent dragIntent = new Intent(TestMain.this, DragAndDropCanvas.class);
 				startActivity(dragIntent);
 			}
         	

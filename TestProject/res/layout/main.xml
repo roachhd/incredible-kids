@@ -16,5 +16,15 @@
 		android:text="Draw Line"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content" />
+	<Button
+		android:id="@+id/btn_drag_no_engine"
+		android:text="Drag and Drop without engine"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+	<Button
+		android:id="@+id/btn_drag_canvas"
+		android:text="Drag and Drop with canvas"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
 		
 </LinearLayout>

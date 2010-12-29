@@ -42,7 +42,7 @@ public class DragLineExample extends BaseGameActivity {
 	@Override
 	public void onLoadResources() {
 		TextureRegionFactory.setAssetBasePath("gfx/");
-		this.mBoxTexture = new Texture(32, 32, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mBoxTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.mBoxTextureRegion = TextureRegionFactory.createFromAsset(this.mBoxTexture, this, "box1.png", 0, 0);
 
 		this.mEngine.getTextureManager().loadTexture(this.mBoxTexture);
@@ -65,11 +65,10 @@ public class DragLineExample extends BaseGameActivity {
 			
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				line.setPosition(mbox.getX(), mbox.getY(), pSceneTouchEvent.getX() - this.getWidth() / 2, pSceneTouchEvent.getY() - this.getHeight() / 2);
+				line.setPosition(mbox.getX()+32, mbox.getY()+32, pSceneTouchEvent.getX() - this.getWidth() / 2, pSceneTouchEvent.getY() - this.getHeight() / 2);
 				return true;
 			}
 		};	
-		mbox.setScale(4);
 		mScene.getTopLayer().addEntity(mbox);
 		mScene.getTopLayer().addEntity(line);
 		mScene.registerTouchArea(mbox);
@@ -77,5 +76,6 @@ public class DragLineExample extends BaseGameActivity {
 		
 		return mScene;
 	}
+	
 	
 }

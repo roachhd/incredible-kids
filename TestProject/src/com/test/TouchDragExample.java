@@ -17,6 +17,8 @@ import org.anddev.andengine.opengl.texture.region.TextureRegion;
 import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
 
+import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 
 /**
@@ -28,22 +30,29 @@ public class TouchDragExample extends BaseGameActivity {
 	// Constants
 	// ===========================================================
 
-	private static final int CAMERA_WIDTH = 720;
-	private static final int CAMERA_HEIGHT = 480;
+	public static int CAMERA_WIDTH;
+	public static int CAMERA_HEIGHT;
 
 	// ===========================================================
 	// Fields
 	// ===========================================================
 
 	private Camera mCamera;
-	private Texture mWordTexture;
-	private Texture mBoxTexture;
+	private Texture  mWordTexture;
+	private Texture  mBoxTexture;
 	private TextureRegion mFaceTextureRegion;
 	private TextureRegion mBoxTextureRegion;
-	
-	private Sprite mbox;
-	
-	private static boolean m_bCollide = false;
+	private Scene mScene;
+	private Sprite [] mBox;
+	private Sprite [] mWord;
+	private Sprite mCurrentTouchedWord;
+	private Sprite mCurrentCollideBox;
+	private int mBoxSpriteCount;
+	private int mWordSpriteCount;
+	private int mCurrentCollideBoxIdx;
+
+
+	private static boolean [] m_bCollide = null;
 
 	// ===========================================================
 	// Constructors
@@ -59,17 +68,34 @@ public class TouchDragExample extends BaseGameActivity {
 
 	@Override
 	public Engine onLoadEngine() {
+		CAMERA_WIDTH = getLCDWidth();
+		CAMERA_HEIGHT = getLCDHeight();
+		Log.e("Wooram", "width="+CAMERA_WIDTH + " height="+CAMERA_HEIGHT);
+		mCurrentCollideBoxIdx = 0;
 		this.mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 		return new Engine(new EngineOptions(true, ScreenOrientation.LANDSCAPE, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), this.mCamera));
+
+	}
+	int getLCDWidth() {
+	    Display display = getWindowManager().getDefaultDisplay();
+	    int width = display.getWidth();
+
+	    return width;
+	}
+	int getLCDHeight() {
+	    Display display = getWindowManager().getDefaultDisplay();
+	    int height = display.getHeight();
+
+	    return height;
 	}
 
 	@Override
 	public void onLoadResources() {
 		TextureRegionFactory.setAssetBasePath("gfx/");
-		this.mWordTexture = new Texture(32, 32, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mBoxTexture = new Texture(32, 32, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mFaceTextureRegion = TextureRegionFactory.createFromAsset(this.mWordTexture, this, "a_word.png", 0, 0);
-		this.mBoxTextureRegion = TextureRegionFactory.createFromAsset(this.mBoxTexture, this, "box1.png", 0, 0);
+		this.mWordTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mBoxTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mFaceTextureRegion = TextureRegionFactory.createFromAsset(this.mWordTexture, this, "box1.png", 0, 0);
+		this.mBoxTextureRegion = TextureRegionFactory.createFromAsset(this.mBoxTexture, this, "box2.png", 0, 0);
 
 		this.mEngine.getTextureManager().loadTexture(this.mWordTexture);
 		this.mEngine.getTextureManager().loadTexture(this.mBoxTexture);
@@ -79,52 +105,77 @@ public class TouchDragExample extends BaseGameActivity {
 	public Scene onLoadScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
-		final Scene scene = new Scene(1);
+		mScene = new Scene(1);
+		String [] alphabet = {"d","o","g","g","k"};
+		setScene(alphabet);
+		return mScene;
+	}
+
+	private void setScene(final String [] alphabet){
+		m_bCollide = new boolean[alphabet.length];
+		for (int i=0; i<m_bCollide.length; i++)
+			m_bCollide[i] = false;
+		mBox = new Sprite[alphabet.length];
+		mWord = new Sprite[alphabet.length];
+		mScene.setBackground(new ColorBackground(0.09804f, 0.6274f, 0.8784f));
 		
-		scene.setBackground(new ColorBackground(0.09804f, 0.6274f, 0.8784f));
-		mbox = new Sprite(100, 350, this.mBoxTextureRegion);
-		mbox.setScale(4);
-		scene.getTopLayer().addEntity(mbox);
-		
-		final int centerX = (CAMERA_WIDTH - this.mFaceTextureRegion.getWidth()) / 2;
-		final int centerY = (CAMERA_HEIGHT - this.mFaceTextureRegion.getHeight()) / 2;
-		final Sprite word = new Sprite(centerX, centerY, this.mFaceTextureRegion) {
-			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				if (pSceneTouchEvent.getAction() == MotionEvent.ACTION_UP && m_bCollide){
-					this.setPosition(mbox.getX(), mbox.getY());
-				}else{
-					this.setPosition(pSceneTouchEvent.getX() - this.getWidth() / 2, pSceneTouchEvent.getY() - this.getHeight() / 2);
-				}
-				return true;
-			}
+		for(mBoxSpriteCount=0; mBoxSpriteCount < alphabet.length; mBoxSpriteCount++){
 			
-		};	
+			mBox[mBoxSpriteCount] = new Sprite((CAMERA_WIDTH/(alphabet.length+1))*(mBoxSpriteCount+1) 
+					- mBoxTexture.getWidth()/2, CAMERA_HEIGHT-mBoxTexture.getWidth()- CAMERA_HEIGHT/10, this.mBoxTextureRegion);
+			mScene.getTopLayer().addEntity(mBox[mBoxSpriteCount]);
+		}
 		
-		word.setScale(4);
-		scene.getTopLayer().addEntity(word);
-		scene.registerTouchArea(word);
-		scene.setTouchAreaBindingEnabled(true);
+		for(mWordSpriteCount=0; mWordSpriteCount < alphabet.length; mWordSpriteCount++){
+			mWord[mWordSpriteCount] = new Sprite((CAMERA_WIDTH/(alphabet.length+1))*(mWordSpriteCount+1) 
+					- mBoxTexture.getWidth()/2, 50, this.mFaceTextureRegion) {
+				@Override
+				public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+					if (pSceneTouchEvent.getAction() == MotionEvent.ACTION_UP){
+						Log.e("WOORAM", "Index="+ mCurrentCollideBoxIdx + " m_bCollide="+m_bCollide);
+						if (!m_bCollide[mCurrentCollideBoxIdx])
+							return true;						
+						this.setPosition(mBox[mCurrentCollideBoxIdx].getX(), mBox[mCurrentCollideBoxIdx].getY());
+					}else{
+						mCurrentTouchedWord = this;
+						this.setPosition(pSceneTouchEvent.getX() - this.getWidth() / 2, pSceneTouchEvent.getY() - this.getHeight() / 2);
+					}
+					return true;
+				}			
+			};	
+			mScene.getTopLayer().addEntity(mWord[mWordSpriteCount]);
+			mScene.registerTouchArea(mWord[mWordSpriteCount]);
+			mScene.setTouchAreaBindingEnabled(true);
+		}
 		
 		/* The actual collision-checking. */
-		scene.registerUpdateHandler(new IUpdateHandler() {
+		mScene.registerUpdateHandler(new IUpdateHandler() {
 
 			@Override
 			public void reset() { }
 
 			@Override
 			public void onUpdate(final float pSecondsElapsed) {
-				if(word.collidesWith(mbox)) {
-					mbox.setColor(0, 0, 1);
-					m_bCollide = true;
-				} else {
-					mbox.setColor(0, 1, 0);
-					m_bCollide = false;
+
+				for(int i=0; i < alphabet.length; i++ ){
+					if (mCurrentTouchedWord == null)
+						break;
+					if(mCurrentTouchedWord.collidesWith(mBox[i])) {
+						mBox[i].setColor(0, 0, 1);
+						Log.e("WOORAM", "onUpdate Index="+ mCurrentCollideBoxIdx);
+						mCurrentCollideBoxIdx = i;
+						mCurrentCollideBox = mBox[mCurrentCollideBoxIdx];
+						m_bCollide[i] = true;
+					} else {
+						Log.e("WOORAM", "onUpdate m_bCollide set falase");
+						m_bCollide[i] = false;
+						mBox[i].setColor(1, 1, 1);
+					}
+
+
 				}
 			}
 		});
-
-		return scene;
 	}
 
 	@Override
