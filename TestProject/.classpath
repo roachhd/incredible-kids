@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry exported="true" kind="lib" path="/Users/iam1492/Documents/workspace/IncredibleKids/lib/andengine.jar"/>
+	<classpathentry exported="true" kind="lib" path="/Users/iam1492/Documents/workspace/IncredibleKids/lib/andenginephysicsbox2dextension.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="lib" path="D:/DevTools/Libraries/andengine/andengine.jar"/>
-	<classpathentry kind="lib" path="D:/DevTools/Libraries/andengine/andenginephysicsbox2dextension.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

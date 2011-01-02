@@ -1,5 +1,7 @@
 package com.test;
 
+import java.util.ArrayList;
+
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.camera.Camera;
 import org.anddev.andengine.engine.handler.IUpdateHandler;
@@ -38,10 +40,11 @@ public class TouchDragExample extends BaseGameActivity {
 	// ===========================================================
 
 	private Camera mCamera;
-	private Texture  mWordTexture;
+	//private Texture  mWordTexture;
 	private Texture  mBoxTexture;
-	private TextureRegion mFaceTextureRegion;
+	//private TextureRegion mFaceTextureRegion;
 	private TextureRegion mBoxTextureRegion;
+	
 	private Scene mScene;
 	private Sprite [] mBox;
 	private Sprite [] mWord;
@@ -50,10 +53,20 @@ public class TouchDragExample extends BaseGameActivity {
 	private int mBoxSpriteCount;
 	private int mWordSpriteCount;
 	private int mCurrentCollideBoxIdx;
+	
+	private ArrayList <AlphabetItem> arrItem;
+	
+	
+	//match
+	private int mCardCount;
 
+	//alphabet
+	private Texture [] mAlphabet;
+	private TextureRegion [] mAlphabetTexture;
 
 	private static boolean [] m_bCollide = null;
 
+	public final static int CENTER_OFFSET = 10;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -70,6 +83,7 @@ public class TouchDragExample extends BaseGameActivity {
 	public Engine onLoadEngine() {
 		CAMERA_WIDTH = getLCDWidth();
 		CAMERA_HEIGHT = getLCDHeight();
+		arrItem = new ArrayList<AlphabetItem>();
 		Log.e("Wooram", "width="+CAMERA_WIDTH + " height="+CAMERA_HEIGHT);
 		mCurrentCollideBoxIdx = 0;
 		this.mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
@@ -92,12 +106,15 @@ public class TouchDragExample extends BaseGameActivity {
 	@Override
 	public void onLoadResources() {
 		TextureRegionFactory.setAssetBasePath("gfx/");
-		this.mWordTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		
+		//this.mWordTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		
 		this.mBoxTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mFaceTextureRegion = TextureRegionFactory.createFromAsset(this.mWordTexture, this, "box1.png", 0, 0);
+		//this.mFaceTextureRegion = TextureRegionFactory.createFromAsset(this.mWordTexture, this, "box1.png", 0, 0);
+		
 		this.mBoxTextureRegion = TextureRegionFactory.createFromAsset(this.mBoxTexture, this, "box2.png", 0, 0);
 
-		this.mEngine.getTextureManager().loadTexture(this.mWordTexture);
+		
 		this.mEngine.getTextureManager().loadTexture(this.mBoxTexture);
 	}
 
@@ -106,12 +123,22 @@ public class TouchDragExample extends BaseGameActivity {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
 		mScene = new Scene(1);
-		String [] alphabet = {"d","o","g","g","k"};
+		String [] alphabet = {"d","o","g"};
 		setScene(alphabet);
 		return mScene;
 	}
+	
 
 	private void setScene(final String [] alphabet){
+		this.mAlphabetTexture = new TextureRegion[alphabet.length];
+		this.mAlphabet = new Texture[alphabet.length];
+		for(int i=0; i<alphabet.length; i++){
+			
+			this.mAlphabet[i] = new Texture(64,64,TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+			this.mEngine.getTextureManager().loadTexture(this.mAlphabet[i]);
+			this.mAlphabetTexture[i] = TextureRegionFactory.createFromAsset(this.mAlphabet[i], this, alphabet[i]+".png", 0, 0);
+		}
+
 		m_bCollide = new boolean[alphabet.length];
 		for (int i=0; i<m_bCollide.length; i++)
 			m_bCollide[i] = false;
@@ -128,13 +155,14 @@ public class TouchDragExample extends BaseGameActivity {
 		
 		for(mWordSpriteCount=0; mWordSpriteCount < alphabet.length; mWordSpriteCount++){
 			mWord[mWordSpriteCount] = new Sprite((CAMERA_WIDTH/(alphabet.length+1))*(mWordSpriteCount+1) 
-					- mBoxTexture.getWidth()/2, 50, this.mFaceTextureRegion) {
+					- mBoxTexture.getWidth()/2, 50, this.mAlphabetTexture[mWordSpriteCount]) {
 				@Override
 				public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 					if (pSceneTouchEvent.getAction() == MotionEvent.ACTION_UP){
 						Log.e("WOORAM", "Index="+ mCurrentCollideBoxIdx + " m_bCollide="+m_bCollide);
 						if (!m_bCollide[mCurrentCollideBoxIdx])
-							return true;						
+							return true;		
+						
 						this.setPosition(mBox[mCurrentCollideBoxIdx].getX(), mBox[mCurrentCollideBoxIdx].getY());
 					}else{
 						mCurrentTouchedWord = this;
@@ -160,14 +188,14 @@ public class TouchDragExample extends BaseGameActivity {
 				for(int i=0; i < alphabet.length; i++ ){
 					if (mCurrentTouchedWord == null)
 						break;
-					if(mCurrentTouchedWord.collidesWith(mBox[i])) {
+					if(isCollide(mCurrentTouchedWord,mBox[i])){//mCurrentTouchedWord.collidesWith(mBox[i])) {
 						mBox[i].setColor(0, 0, 1);
-						Log.e("WOORAM", "onUpdate Index="+ mCurrentCollideBoxIdx);
+						//Log.e("WOORAM", "onUpdate Index="+ mCurrentCollideBoxIdx);
 						mCurrentCollideBoxIdx = i;
 						mCurrentCollideBox = mBox[mCurrentCollideBoxIdx];
 						m_bCollide[i] = true;
 					} else {
-						Log.e("WOORAM", "onUpdate m_bCollide set falase");
+						//Log.e("WOORAM", "onUpdate m_bCollide set falase");
 						m_bCollide[i] = false;
 						mBox[i].setColor(1, 1, 1);
 					}
@@ -176,6 +204,28 @@ public class TouchDragExample extends BaseGameActivity {
 				}
 			}
 		});
+	}
+	
+	private boolean isCollide(Sprite alphabet, Sprite box){
+		if ((getCenterX(alphabet) > getCenterX(box) - CENTER_OFFSET) 
+				&& (getCenterX(alphabet) < getCenterX(box) + CENTER_OFFSET)
+				&& (getCenterY(alphabet) > getCenterY(box) - CENTER_OFFSET) 
+				&& (getCenterY(alphabet) < getCenterY(box) + CENTER_OFFSET)){
+			return true;
+		}
+		return false;
+	}
+	
+	private float getCenterX(Sprite s){
+		return s.getX() + 2/s.getWidth();
+	}
+	
+	private float getCenterY(Sprite s){
+		return s.getY() + 2/s.getHeight();
+	}
+	
+	private boolean isMatched(){
+		return false;
 	}
 
 	@Override
