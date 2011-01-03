@@ -1,3 +1,5 @@
+#summary 단어 정리
+
 나(와 엄마아빠)- 23개
  엄마(mom), 아빠(dad), 가족(family), 얼굴(face), 눈(eye), 코(nose), 입(mouth), 귀(ear), 손(hand), 발(foot), 팔(arm), 다리(leg), 머리(head), 머리카락(hair), 엉덩이(hip), 자다(sleep), 먹다(eat), 웃다(smile), 울다(cry), 안다(hug), 뽀뽀하다(kiss), 똥(poop), 사랑(love)
 
