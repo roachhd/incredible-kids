@@ -2,4 +2,4 @@
  # [ProjectRole 업무 분담]
  # [DevInfo 구현 정보]
  # [CodeStyle 코딩 스타일]
- # [Words 단어정리]
+ # [WordsInfo 단어정리]
