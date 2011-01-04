@@ -1,6 +1,7 @@
 package com.incrediblekids.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -36,21 +37,30 @@ public class MainThemeActivity extends Activity implements OnClickListener {
 	 */
 	@Override
 	public void onClick(View v) {
+		Intent intent;
 		switch(v.getId()) {
 		case R.id.ImageView_theme1:
 			Log.d(TAG, "theme1");
+			intent = new Intent(this, ThemeItemActivity.class);
+			startActivity(intent);
 			break;
 			
 		case R.id.ImageView_theme2:
 			Log.d(TAG, "theme2");
+			intent = new Intent(this, ThemeItemActivity.class);
+			startActivity(intent);
 			break;
 			
 		case R.id.ImageView_theme3:
 			Log.d(TAG, "theme3");
+			intent = new Intent(this, ThemeItemActivity.class);
+			startActivity(intent);
 			break;
 			
 		case R.id.ImageView_theme4:
 			Log.d(TAG, "theme4");
+			intent = new Intent(this, ThemeItemActivity.class);
+			startActivity(intent);
 			break;
 		default:
 			Log.d(TAG, "Error");
