@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent">
+	
+	<ImageView android:id="@+id/ImageView_theme1"
+		android:layout_height="100sp" android:layout_width="100sp"
+		android:background="@drawable/cat" android:layout_alignParentTop="true" android:layout_marginLeft="10dip"
+		android:layout_marginTop="10dip" android:layout_alignParentLeft="true"></ImageView>
+		
+	<ImageView android:id="@+id/ImageView_theme2"
+		android:layout_height="100sp" android:layout_width="100sp"
+		android:background="@drawable/cat" android:layout_alignParentTop="true" android:layout_marginRight="10dip"
+		android:layout_marginTop="10dip" android:layout_alignParentRight="true"></ImageView>
+		
+	<ImageView android:id="@+id/ImageView_theme3"
+		android:layout_height="100sp" android:layout_width="100sp"
+		android:background="@drawable/cat" android:layout_alignParentLeft="true"
+		android:layout_alignParentBottom="true" android:layout_marginLeft="10dip"
+		android:layout_marginBottom="10dip"></ImageView>
+		
+	<ImageView android:id="@+id/ImageView_theme4"
+		android:layout_height="100sp" android:layout_width="100sp"
+		android:background="@drawable/cat" android:layout_alignParentRight="true"
+		android:layout_alignParentBottom="true" android:layout_marginRight="10dip"
+		android:layout_marginBottom="10dip"></ImageView>
+		
+	<ImageView android:id="@+id/ImageView_center"
+		android:layout_height="100sp" android:layout_width="100sp"
+		android:background="@drawable/cat" android:layout_centerInParent="true"></ImageView>
+</RelativeLayout>
