@@ -57,6 +57,15 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	public static int CAMERA_WIDTH;
 	public static int CAMERA_HEIGHT;
 
+	public final static int CENTER_OFFSET = 36;
+	public final static int BOTTOM_LAYER = 0;
+	public final static int TOP_LAYER = 1;
+	public final static int MENU_RESET = 0;
+	public final static int MENU_QUIT = MENU_RESET + 1;
+	public final static String TAG = "TouchDragExample";
+	
+	public final static String [] ARR_ANIMAL = {"monkey", "lion", "tiger"};
+
 	// ===========================================================
 	// Fields
 	// ===========================================================
@@ -87,6 +96,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	private Sprite m_Item;
 	private Texture  m_ItemTexture;
 	private TextureRegion m_ItemTextureRegion;
+	private int m_iCurrentItemNum;
 
 	private Scene m_Scene;
 	private Scene m_MenuScene;
@@ -101,23 +111,16 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 
 	private static boolean [] m_bCollide = null;
 
-	//Constant
-	public final static int CENTER_OFFSET = 36;
-	public final static int BOTTOM_LAYER = 0;
-	public final static int TOP_LAYER = 1;
-	
-	public final static int MENU_RESET = 0;
-	public final static int MENU_QUIT = MENU_RESET + 1;
-	
-	public final static String TAG = "TouchDragExample";
 	
 	@Override
 	public Engine onLoadEngine() {
+		m_iCurrentItemNum = 0;
 		CAMERA_WIDTH = getLCDWidth();
 		CAMERA_HEIGHT = getLCDHeight();
-		m_strAlphabet = "tiger";
+		m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
 		m_iCurrentCollideBoxIdx = 0;
 		this.m_Camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+		
 		return new Engine(new EngineOptions(true, ScreenOrientation.LANDSCAPE, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), this.m_Camera).setNeedsMusic(true).setNeedsSound(true));
 
 	}
@@ -125,6 +128,18 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	@Override
 	public void onLoadResources() {
 		Log.e(TAG, "onLoadResources()");
+		
+		MusicFactory.setAssetBasePath("mfx/");		
+		try {
+			this.m_Music = MusicFactory.createMusicFromAsset(this.mEngine.getMusicManager(), this, "background.wav");
+			this.m_Music.setLooping(true);
+			this.m_Music.setVolume(0.5f);
+		} catch (final IOException e) {
+			Debug.e("Error", e);
+		}
+		if(m_Music != null && !m_Music.isPlaying()) {
+			m_Music.play();
+		}
 		
 		//Load font
 		FontFactory.setAssetBasePath("font/");
@@ -145,16 +160,6 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		this.mEngine.getTextureManager().loadTexture(this.m_ItemTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_PauseTexture);
 
-		//Load Music and Sound
-		MusicFactory.setAssetBasePath("mfx/");
-		SoundFactory.setAssetBasePath("mfx/");
-		try {
-			this.m_Music = MusicFactory.createMusicFromAsset(this.mEngine.getMusicManager(), this, "background.wav");
-			this.m_Music.setLooping(true);
-			this.m_ItemSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "explosion.ogg");
-		} catch (final IOException e) {
-			Debug.e("Error", e);
-		}
 	}
 
 	@Override
@@ -177,9 +182,6 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		m_Scene.setBackground(new ColorBackground(0.09804f, 0.6274f, 0.8784f));
 
 		m_MenuScene = this.createMenuScene();
-		if(m_Music != null && !m_Music.isPlaying()) {
-			m_Music.play();
-		}
 		
 		//Add all the entities
 		this.updateScene();
@@ -242,6 +244,16 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	
 	//Update scene with new entities.
 	private void updateScene(){
+		
+		//Load Sound
+		SoundFactory.setAssetBasePath("mfx/");
+		try {
+			this.m_ItemSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, m_strAlphabet+".mp3");
+			this.m_ItemSound.setVolume(1.0f);
+		} catch (final IOException e) {
+			Debug.e("Error", e);
+		}
+		
 		Log.e(TAG, "updateScene()");
 		//Check the collision
 		m_bCollide = new boolean[m_strAlphabet.length()];
@@ -337,7 +349,8 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 						
 						//reset screen to next item when user clear the stage
 						if(isStageCleared(m_arrAlphabetSprite)){
-							m_strAlphabet = "lion";
+							if (m_iCurrentItemNum < ARR_ANIMAL.length)
+								m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
 							resetScreen();
 							Toast.makeText(ThemeItemActivity.this, "Stage cleared", Toast.LENGTH_SHORT).show();
 						}
@@ -371,7 +384,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 
 			@Override
 			public void onUpdate(final float pSecondsElapsed) {
-				for(int i=0; i < m_strAlphabet.length(); i++ ){
+				for(int i=0; i < m_arrBoxSprite.length; i++ ){
 
 					if (m_CurrentTouchedAlphabetSprite == null){
 						m_arrBoxSprite[i].setColor(1, 1, 1);
