@@ -59,7 +59,7 @@ public class MainThemeActivity extends Activity implements OnClickListener {
 			
 		case R.id.ImageView_theme4:
 			Log.d(TAG, "theme4");
-			intent = new Intent(this, ThemeItemActivity.class);
+			intent = new Intent(this, SummaryQuiz.class);
 			startActivity(intent);
 			break;
 		default:
