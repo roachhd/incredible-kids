@@ -278,7 +278,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 							m_arrBoxSprite[i].setbFilled(false);
 							m_arrBoxSprite[i].setbCorrect(false);
 							m_arrBoxSprite[i].setFilledAlphabetIndex(-1);
-							return true;
+							//return true;
 						}
 						
 						if(!m_arrBoxSprite[i].isFilled()){
