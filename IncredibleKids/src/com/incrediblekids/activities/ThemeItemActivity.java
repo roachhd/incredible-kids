@@ -50,8 +50,8 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	// Constants
 	// ===========================================================
 
-	public static int CAMERA_WIDTH;
-	public static int CAMERA_HEIGHT;
+	public final static int CAMERA_WIDTH = 480;
+	public final static int CAMERA_HEIGHT = 320;
 
 	public final static int CENTER_OFFSET = 36;
 	public final static int BOTTOM_LAYER = 0;
@@ -71,7 +71,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	//Empty Boxes to fill alphabet.
 	private Texture  m_BoxTexture;
 	private TextureRegion m_BoxTextureRegion;
-	private Sprite [] m_arrBoxSprite;
+	private AlphabetSprite [] m_arrBoxSprite;
 	private int m_iBoxSpriteCount;
 	private int m_iCurrentCollideBoxIdx;
 
@@ -81,7 +81,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	private TextureRegion [] m_arrAlphabetTexture;
 	private AlphabetSprite [] m_arrAlphabetSprite;
 	private int m_iAlphabetSpriteCount;
-	private Sprite m_CurrentTouchedAlphabetSprite;
+	private AlphabetSprite m_CurrentTouchedAlphabetSprite;
 
 	//Pause button Sprite
 	private Texture m_PauseTexture;
@@ -110,14 +110,22 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	private Texture m_FontTexture;
 	private Font m_Font;
 
-	private static boolean [] m_bCollide = null;
+	private Random randomX;
+	private Random randomY;
 
+	private int xRange;
+	private int yRange;
 
 	@Override
 	public Engine onLoadEngine() {
 		m_iCurrentItemNum = 0;
-		CAMERA_WIDTH = 480;//getLCDWidth();
-		CAMERA_HEIGHT = 320;//getLCDHeight();
+
+		randomX = new Random();
+		randomY = new Random();
+
+//		CAMERA_WIDTH = getLCDWidth();
+//		CAMERA_HEIGHT = getLCDHeight();
+		
 		m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
 		m_iCurrentCollideBoxIdx = 0;
 		this.m_Camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
@@ -164,7 +172,10 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		this.mEngine.getTextureManager().loadTexture(this.m_ItemTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_PauseTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_HelpTexture);
-
+		
+		//Range of random x and y axis
+		xRange = CAMERA_WIDTH - m_BoxTexture.getWidth() * 2;
+		yRange = CAMERA_HEIGHT - CAMERA_HEIGHT/3 - m_BoxTexture.getHeight();
 	}
 
 	@Override
@@ -257,7 +268,20 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 				Log.e(TAG, "onAreaTouched");
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
 					for (int i=0; i < m_arrAlphabetSprite.length; i++){
-						if(!m_arrAlphabetSprite[i].isFilled()){
+						Log.e(TAG, "m_arrAlphabetSprite[i].isFilled():"+m_arrAlphabetSprite[i].isFilled()+"m_arrAlphabetSprite[i].isCorrect():"+m_arrAlphabetSprite[i].isCorrect());
+						if(m_arrBoxSprite[i].isFilled() && !m_arrBoxSprite[i].isCorrect()){
+
+							m_arrAlphabetSprite[m_arrBoxSprite[i].getFilledAlphabetIndex()].addShapeModifier(new MoveModifier(2,
+									m_arrBoxSprite[i].getX(), randomX.nextInt(xRange),
+									m_arrBoxSprite[i].getY(), randomY.nextInt(yRange),
+									EaseElasticOut.getInstance()));
+							m_arrBoxSprite[i].setbFilled(false);
+							m_arrBoxSprite[i].setbCorrect(false);
+							m_arrBoxSprite[i].setFilledAlphabetIndex(-1);
+							return true;
+						}
+						
+						if(!m_arrBoxSprite[i].isFilled()){
 							Log.e(TAG, "help work!!");
 							float boxX = m_arrBoxSprite[i].getX();
 							float boxY = m_arrBoxSprite[i].getY();
@@ -267,25 +291,33 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 									m_arrAlphabetSprite[i].getX(), boxX + (boxWidth/2 - m_arrAlphabetSprite[i].getWidth()/2),
 									m_arrAlphabetSprite[i].getY(), boxY + (boxHeight/2 - m_arrAlphabetSprite[i].getHeight()/2),
 									EaseElasticOut.getInstance()));
+							for (int j=0; j < m_arrBoxSprite.length; j++){
+								if(m_arrBoxSprite[j].getFilledAlphabetIndex() == i){
+									m_arrBoxSprite[j].setbFilled(false);
+									m_arrBoxSprite[j].setbCorrect(false);
+									m_arrBoxSprite[j].setFilledAlphabetIndex(-1);
+								}
+							}
+								
+							m_arrBoxSprite[i].setbFilled(true);
+							m_arrBoxSprite[i].setbCorrect(true);
+							m_arrBoxSprite[i].setFilledAlphabetIndex(i);
 
-							m_arrAlphabetSprite[i].setbFilled(true);
-							m_arrAlphabetSprite[i].setbCorrect(true);
+							//reset screen to next item when user clear the stage
+							if(isStageCleared(m_arrBoxSprite)){
+								if (m_iCurrentItemNum < ARR_ANIMAL.length)
+									m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
+								//Not a good solution!!!!
 
-							//Not a good solution!!!!
-							if (i == m_arrAlphabetSprite.length - 1){
 								try {
 									Thread.sleep(1500);
 								} catch (InterruptedException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
-							}
-							//reset screen to next item when user clear the stage
-							if(isStageCleared(m_arrAlphabetSprite)){
-								if (m_iCurrentItemNum < ARR_ANIMAL.length)
-									m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
+
 								resetScreen();
-								Toast.makeText(ThemeItemActivity.this, "Stage cleared", Toast.LENGTH_SHORT).show();
+								Toast.makeText(ThemeItemActivity.this, "Stage cleared with helper", Toast.LENGTH_SHORT).show();
 							}
 							m_CurrentTouchedAlphabetSprite = null;
 							break;
@@ -334,10 +366,6 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		}
 
 		Log.e(TAG, "updateScene()");
-		//Check the collision
-		m_bCollide = new boolean[m_strAlphabet.length()];
-		for (int i=0; i<m_bCollide.length; i++)
-			m_bCollide[i] = false;
 
 		//Add ThemeItem Sprite to Scene
 		this.m_ItemTextureRegion = TextureRegionFactory.createFromAsset(this.m_ItemTexture, this, m_strAlphabet+".png", 0, 0);
@@ -355,10 +383,10 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		m_Scene.getTopLayer().addEntity(m_Item);
 
 		//Load Box Sprite to scene.
-		m_arrBoxSprite = new Sprite[m_strAlphabet.length()];
+		m_arrBoxSprite = new AlphabetSprite[m_strAlphabet.length()];
 		for(m_iBoxSpriteCount=0; m_iBoxSpriteCount < m_strAlphabet.length(); m_iBoxSpriteCount++){
-			m_arrBoxSprite[m_iBoxSpriteCount] = new Sprite((CAMERA_WIDTH/(m_strAlphabet.length()+1))*(m_iBoxSpriteCount+1) 
-					- m_BoxTexture.getWidth()/2, CAMERA_HEIGHT-m_BoxTexture.getWidth()- CAMERA_HEIGHT/10, this.m_BoxTextureRegion);
+			m_arrBoxSprite[m_iBoxSpriteCount] = new AlphabetSprite((CAMERA_WIDTH/(m_strAlphabet.length()+1))*(m_iBoxSpriteCount+1) 
+					- m_BoxTexture.getWidth()/2, CAMERA_HEIGHT-m_BoxTexture.getWidth()- CAMERA_HEIGHT/10, this.m_BoxTextureRegion, m_iBoxSpriteCount);
 			m_Scene.getTopLayer().addEntity(m_arrBoxSprite[m_iBoxSpriteCount]);
 		}
 
@@ -372,11 +400,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 			this.mEngine.getTextureManager().loadTexture(this.m_arrAlphabet[i]);
 			this.m_arrAlphabetTexture[i] = TextureRegionFactory.createFromAsset(this.m_arrAlphabet[i], this, m_strAlphabet.charAt(i)+".png", 0, 0);
 		}
-		final Random randomX = new Random();
-		final Random randomY = new Random();
 
-		int xRange = CAMERA_WIDTH - m_BoxTexture.getWidth() * 2;
-		int yRange = CAMERA_HEIGHT - CAMERA_HEIGHT/3 - m_BoxTexture.getHeight();
 		//(CAMERA_WIDTH/(m_strAlphabet.length()+1))*(m_iAlphabetSpriteCount+1) - m_BoxTexture.getWidth()/2, 50, 
 		for(m_iAlphabetSpriteCount=0; m_iAlphabetSpriteCount < m_strAlphabet.length(); m_iAlphabetSpriteCount++){
 			m_arrAlphabetSprite[m_iAlphabetSpriteCount] = new AlphabetSprite(randomX.nextInt(xRange),
@@ -387,29 +411,48 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 
 						//Change to original Size
 						this.setScale(1.0f);
-
+						Log.e(TAG, "now Collide in Action up?:" + this.isbCollied());
+						
 						//Collision Check
-						if (!m_bCollide[m_iCurrentCollideBoxIdx]){
-							this.setbFilled(false);	
-							this.setbCorrect(false);
+						if (!this.isbCollied()){
+							Log.e(TAG, "sprite is now Collide when Action up");
+							for (int i = 0; i < m_arrBoxSprite.length; i++){
+								if(m_arrBoxSprite[i].getFilledAlphabetIndex() == this.getSequence()){
+									m_arrBoxSprite[i].setbFilled(false);
+									m_arrBoxSprite[i].setbCorrect(false);
+									break;
+								}
+							}
+							m_CurrentTouchedAlphabetSprite = null;
 							return true;		
 						}	
+						
+						if (m_arrBoxSprite[m_iCurrentCollideBoxIdx].isFilled()){
+							this.addShapeModifier(new MoveModifier(2,
+									this.getX(), randomX.nextInt(xRange),
+									this.getY(), randomY.nextInt(yRange),
+									EaseElasticOut.getInstance()));
+							m_CurrentTouchedAlphabetSprite = null;
+							return true;
+						}
 
 						float boxX = m_arrBoxSprite[m_iCurrentCollideBoxIdx].getX();
 						float boxY = m_arrBoxSprite[m_iCurrentCollideBoxIdx].getY();
 						float boxWidth = m_arrBoxSprite[m_iCurrentCollideBoxIdx].getWidth();
 						float boxHeight = m_arrBoxSprite[m_iCurrentCollideBoxIdx].getHeight();
 						this.setPosition(boxX + (boxWidth/2 - this.getWidth()/2), boxY + (boxHeight/2 - this.getHeight()/2));
-						this.setbFilled(true);
-
+						
+						m_arrBoxSprite[m_iCurrentCollideBoxIdx].setbFilled(true);
+						m_arrBoxSprite[m_iCurrentCollideBoxIdx].setFilledAlphabetIndex(this.getSequence());
+						
 						//set bCorret to true if user position the alphabet to right box.
 						if(this.getSequence() == m_iCurrentCollideBoxIdx)
-							this.setbCorrect(true);
+							m_arrBoxSprite[m_iCurrentCollideBoxIdx].setbCorrect(true);	
 						else
-							this.setbCorrect(false);
+							m_arrBoxSprite[m_iCurrentCollideBoxIdx].setbCorrect(false);
 
 						//reset screen to next item when user clear the stage
-						if(isStageCleared(m_arrAlphabetSprite)){
+						if(isStageCleared(m_arrBoxSprite)){
 							if (m_iCurrentItemNum < ARR_ANIMAL.length)
 								m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
 							resetScreen();
@@ -446,7 +489,6 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 			@Override
 			public void onUpdate(final float pSecondsElapsed) {
 				for(int i=0; i < m_arrBoxSprite.length; i++ ){
-
 					if (m_CurrentTouchedAlphabetSprite == null){
 						m_arrBoxSprite[i].setColor(1, 1, 1);
 						continue;
@@ -454,10 +496,11 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 					if(isCollide(m_CurrentTouchedAlphabetSprite,m_arrBoxSprite[i])){
 						m_arrBoxSprite[i].setColor(0, 0, 1);
 						m_iCurrentCollideBoxIdx = i;
-						m_bCollide[i] = true;
-					} else {
-						m_arrBoxSprite[i].setColor(1, 1, 1);
-						m_bCollide[i] = false;						
+						m_CurrentTouchedAlphabetSprite.setbCollied(true);					
+					} else if(m_iCurrentCollideBoxIdx == i && !isCollide(m_CurrentTouchedAlphabetSprite,m_arrBoxSprite[i])) {
+						m_arrBoxSprite[i].setColor(1, 1, 1);		
+						m_CurrentTouchedAlphabetSprite.setbCollied(false);
+						Log.e(TAG, m_CurrentTouchedAlphabetSprite.getSequence() + " is Collide become:" + String.valueOf(m_arrAlphabetSprite[m_CurrentTouchedAlphabetSprite.getSequence()].isbCollied()));
 					}
 				}
 			}
