@@ -315,7 +315,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 				}
 				return true;
 			}
-		};
+		}; 
 		m_Scene.getTopLayer().addEntity(m_PauseSprite);
 		m_Scene.registerTouchArea(m_PauseSprite);
 	}
