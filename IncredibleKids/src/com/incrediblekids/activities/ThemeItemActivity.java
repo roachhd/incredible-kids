@@ -56,8 +56,8 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	// Constants
 	// ===========================================================
 
-	public final static int CAMERA_WIDTH = 480;
-	public final static int CAMERA_HEIGHT = 320;
+	public final static int CAMERA_WIDTH = 800;
+	public final static int CAMERA_HEIGHT = 480;
 
 	public final static int CENTER_OFFSET = 36;
 	public final static int BOTTOM_LAYER = 0;
@@ -66,13 +66,18 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	public final static int MENU_QUIT = MENU_RESET + 1;
 	public final static String TAG = "TouchDragExample";
 
-	public final static String [] ARR_ANIMAL = {"monkey", "lion", "tiger"};
+	public final static String [] ARR_ANIMAL = {"sheep", "lion", "tiger"};
 
 	// ===========================================================
 	// Fields
 	// ===========================================================
 
 	private Camera m_Camera;
+	
+	//Background image
+	private Texture m_BackgroundTexture;
+	private TextureRegion m_BackgroundTextureRegion;
+	private Sprite m_BackgroundSprite;
 
 	//Empty Boxes to fill alphabet.
 	private Texture  m_BoxTexture;
@@ -176,11 +181,16 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 
 		//Load Texture
 		TextureRegionFactory.setAssetBasePath("gfx/");
+
+		//Load Background
+		this.m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromAsset(this.m_BackgroundTexture, this, "background.png", 0, 0);
+		
 		this.m_PauseTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);		
-		this.m_BoxTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_ItemTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_BoxTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_ItemTexture = new Texture(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_PauseTextureRegion = TextureRegionFactory.createFromAsset(this.m_PauseTexture, this, "pause.png",0,0);
-		this.m_BoxTextureRegion = TextureRegionFactory.createFromAsset(this.m_BoxTexture, this, "box2.png", 0, 0);
+		this.m_BoxTextureRegion = TextureRegionFactory.createFromAsset(this.m_BoxTexture, this, "box.png", 0, 0);
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_HelpTextureRegion = TextureRegionFactory.createFromAsset(this.m_HelpTexture, this, "help.png", 0, 0);
 
@@ -192,6 +202,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		this.m_FailTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_FailTextureRegion = TextureRegionFactory.createFromAsset(this.m_FailTexture, this, "fail_128.png", 0, 0);
 
+		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_BoxTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_ItemTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_PauseTexture);
@@ -287,6 +298,9 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 
 	//Create base object
 	private void createBaseSprite(){
+		
+		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
+		m_Scene.getTopLayer().addEntity(m_BackgroundSprite);
 		
 		this.m_PassSprite = new Sprite(
 				CAMERA_WIDTH/2-(this.m_PassTexture.getWidth()/2),
@@ -395,7 +409,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		//Load Sound
 		SoundFactory.setAssetBasePath("mfx/");
 		try {
-			this.m_ItemSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, m_strAlphabet+".mp3");
+			this.m_ItemSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "monkey.mp3");//m_strAlphabet+".mp3");
 			this.m_ItemSound.setVolume(1.0f);
 		} catch (final IOException e) {
 			Debug.e("Error", e);
@@ -433,7 +447,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		m_arrAlphabetSprite = new AlphabetSprite[m_strAlphabet.length()];
 
 		for(int i=0; i<m_strAlphabet.length(); i++){
-			this.m_arrAlphabet[i] = new Texture(64,64,TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+			this.m_arrAlphabet[i] = new Texture(128,128,TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 			this.mEngine.getTextureManager().loadTexture(this.m_arrAlphabet[i]);
 			this.m_arrAlphabetTexture[i] = TextureRegionFactory.createFromAsset(this.m_arrAlphabet[i], this, m_strAlphabet.charAt(i)+".png", 0, 0);
 		}
