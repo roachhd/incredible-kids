@@ -2,3 +2,4 @@
 
 = UI Guideline =
 
+http://incredible-kids.googlecode.com/files/image1.png
