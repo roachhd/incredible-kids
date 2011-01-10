@@ -1,4 +1,5 @@
-#summary 디자인 개략 가이드라인
+#summary 디자인 관련
+#sidebar TOC
 
 = UI Guideline =
 
