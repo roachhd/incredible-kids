@@ -66,7 +66,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	public final static int MENU_QUIT = MENU_RESET + 1;
 	public final static String TAG = "TouchDragExample";
 
-	public final static String [] ARR_ANIMAL = {"sheep", "lion", "tiger"};
+	public final static String [] ARR_ANIMAL = {"dog","bear", "cat", "dog", "monkey", "lion", "mouse", "bird"};
 
 	// ===========================================================
 	// Fields
@@ -201,11 +201,11 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 
 		//Load Background
 		this.m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromAsset(this.m_BackgroundTexture, this, "background.png", 0, 0);
+		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromAsset(this.m_BackgroundTexture, this, "background_2.png", 0, 0);
 		
 		this.m_PauseTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);		
 		this.m_BoxTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_ItemTexture = new Texture(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_ItemTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_PauseTextureRegion = TextureRegionFactory.createFromAsset(this.m_PauseTexture, this, "pause.png",0,0);
 		this.m_BoxTextureRegion = TextureRegionFactory.createFromAsset(this.m_BoxTexture, this, "box.png", 0, 0);
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -450,7 +450,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 			}
 		};
 
-		m_Item.setScale(1.5f);
+		//m_Item.setScale(1f);
 		m_Scene.getTopLayer().addEntity(m_Item);
 
 		//Load Box Sprite to scene.
