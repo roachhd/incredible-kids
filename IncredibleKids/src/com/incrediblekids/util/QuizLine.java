@@ -25,7 +25,7 @@ public class QuizLine extends Line {
 		if(pObject instanceof RectangularShape) {
 			
 			final RectangularShape pOtherRectangularShape = (RectangularShape) pObject;
-			final Rectangle pRectangle = new Rectangle(this.getX1(), this.getY1(), this.getWidth(), this.getHeight());
+			final Rectangle pRectangle = new Rectangle(this.getX2(), this.getY2(), 2, 2);
 					
 			Log.d(TAG, "pRectangle x: " + pRectangle.getX());
 			Log.d(TAG, "pRectangle y: " + pRectangle.getY());

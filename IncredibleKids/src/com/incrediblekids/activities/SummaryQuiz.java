@@ -34,7 +34,7 @@ public class SummaryQuiz extends BaseGameActivity {
 	// ===========================================================
 	private static final String TAG = "SummaryQuiz";
 	private static final int THEME_ITEM_COUNT = 3;
-	private static final int WORD_ITEM_COUNT = 5;
+	private static final int WORD_ITEM_COUNT = 3;
 	
 	public static int CAMERA_WIDTH;
 	public static int CAMERA_HEIGHT;
@@ -239,6 +239,7 @@ public class SummaryQuiz extends BaseGameActivity {
 		wordPosition 		= ((WORD_ITEM_HEIGHT) - m_WordItemTextureRegion[0].getHeight() + WORD_GAP_HEIGHT) * WORD_ITEM_SCALE;
 		
 		rightItemPosition	= CAMERA_WIDTH - m_WordItemTextureRegion[0].getWidth();
+		leftPosition 		= 0;
 		themePosition = 0;
 		wordPosition = 0;
 		
