@@ -66,7 +66,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	public final static int MENU_QUIT = MENU_RESET + 1;
 	public final static String TAG = "TouchDragExample";
 
-	public final static String [] ARR_ANIMAL = {"dog","bear", "cat", "dog", "monkey", "lion", "mouse", "bird"};
+	public final static String [] ARR_ANIMAL = {"dog","bear", "cat", "monkey", "lion", "mouse", "bird"};
 
 	// ===========================================================
 	// Fields
@@ -454,11 +454,14 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		m_Scene.getTopLayer().addEntity(m_Item);
 
 		//Load Box Sprite to scene.
+		int length = m_strAlphabet.length();
 		m_arrBoxSprite = new AlphabetSprite[m_strAlphabet.length()];
-		for(m_iBoxSpriteCount=0; m_iBoxSpriteCount < m_strAlphabet.length(); m_iBoxSpriteCount++){
-			m_arrBoxSprite[m_iBoxSpriteCount] = new AlphabetSprite((CAMERA_WIDTH/(m_strAlphabet.length()+1))*(m_iBoxSpriteCount+1) 
-					- m_BoxTexture.getWidth()/2, CAMERA_HEIGHT-m_BoxTexture.getWidth()- CAMERA_HEIGHT/10, this.m_BoxTextureRegion, m_iBoxSpriteCount);
-			m_Scene.getTopLayer().addEntity(m_arrBoxSprite[m_iBoxSpriteCount]);
+		int divWidth = CAMERA_WIDTH/length;
+		//for(m_iBoxSpriteCount=0; m_iBoxSpriteCount < m_strAlphabet.length(); m_iBoxSpriteCount++){
+		for(int i=0; i < length; i++){
+			m_arrBoxSprite[i] = new AlphabetSprite(divWidth * i + (divWidth-m_BoxTexture.getWidth())/2,
+					CAMERA_HEIGHT-m_BoxTexture.getWidth()- CAMERA_HEIGHT/10, this.m_BoxTextureRegion, i);
+			m_Scene.getTopLayer().addEntity(m_arrBoxSprite[i]);
 		}
 
 		//Load Alphabet Sprite to scene
