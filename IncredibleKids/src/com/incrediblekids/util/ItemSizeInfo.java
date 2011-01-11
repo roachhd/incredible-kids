@@ -14,17 +14,26 @@ public class ItemSizeInfo {
 	private static int m_iGapHeight;
 	private static int m_iLcdHeight;
 	private static int m_iLcdWidth;
+	private static int m_iMarginHeight;
 	
-	private final int ITEM_COUNT = 5;
+	private int m_iItemCount;
 	
 	private float m_fItemScale;
 
-	public ItemSizeInfo(Context mContext) {
+	public ItemSizeInfo(Context mContext, int mItemCount) {
 		Log.d(TAG, "ItemSizeInfo()");
 		m_Context = mContext;
+		m_iItemCount = mItemCount;
 		
 		measureLcdSize();
 		measureItemSize();
+		measureMarginHeight();
+	}
+
+	private void measureMarginHeight() {
+		Log.d(TAG, "measureMarginHeight()");
+		
+		m_iMarginHeight = (m_iLcdHeight - (m_iItemHeight + m_iGapHeight) * m_iItemCount - m_iGapHeight)/2;
 	}
 
 	private void measureLcdSize() {
@@ -36,21 +45,25 @@ public class ItemSizeInfo {
 
 	private void measureItemSize() {
 		Log.d(TAG, "measureItemSize()");
-		m_iItemHeight = m_iLcdHeight / ITEM_COUNT;
-		if(m_iLcdHeight % ITEM_COUNT == 0) {
-			m_iItemHeight = m_iLcdHeight / (ITEM_COUNT + 1);
+		m_iItemHeight = m_iLcdHeight / m_iItemCount;
+		if(m_iLcdHeight % m_iItemCount == 0) {
+			m_iItemHeight = m_iLcdHeight / (m_iItemCount + 1);
 		}
-		m_iGapHeight = (m_iLcdHeight - (m_iItemHeight * ITEM_COUNT)) / (ITEM_COUNT + 1);
+		m_iGapHeight = (m_iLcdHeight - (m_iItemHeight * m_iItemCount)) / (m_iItemCount + 1);
 	}
 
 	public static int getItemHeight() {
 		return m_iItemHeight;
 	}
-
+	
 	public static int getGapHeight() {
 		return m_iGapHeight;
 	}
-
+	
+	public static int getMarginHeight() {
+		return m_iMarginHeight;
+	}
+	
 	public static int getLcdHeight() {
 		return m_iLcdHeight;
 	}
