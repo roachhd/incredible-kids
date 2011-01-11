@@ -126,7 +126,9 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	//Background Music and sound
 	private Music m_Music;
 	private Sound m_ItemSound;
-
+	private Sound m_DropToBoxSound;
+	private Sound m_HelpSound;
+	private Sound m_FailToDropSound;
 	//Custom Font
 	private Texture m_FontTexture;
 	private Font m_Font;
@@ -159,12 +161,27 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	@Override
 	public void onLoadResources() {
 		Log.e(TAG, "onLoadResources()");
-
+		SoundFactory.setAssetBasePath("mfx/");
+		
+		try {
+			this.m_DropToBoxSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "drop_to_box.ogg");//m_strAlphabet+".mp3");
+			this.m_DropToBoxSound.setVolume(1.0f);
+			
+			this.m_HelpSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "help_drop.ogg");//m_strAlphabet+".mp3");
+			this.m_HelpSound.setVolume(1.0f);
+			
+			this.m_FailToDropSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "fail_to_drop.ogg");
+			this.m_FailToDropSound.setVolume(1.0f);
+			
+		} catch (final IOException e) {
+			Debug.e("Error", e);
+		}
+		
 		MusicFactory.setAssetBasePath("mfx/");		
 		try {
-			this.m_Music = MusicFactory.createMusicFromAsset(this.mEngine.getMusicManager(), this, "background.wav");
+			this.m_Music = MusicFactory.createMusicFromAsset(this.mEngine.getMusicManager(), this, "background_animal.ogg");
 			this.m_Music.setLooping(true);
-			this.m_Music.setVolume(0.5f);
+			this.m_Music.setVolume(0.2f);
 		} catch (final IOException e) {
 			Debug.e("Error", e);
 		}
@@ -318,6 +335,10 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				Log.e(TAG, "onAreaTouched");
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+					
+					//play sound
+					m_HelpSound.play();
+					
 					for (int i=0; i < m_arrAlphabetSprite.length; i++){
 						Log.e(TAG, "m_arrAlphabetSprite[i].isFilled():"+m_arrAlphabetSprite[i].isFilled()+"m_arrAlphabetSprite[i].isCorrect():"+m_arrAlphabetSprite[i].isCorrect());
 						if(m_arrBoxSprite[i].isFilled() && !m_arrBoxSprite[i].isCorrect()){
@@ -407,7 +428,6 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 
 		this.createBaseSprite();
 		//Load Sound
-		SoundFactory.setAssetBasePath("mfx/");
 		try {
 			this.m_ItemSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "monkey.mp3");//m_strAlphabet+".mp3");
 			this.m_ItemSound.setVolume(1.0f);
@@ -478,7 +498,9 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 							return true;		
 						}	
 
-
+						//When drop the alphabet to Box
+						
+						
 						for (int j=0; j < m_arrBoxSprite.length; j++){
 							if(m_arrBoxSprite[j].getFilledAlphabetIndex() == this.getSequence()){
 								m_arrBoxSprite[j].setbFilled(false);
@@ -488,6 +510,8 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 						}
 
 						if (m_arrBoxSprite[m_iCurrentCollideBoxIdx].isFilled()){
+							m_FailToDropSound.play();
+							
 							this.addShapeModifier(new MoveModifier(1,
 									this.getX(), randomX.nextInt(xRange),
 									this.getY(), randomY.nextInt(yRange),
@@ -495,6 +519,9 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 							m_CurrentTouchedAlphabetSprite = null;
 							return true;
 						}
+						
+						//play sound
+						m_DropToBoxSound.play();
 
 						float boxX = m_arrBoxSprite[m_iCurrentCollideBoxIdx].getX();
 						float boxY = m_arrBoxSprite[m_iCurrentCollideBoxIdx].getY();
