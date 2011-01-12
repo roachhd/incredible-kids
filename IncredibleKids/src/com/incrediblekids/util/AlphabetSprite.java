@@ -5,46 +5,21 @@ import org.anddev.andengine.opengl.texture.region.TextureRegion;
 
 public class AlphabetSprite extends Sprite {
 	
-	private int sequence;
-	private boolean bFilled;
-	private boolean bCorrect;
-	private int filledAlphabetIndex;
-	private boolean bCollied;
-
-	public boolean isbCollied() {
-		return bCollied;
-	}
-	public void setbCollied(boolean bCollied) {
-		this.bCollied = bCollied;
-	}
-	public boolean isCorrect() {
-		return bCorrect;
-	}
-	public void setbCorrect(boolean bCorrect) {
-		this.bCorrect = bCorrect;
-	}
-	public AlphabetSprite(float pX, float pY, TextureRegion pTextureRegion, int seq) {
+	public int sequence;
+	public boolean bFilled;
+	public boolean bCorrect;
+	public int filledAlphabetIndex;
+	public boolean bCollied;
+	public char alphabet;
+	public char alphabetContainer;
+	
+	public AlphabetSprite(float pX, float pY, TextureRegion pTextureRegion, int seq, char alphabet) {
 		super(pX, pY, pTextureRegion);
 		this.sequence = seq;
 		this.bCorrect = false;
 		this.bFilled = false;
 		this.bCollied = false;
 		this.filledAlphabetIndex = -1;
+		this.alphabet = alphabet;
 	}
-	public int getFilledAlphabetIndex() {
-		return filledAlphabetIndex;
-	}
-	public void setFilledAlphabetIndex(int filledAlphabetIndex) {
-		this.filledAlphabetIndex = filledAlphabetIndex;
-	}
-	public int getSequence(){
-		return sequence;
-	}
-	public boolean isFilled() {
-		return bFilled;
-	}
-	public void setbFilled(boolean bFilled) {
-		this.bFilled = bFilled;
-	}
-	
 }
