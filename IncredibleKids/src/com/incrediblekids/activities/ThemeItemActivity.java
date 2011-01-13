@@ -537,7 +537,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 			}
 		};
 
-		//m_Item.setScale(1f);
+		m_Item.setScale(1.3f);
 		m_Scene.getLayer(ENTITIES_LAYER).addEntity(m_Item);
 
 		//Load Box Sprite to scene.
