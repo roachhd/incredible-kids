@@ -13,6 +13,7 @@ import org.anddev.andengine.engine.handler.IUpdateHandler;
 import org.anddev.andengine.engine.options.EngineOptions;
 import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.anddev.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
+import org.anddev.andengine.entity.scene.CameraScene;
 import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.scene.background.ColorBackground;
 import org.anddev.andengine.entity.scene.menu.MenuScene;
@@ -120,15 +121,26 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	private Texture  m_HelpTexture;
 	private TextureRegion m_HelpTextureRegion;
 
+	//Pause
 	private Scene m_Scene;
 	private Scene m_MenuScene;
 
+	//Retry 
+	private CameraScene m_RetryScene;
+	private Texture m_RetryTexture;
+	private TextureRegion m_RetryTextureRegion;
+	private Texture m_RetryOkTexture;
+	private TextureRegion m_RetryOkTextureRegion;
+	private Texture m_RetryCancelTexture;
+	private TextureRegion m_RetryCancelTextureRegion;
+	
 	//Background Music and sound
 	private Music m_Music;
 	private Sound m_ItemSound;
 	private Sound m_DropToBoxSound;
 	private Sound m_HelpSound;
 	private Sound m_FailToDropSound;
+	
 	//Custom Font
 	private Texture m_FontTexture;
 	private Font m_Font;
@@ -211,6 +223,15 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_HelpTextureRegion = TextureRegionFactory.createFromAsset(this.m_HelpTexture, this, "help.png", 0, 0);
 
+		//Retry popup texture
+		m_RetryTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
+		m_RetryOkTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
+		m_RetryCancelTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
+		
+		m_RetryTextureRegion = TextureRegionFactory.createFromAsset(this.m_RetryTexture, this, "retry_popup_bg.png",0,0);
+		m_RetryOkTextureRegion = TextureRegionFactory.createFromAsset(this.m_RetryOkTexture, this, "retry_ok_btn.png",0,0);
+		m_RetryCancelTextureRegion = TextureRegionFactory.createFromAsset(this.m_RetryCancelTexture, this, "retry_no_btn.png",0,0);
+		
 		//Load pass texture
 		this.m_PassTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_PassTextureRegion = TextureRegionFactory.createFromAsset(this.m_PassTexture, this, "pass_128.png", 0, 0);
@@ -238,18 +259,72 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		Log.e(TAG, "onLoadScene()");
 
 		this.mEngine.registerUpdateHandler(new FPSLogger());
+		
+		//Make retry scene
+		this.m_RetryScene = new CameraScene(1, this.m_Camera);
+		this.composeRetryScene();
+		this.m_RetryScene.setBackgroundEnabled(false);
 
 		//Make scene
-		m_Scene = new Scene(2);
-		m_Scene.setBackground(new ColorBackground(0.09804f, 0.6274f, 0.8784f));
+		this.m_Scene = new Scene(2);
+		this.m_Scene.setBackground(new ColorBackground(0.09804f, 0.6274f, 0.8784f));
 
-		m_MenuScene = this.createMenuScene();
+		this.m_MenuScene = this.createMenuScene();
 		this.createBaseSprite();
 		//Add all the entities
 		//this.createBaseSprite();
 		this.updateScene();
 
 		return m_Scene;
+	}
+	
+	private void composeRetryScene(){
+		final int OFFSET = 80;	
+		final int width = this.m_RetryTextureRegion.getWidth();
+		final int height = this.m_RetryTextureRegion.getHeight();
+		final int okHeight = this.m_RetryOkTextureRegion.getHeight();
+		final int okWidth = this.m_RetryOkTextureRegion.getWidth();
+		
+		final int x = CAMERA_WIDTH / 2 - width / 2;
+		final int y = CAMERA_HEIGHT / 2 - height / 2;
+		
+		Log.e(TAG, "width="+width+" height="+height);
+		
+		final Sprite retryBGSprite = new Sprite(x , y, this.m_RetryTextureRegion);
+		final Sprite retryOKSprite = new Sprite(x + OFFSET, y + height - okHeight/2, this.m_RetryOkTextureRegion){
+			@Override
+			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+				Log.e(TAG, "onAreaTouched");
+				
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+					m_Scene.clearChildScene();
+					resetScreen();
+
+				}
+				return true;
+			}			
+		};
+		final Sprite retryCancelSprite = new Sprite(x + width - okWidth - OFFSET, y + height - okHeight/2, this.m_RetryCancelTextureRegion){
+			@Override
+			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+				Log.e(TAG, "onAreaTouched");
+				
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+					if (m_iCurrentItemNum < ARR_ANIMAL.length)
+						m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
+					m_Scene.clearChildScene();
+					resetScreen();
+
+				}
+				return true;
+			}	
+		};		
+		
+		this.m_RetryScene.getTopLayer().addEntity(retryBGSprite);
+		this.m_RetryScene.getTopLayer().addEntity(retryOKSprite);
+		this.m_RetryScene.getTopLayer().addEntity(retryCancelSprite);
+		this.m_RetryScene.registerTouchArea(retryOKSprite);
+		this.m_RetryScene.registerTouchArea(retryCancelSprite);
 	}
 
 	//Pause Menu
@@ -263,6 +338,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 
 		final ColoredTextMenuItem quitMenuItem = new ColoredTextMenuItem(MENU_QUIT, this.m_Font, "QUIT", 1.0f,0.0f,0.0f, 0.0f,0.0f,0.0f);
 		quitMenuItem.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		
 		menuScene.addMenuItem(quitMenuItem);
 		menuScene.buildAnimations();
 		menuScene.setBackgroundEnabled(false);
@@ -304,6 +380,9 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		this.mEngine.getTextureManager().loadTexture(this.m_HelpTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_PassTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_FailTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_RetryTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_RetryOkTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_RetryCancelTexture);
 	}
 	
 	private void loadEntityTexture(){
@@ -428,6 +507,8 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	private void updateScene(){
 		
 		loadEntityTexture();
+
+		m_FailSprite.setVisible(true);
 		
 		//re registe touch area for help and pause btn
 		m_Scene.registerTouchArea(m_Help);
@@ -556,11 +637,9 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 								drawResult(m_PassSprite);
 								resetAfterDelay(2500);
 							}
-							else{
-								if (m_iCurrentItemNum < ARR_ANIMAL.length)
-									m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
+							else{								
 								drawResult(m_FailSprite);
-								resetAfterDelay(2500);
+								popupAfterDelay(2500);								
 							}
 						}
 						m_CurrentTouchedAlphabetSprite = null;
@@ -631,6 +710,17 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		}, delayMS);
 	}
 
+	private void popupAfterDelay(int delayMS){
+		Handler mHandler = new Handler();
+		mHandler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				m_FailSprite.setVisible(false);
+				m_Scene.setChildScene(m_RetryScene, false, true, true);
+			}
+		}, delayMS);
+	}
+	
 	@Override
 	public void onLoadComplete() {
 
