@@ -573,7 +573,6 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		Log.e(TAG, "updateScene()");
 
 		//Add ThemeItem Sprite to Scene
-
 		this.m_ItemTextureRegion = TextureRegionFactory.createFromAsset(this.m_ItemTexture, this, m_strAlphabet+".png", 0, 0);
 
 		this.m_Item = new Sprite(CAMERA_WIDTH/2 - m_ItemTextureRegion.getWidth()/2
@@ -609,8 +608,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 			this.mEngine.getTextureManager().loadTexture(this.m_arrAlphabet[i]);
 			this.m_arrAlphabetTexture[i] = TextureRegionFactory.createFromAsset(this.m_arrAlphabet[i], this, m_strAlphabet.charAt(i)+".png", 0, 0);
 		}
-
-		//(CAMERA_WIDTH/(m_strAlphabet.length()+1))*(m_iAlphabetSpriteCount+1) - m_BoxTexture.getWidth()/2, 50, 
+ 
 		for(int j=0; j < m_strAlphabet.length(); j++){
 			m_arrAlphabetSprite[j] = new AlphabetSprite(randomX.nextInt(xRange),
 					randomY.nextInt(yRange), this.m_arrAlphabetTexture[j], j, m_strAlphabet.charAt(j)) {
@@ -848,5 +846,4 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		int height = display.getHeight();
 		return height;
 	}
-
 }
