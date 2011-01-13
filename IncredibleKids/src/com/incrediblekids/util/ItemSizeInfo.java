@@ -10,22 +10,25 @@ public class ItemSizeInfo {
 	
 	private final Context m_Context;
 	
-	private static int m_iItemHeight;
-	private static int m_iGapHeight;
-	private static int m_iLcdHeight;
-	private static int m_iLcdWidth;
-	private static int m_iMarginHeight;
+	private int m_iItemHeight;
+	private int m_iGapHeight;
+	private int m_iLcdHeight;
+	private int m_iLcdWidth;
+	private int m_iMarginHeight;
 	
 	private int m_iItemCount;
 	
 	private float m_fItemScale;
+	
+	public static final int CAMERA_WIDTH 	= 800;
+	public static final int CAMERA_HEIGHT 	= 480;
 
 	public ItemSizeInfo(Context mContext, int mItemCount) {
 		Log.d(TAG, "ItemSizeInfo()");
 		m_Context = mContext;
 		m_iItemCount = mItemCount;
 		
-		measureLcdSize();
+//		measureLcdSize();
 		measureItemSize();
 		measureMarginHeight();
 	}
@@ -33,9 +36,10 @@ public class ItemSizeInfo {
 	private void measureMarginHeight() {
 		Log.d(TAG, "measureMarginHeight()");
 		
-		m_iMarginHeight = (m_iLcdHeight - (m_iItemHeight + m_iGapHeight) * m_iItemCount - m_iGapHeight)/2;
+		m_iMarginHeight = (CAMERA_HEIGHT - (m_iItemHeight + m_iGapHeight) * m_iItemCount - m_iGapHeight)/2;
 	}
 
+	@Deprecated
 	private void measureLcdSize() {
 		Log.d(TAG, "measureLcdSize()");
 		DisplayMetrics displayMetrics = m_Context.getResources().getDisplayMetrics();
@@ -45,31 +49,32 @@ public class ItemSizeInfo {
 
 	private void measureItemSize() {
 		Log.d(TAG, "measureItemSize()");
-		m_iItemHeight = m_iLcdHeight / m_iItemCount;
-		if(m_iLcdHeight % m_iItemCount == 0) {
-			m_iItemHeight = m_iLcdHeight / (m_iItemCount + 1);
+//		m_iItemHeight = m_iLcdHeight / m_iItemCount;
+		m_iItemHeight = CAMERA_HEIGHT / m_iItemCount;
+		if(CAMERA_HEIGHT % m_iItemCount == 0) {
+			m_iItemHeight = CAMERA_HEIGHT / (m_iItemCount + 1);
 		}
-		m_iGapHeight = (m_iLcdHeight - (m_iItemHeight * m_iItemCount)) / (m_iItemCount + 1);
+		m_iGapHeight = (CAMERA_HEIGHT - (m_iItemHeight * m_iItemCount)) / (m_iItemCount + 1);
 	}
 
-	public static int getItemHeight() {
+	public int getItemHeight() {
 		return m_iItemHeight;
 	}
 	
-	public static int getGapHeight() {
+	public int getGapHeight() {
 		return m_iGapHeight;
 	}
 	
-	public static int getMarginHeight() {
+	public int getMarginHeight() {
 		return m_iMarginHeight;
 	}
 	
-	public static int getLcdHeight() {
-		return m_iLcdHeight;
+	public int getLcdHeight() {
+		return CAMERA_HEIGHT;
 	}
 
-	public static int getLcdWidth() {
-		return m_iLcdWidth;
+	public int getLcdWidth() {
+		return CAMERA_WIDTH;
 	}
 	
 	public void setRealItemPixel(int realItemPixel) {

@@ -19,7 +19,6 @@ public class MainThemeActivity extends Activity implements OnClickListener {
         Log.d(TAG, "onCreate()");
         
         setContentView(R.layout.main_theme);
-        
         final ImageView iv_theme1 = (ImageView)findViewById(R.id.ImageView_theme1);
         final ImageView iv_theme2 = (ImageView)findViewById(R.id.ImageView_theme2);
         final ImageView iv_theme3 = (ImageView)findViewById(R.id.ImageView_theme3);
