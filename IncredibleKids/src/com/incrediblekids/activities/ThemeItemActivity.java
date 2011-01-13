@@ -293,8 +293,8 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 
 		this.m_MenuScene = this.createMenuScene();
 		this.createBaseSprite();
+		
 		//Add all the entities
-		//this.createBaseSprite();
 		this.updateScene();
 
 		return m_Scene;
@@ -313,6 +313,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		Log.e(TAG, "width="+width+" height="+height);
 		
 		final Sprite retryBGSprite = new Sprite(x , y, this.m_RetryTextureRegion);
+		
 		final Sprite retryOKSprite = new Sprite(x + OFFSET, y + height - okHeight/2, this.m_RetryOkTextureRegion){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
@@ -326,6 +327,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 				return true;
 			}			
 		};
+		
 		final Sprite retryCancelSprite = new Sprite(x + width - okWidth - OFFSET, y + height - okHeight/2, this.m_RetryCancelTextureRegion){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
@@ -396,6 +398,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		});
 	}
 
+	//Load fixed texture
 	private void loadBaseTexture(){
 		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_PauseTexture);
@@ -408,6 +411,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		this.mEngine.getTextureManager().loadTexture(this.m_SoundTexture);
 	}
 	
+	//Load changeable texture
 	private void loadEntityTexture(){
 		this.mEngine.getTextureManager().loadTexture(this.m_ItemTexture);	
 		this.mEngine.getTextureManager().loadTexture(this.m_BoxTexture);
