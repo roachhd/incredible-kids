@@ -26,6 +26,7 @@ import org.anddev.andengine.entity.shape.modifier.RotationModifier;
 import org.anddev.andengine.entity.shape.modifier.SequenceShapeModifier;
 import org.anddev.andengine.entity.shape.modifier.ease.EaseElasticOut;
 import org.anddev.andengine.entity.shape.modifier.ease.EaseExponentialOut;
+import org.anddev.andengine.entity.sprite.AnimatedSprite;
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.entity.util.FPSLogger;
 import org.anddev.andengine.input.touch.TouchEvent;
@@ -35,6 +36,7 @@ import org.anddev.andengine.opengl.texture.Texture;
 import org.anddev.andengine.opengl.texture.TextureOptions;
 import org.anddev.andengine.opengl.texture.region.TextureRegion;
 import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
+import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
 import org.anddev.andengine.util.Debug;
 
@@ -63,6 +65,9 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	public final static int CENTER_OFFSET = 36;		//OFFSET for collision detect: larger is less sensitive
 	public final static int BASE_LAYER = 0;		//Base layer for non-changable sprite
 	public final static int ENTITIES_LAYER = 1;	//entiti layer for changable sprite
+	
+	public final static int SOUND_ON = 1;
+	public final static int SOUND_OFF = 0;
 	
 	public final static int MENU_RESET = 0;
 	public final static int MENU_QUIT = MENU_RESET + 1;
@@ -124,7 +129,13 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	//Pause
 	private Scene m_Scene;
 	private Scene m_MenuScene;
-
+	
+	//Sound on/off
+	private Texture m_SoundTexture;
+	private TiledTextureRegion m_SoundTextureRegion;
+	private AnimatedSprite m_SoundSprite;
+	private Boolean m_bSoundOn;
+	
 	//Retry 
 	private CameraScene m_RetryScene;
 	private Texture m_RetryTexture;
@@ -155,6 +166,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	public Engine onLoadEngine() {
 
 		m_iCurrentItemNum = 0;
+		m_bSoundOn = true;
 
 		randomX = new Random();
 		randomY = new Random();
@@ -215,11 +227,17 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		this.m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromAsset(this.m_BackgroundTexture, this, "background_2.png", 0, 0);
 		
-		this.m_PauseTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);		
-		this.m_BoxTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_ItemTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		//Load Pause
+		this.m_PauseTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_PauseTextureRegion = TextureRegionFactory.createFromAsset(this.m_PauseTexture, this, "pause.png",0,0);
+		
+		//Load Box
+		this.m_BoxTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_BoxTextureRegion = TextureRegionFactory.createFromAsset(this.m_BoxTexture, this, "box.png", 0, 0);
+		
+		this.m_ItemTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+				
+		//Load Help
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_HelpTextureRegion = TextureRegionFactory.createFromAsset(this.m_HelpTexture, this, "help.png", 0, 0);
 
@@ -231,6 +249,10 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		m_RetryTextureRegion = TextureRegionFactory.createFromAsset(this.m_RetryTexture, this, "retry_popup_bg.png",0,0);
 		m_RetryOkTextureRegion = TextureRegionFactory.createFromAsset(this.m_RetryOkTexture, this, "retry_ok_btn.png",0,0);
 		m_RetryCancelTextureRegion = TextureRegionFactory.createFromAsset(this.m_RetryCancelTexture, this, "retry_no_btn.png",0,0);
+		
+		//Load sound on/off
+		m_SoundTexture = new Texture(128, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		m_SoundTextureRegion = TextureRegionFactory.createTiledFromAsset(m_SoundTexture, this, "sound_on_off.png", 0, 0, 2, 1);
 		
 		//Load pass texture
 		this.m_PassTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -383,6 +405,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryOkTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryCancelTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_SoundTexture);
 	}
 	
 	private void loadEntityTexture(){
@@ -397,6 +420,28 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 
 		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
 		m_Scene.getLayer(BASE_LAYER).addEntity(m_BackgroundSprite);
+		
+		this.m_SoundSprite = new AnimatedSprite(10, 10, this.m_SoundTextureRegion){
+			@Override
+			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+					if (m_bSoundOn == true){
+						m_Music.pause();
+						m_bSoundOn = false;
+						m_SoundTextureRegion.setCurrentTileIndex(SOUND_OFF);
+					}else
+					{
+						m_Music.resume();
+						m_bSoundOn = true;
+						m_SoundTextureRegion.setCurrentTileIndex(SOUND_ON);
+					}
+				}
+				return true;
+			}
+		};
+		
+		this.m_SoundTextureRegion.setCurrentTileIndex(SOUND_ON);
+		this.m_Scene.getLayer(BASE_LAYER).addEntity(m_SoundSprite);
 		
 		this.m_PassSprite = new Sprite(
 				CAMERA_WIDTH/2-(this.m_PassTexture.getWidth()/2),
@@ -416,7 +461,8 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
 					
 					//play sound
-					m_HelpSound.play();
+					if (m_bSoundOn == true)
+						m_HelpSound.play();
 					
 					for (int i=0; i < m_arrAlphabetSprite.length; i++){
 						
@@ -492,7 +538,8 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
 					if(mEngine.isRunning()) {
 						if(!m_Scene.hasChildScene()) {
-							m_Music.pause();
+							if (m_bSoundOn == true)
+								m_Music.pause();
 							m_Scene.setChildScene(m_MenuScene, false, true, true);
 						}
 					}
@@ -513,6 +560,8 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		//re registe touch area for help and pause btn
 		m_Scene.registerTouchArea(m_Help);
 		m_Scene.registerTouchArea(m_PauseSprite);
+		m_Scene.registerTouchArea(m_SoundSprite);
+		
 		//Load Sound
 		try {
 			this.m_ItemSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "monkey.mp3");//m_strAlphabet+".mp3");
@@ -531,7 +580,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 				,CAMERA_HEIGHT/8, this.m_ItemTextureRegion){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN && m_ItemSound!=null)
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN && m_ItemSound!=null && m_bSoundOn == true)
 					m_ItemSound.play();
 				return true;
 			}
@@ -598,7 +647,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 							}
 						}
 
-						if (m_arrBoxSprite[m_iCurrentCollideBoxIdx].bFilled){
+						if (m_arrBoxSprite[m_iCurrentCollideBoxIdx].bFilled && m_bSoundOn == true){
 							m_FailToDropSound.play();
 							
 							this.addShapeModifier(new MoveModifier(1,
@@ -610,7 +659,8 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 						}
 						
 						//play sound
-						m_DropToBoxSound.play();
+						if (m_bSoundOn == true)
+							m_DropToBoxSound.play();
 
 						float boxX = m_arrBoxSprite[m_iCurrentCollideBoxIdx].getX();
 						float boxY = m_arrBoxSprite[m_iCurrentCollideBoxIdx].getY();
@@ -732,7 +782,8 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		Log.e(TAG, "onMenuItemClicked()");
 		switch(pMenuItem.getID()) {
 		case MENU_RESET:
-			this.m_Music.play();
+			if (m_bSoundOn == true)
+				this.m_Music.resume();
 			this.m_Scene.clearChildScene();
 			this.m_MenuScene.reset();
 			return true;
