@@ -463,13 +463,12 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				Log.e(TAG, "onAreaTouched");
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-					
 					//play sound
 					if (m_bSoundOn == true)
 						m_HelpSound.play();
 					
 					for (int i=0; i < m_arrAlphabetSprite.length; i++){
-						
+
 						//Wrong alphabet is filled in box
 						if(m_arrBoxSprite[i].bFilled && !m_arrBoxSprite[i].bCorrect){
 
