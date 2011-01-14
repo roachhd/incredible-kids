@@ -11,12 +11,14 @@ import android.widget.ImageView;
 public class MainThemeActivity extends Activity implements OnClickListener {
 	
 	private final String TAG = "MainThemeActivity";
-	
-    /** Called when the activity is first created. */
+	private ResourceClass res;
+	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate()");
+        
+        res = ResourceClass.getInstance();
         
         setContentView(R.layout.main_theme);
         final ImageView iv_theme1 = (ImageView)findViewById(R.id.ImageView_theme1);
@@ -28,6 +30,7 @@ public class MainThemeActivity extends Activity implements OnClickListener {
         iv_theme2.setOnClickListener(this);
         iv_theme3.setOnClickListener(this);
         iv_theme4.setOnClickListener(this);
+        
     }
 
 	@Override
@@ -36,7 +39,7 @@ public class MainThemeActivity extends Activity implements OnClickListener {
 		switch(v.getId()) {
 		case R.id.ImageView_theme1:
 			Log.d(TAG, "theme1");
-			ResourceClass.m_sTheme = "Animal";
+			res.setTheme("Animal");
 			intent = new Intent(this, ThemeItemActivity.class);
 			startActivity(intent);
 			break;
@@ -50,7 +53,7 @@ public class MainThemeActivity extends Activity implements OnClickListener {
 			
 		case R.id.ImageView_theme3:
 			Log.d(TAG, "theme3");
-			ResourceClass.m_sTheme = "ToyBox";
+			res.setTheme("ToyBox");
 			intent = new Intent(this, PreviewWords.class);
 			startActivity(intent);
 			break;

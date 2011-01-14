@@ -17,8 +17,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 public class PreviewWords extends Activity {
-	public ResourceClass res;
 	private final String TAG="PreviewWords";
+	
 	private ImageButton m_ibLeftBtn, m_ibRightBtn;
 	private ImageView m_ivQuizImg;
 	private ImageView m_ivWordImg;
@@ -26,10 +26,12 @@ public class PreviewWords extends Activity {
 	private int m_iSelectedItem=0;
 	private float m_fPosX=0;
 	
+	public ResourceClass res;
+	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		res = new ResourceClass(ResourceClass.getTheme());
+		res = ResourceClass.getInstance();
 		
 		/* Create Linear Layout View */
 		LinearLayout linear = new LinearLayout(this);
@@ -53,7 +55,7 @@ public class PreviewWords extends Activity {
 		m_gPreviewImgGallery.setAdapter(new ImageAdapter(this));
 		//m_gPreviewImgGallery.setCallbackDuringFling(false);
 		m_gPreviewImgGallery.setFadingEdgeLength(100);
-		m_gPreviewImgGallery.setSelection(0);
+		
 		/* Register Listener */
 		m_gPreviewImgGallery.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			public void onItemSelected(AdapterView<?> arg0, View arg1,	int arg2, long arg3) {
@@ -101,12 +103,15 @@ public class PreviewWords extends Activity {
 }
 
 class ImageAdapter extends BaseAdapter {
-	private Context m_cContext;
 	private final String TAG="PreviewWords";
-	public ResourceClass res = new ResourceClass(ResourceClass.getTheme());
+	
+	private Context m_cContext;
+		
+	public ResourceClass res;
 
 	public ImageAdapter(Context _context) {
 		m_cContext = _context;
+		res = ResourceClass.getInstance();
 	}
 	
 	public int getCount() {
