@@ -32,7 +32,7 @@ public class MainThemeActivity extends Activity implements OnClickListener {
     
 	/* (non-Javadoc)
 	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-	 * ImageView ClickÇÏ¿´À» ¶§ ½ÇÇàµÇ´Â call back method
+	 * ImageView Clickï¿½Ï¿ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ call back method
 	 */
 	@Override
 	public void onClick(View v) {
@@ -52,7 +52,7 @@ public class MainThemeActivity extends Activity implements OnClickListener {
 			
 		case R.id.ImageView_theme3:
 			Log.d(TAG, "theme3");
-			intent = new Intent(this, ThemeItemActivity.class);
+			intent = new Intent(this, PreviewWords.class);
 			startActivity(intent);
 			break;
 			
