@@ -29,35 +29,35 @@ public class MainThemeActivity extends Activity implements OnClickListener {
         iv_theme3.setOnClickListener(this);
         iv_theme4.setOnClickListener(this);
     }
-    
-	/* (non-Javadoc)
-	 * @see android.view.View.OnClickListener#onClick(android.view.View)
-	 * ImageView Click�Ͽ��� �� ����Ǵ� call back method
-	 */
+
 	@Override
 	public void onClick(View v) {
 		Intent intent;
 		switch(v.getId()) {
 		case R.id.ImageView_theme1:
 			Log.d(TAG, "theme1");
+			ResourceClass.m_sTheme = "Animal";
 			intent = new Intent(this, ThemeItemActivity.class);
 			startActivity(intent);
 			break;
 			
 		case R.id.ImageView_theme2:
 			Log.d(TAG, "theme2");
+			ResourceClass.m_sTheme = "ToyBox";
 			intent = new Intent(this, ThemeItemActivity.class);
 			startActivity(intent);
 			break;
 			
 		case R.id.ImageView_theme3:
 			Log.d(TAG, "theme3");
+			ResourceClass.m_sTheme = "ToyBox";
 			intent = new Intent(this, PreviewWords.class);
 			startActivity(intent);
 			break;
 			
 		case R.id.ImageView_theme4:
 			Log.d(TAG, "theme4");
+			ResourceClass.m_sTheme = "Animal";
 			intent = new Intent(this, SummaryQuiz.class);
 			startActivity(intent);
 			break;

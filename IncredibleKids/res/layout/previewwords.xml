@@ -24,7 +24,7 @@
 	    	android:layout_height="wrap_content"
 	    	android:layout_toRightOf="@id/preview_leftbtn"
 	    	android:layout_marginTop="20dip"
-	    	android:src="@drawable/a"
+	    	android:src="@drawable/img_mouse"
 	    />
 	    <ImageView
 		  	android:id="@+id/preview_word_image"
