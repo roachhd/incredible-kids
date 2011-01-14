@@ -5,10 +5,12 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Gallery;
@@ -48,6 +50,7 @@ public class PreviewWords extends Activity {
 		
 		m_gPreviewImgGallery = (Gallery) findViewById(R.id.preview_gallery);
 		m_gPreviewImgGallery.setAdapter(new ImageAdapter(this));
+		//m_gPreviewImgGallery.setCallbackDuringFling(false);
 		m_gPreviewImgGallery.setFadingEdgeLength(100);
 		
 		/* Register Listener */
@@ -135,17 +138,17 @@ class ImageAdapter extends BaseAdapter {
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
-		ImageView imageView;
-		Log.d(TAG, "getView()");
+		ImageView m_ivGallery;
+		
 		if (convertView == null) {
-			imageView = new ImageView(m_cContext);
+			m_ivGallery = new ImageView(m_cContext);
 		} else {
-			imageView = (ImageView)convertView;
+			m_ivGallery = (ImageView)convertView;
 		}
 		
-		imageView.setImageResource(m_aImageIds[position]);
-		imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-		imageView.setLayoutParams(new Gallery.LayoutParams(196, 98));
-		return imageView;
+		m_ivGallery.setImageResource(m_aImageIds[position]);
+		m_ivGallery.setScaleType(ImageView.ScaleType.FIT_XY);
+		m_ivGallery.setLayoutParams(new Gallery.LayoutParams((int)parent.getWidth()/5, (int)parent.getWidth()/9));
+		return m_ivGallery;
 	}
 }

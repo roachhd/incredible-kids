@@ -3,58 +3,54 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/background_1"
-    >
-    <LinearLayout
-    	android:orientation="horizontal"
-    	android:layout_width="wrap_content"
-    	android:layout_height="wrap_content"
-    	android:layout_gravity="center_horizontal"
-    	android:layout_marginTop="20dip"
-    	>
+    > 
+	<RelativeLayout 
+		android:layout_width="fill_parent"
+	   	android:layout_height="fill_parent"
+	   	android:background="@drawable/background_1"
+	   	>
 	    <ImageButton
 	    	android:id="@+id/preview_leftbtn"
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content"
-	    	android:layout_gravity="center_vertical"
-	    	android:layout_marginRight="20dip"
+	    	android:layout_alignParentLeft="true"
+	    	android:layout_centerVertical="true"
+	    	android:layout_marginLeft="10dip"
 	    	android:src="@drawable/icon"
 	    />
-	    <FrameLayout
-    		android:layout_width="wrap_content"
-    		android:layout_height="wrap_content"
-    		android:layout_gravity="center_horizontal"
-    		android:layout_marginTop="20dip"
-    		>
-	    	<ImageView
-	    		android:id="@+id/preview_center_image"
-	    		android:layout_width="wrap_content"
-	    		android:layout_height="wrap_content"
-	    		android:src="@drawable/a"
-	    	/>
-		    <ImageView
-		    	android:id="@+id/preview_word_image"
-		    	android:layout_width="wrap_content"
-		    	android:layout_height="wrap_content"
-		    	android:layout_gravity="center_horizontal"
-		    	android:visibility="gone"
-		    />
-		</FrameLayout>
+	    <ImageView
+	    	android:id="@+id/preview_center_image"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:layout_toRightOf="@id/preview_leftbtn"
+	    	android:layout_marginTop="20dip"
+	    	android:src="@drawable/a"
+	    />
+	    <ImageView
+		  	android:id="@+id/preview_word_image"
+		   	android:layout_width="wrap_content"
+		   	android:layout_height="wrap_content"
+		   	android:layout_centerInParent="true"
+		   	android:layout_centerHorizontal="true"
+		   	android:visibility="gone"
+		/>
 	    <ImageButton
 	    	android:id="@+id/preview_rightbtn"
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content"
-	    	android:layout_gravity="center_vertical"
-	    	android:layout_marginLeft="20dip"
+	    	android:layout_alignParentRight="true"
+	    	android:layout_centerVertical="true"
+	    	android:layout_marginRight="10dip"
 	    	android:src="@drawable/icon"
 	    />	    
-    </LinearLayout>
-    <Gallery xmlns:android="http://schemas.android.com/apk/res/android"
-		android:id="@+id/preview_gallery"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:layout_marginTop="20dip"
-		android:background="#00ffffff"
-		android:animationDuration="2000"
-	/>
+	   <Gallery
+			android:id="@+id/preview_gallery"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:paddingBottom="10dip"
+			android:background="#00ffffff"
+			android:animationDuration="2000"
+		/>
+	</RelativeLayout>
 </LinearLayout>
