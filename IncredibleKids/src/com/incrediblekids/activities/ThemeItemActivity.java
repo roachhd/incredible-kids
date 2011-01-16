@@ -67,7 +67,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	public int CAMERA_WIDTH;// = 800;
 	public int CAMERA_HEIGHT;// = 480;
 
-	public final static int CENTER_OFFSET = 36;		//OFFSET for collision detect: larger is less sensitive
+	public final static int CENTER_OFFSET = 50;		//OFFSET for collision detect: larger is less sensitive
 	public final static int BASE_LAYER = 0;		//Base layer for non-changable sprite
 	public final static int ENTITIES_LAYER = 1;	//entiti layer for changable sprite
 	
@@ -94,7 +94,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 
 	//Empty Boxes to fill alphabet.
 	private Texture  m_BoxTexture;
-	private TextureRegion m_BoxTextureRegion;
+	private TiledTextureRegion m_BoxTextureRegion;
 	private AlphabetSprite [] m_arrBoxSprite;
 	private int m_iCurrentCollideBoxIdx;
 
@@ -111,7 +111,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	//Alphabets
 	private String m_strAlphabet;
 	private Texture [] m_arrAlphabet;
-	private TextureRegion [] m_arrAlphabetTexture;
+	private TiledTextureRegion [] m_arrAlphabetTexture;
 	private AlphabetSprite [] m_arrAlphabetSprite;
 	private AlphabetSprite m_CurrentTouchedAlphabetSprite;
 
@@ -246,7 +246,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		
 		//Load Box
 		this.m_BoxTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_BoxTextureRegion = TextureRegionFactory.createFromAsset(this.m_BoxTexture, this, "box.png", 0, 0);
+		this.m_BoxTextureRegion = TextureRegionFactory.createTiledFromAsset(this.m_BoxTexture, this, "box.png", 0, 0, 1, 1);
 		
 		this.m_ItemTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 				
@@ -493,10 +493,12 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 									m_arrBoxSprite[i].getX(), randomX.nextInt(xRange),
 									m_arrBoxSprite[i].getY(), randomY.nextInt(yRange),
 									EaseExponentialOut.getInstance()));
+							m_arrAlphabetSprite[m_arrBoxSprite[i].filledAlphabetIndex].setCurrentTileIndex(0);
 							m_arrBoxSprite[i].bFilled = false;
 							m_arrBoxSprite[i].bCorrect = false;
 							m_arrBoxSprite[i].filledAlphabetIndex = -1;
 							m_arrBoxSprite[i].alphabetContainer = EMPTY_ALPHABET;
+							
 							//return true;
 						}
 
@@ -510,6 +512,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 									m_arrAlphabetSprite[i].getX(), boxX + (boxWidth/2 - m_arrAlphabetSprite[i].getWidth()/2),
 									m_arrAlphabetSprite[i].getY(), boxY + (boxHeight/2 - m_arrAlphabetSprite[i].getHeight()/2),
 									EaseElasticOut.getInstance()));
+							m_arrAlphabetSprite[i].setCurrentTileIndex(1);
 							for (int j=0; j < m_arrBoxSprite.length; j++){
 								if(m_arrBoxSprite[j].filledAlphabetIndex == i){
 									m_arrBoxSprite[j].bFilled = false;
@@ -623,14 +626,15 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		}
 
 		//Load Alphabet Sprite to scene
-		this.m_arrAlphabetTexture = new TextureRegion[m_strAlphabet.length()];
+		this.m_arrAlphabetTexture = new TiledTextureRegion[m_strAlphabet.length()];
 		this.m_arrAlphabet = new Texture[m_strAlphabet.length()];
 		m_arrAlphabetSprite = new AlphabetSprite[m_strAlphabet.length()];
 
 		for(int i=0; i<m_strAlphabet.length(); i++){
-			this.m_arrAlphabet[i] = new Texture(128,128,TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+			this.m_arrAlphabet[i] = new Texture(256,128,TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 			this.mEngine.getTextureManager().loadTexture(this.m_arrAlphabet[i]);
-			this.m_arrAlphabetTexture[i] = TextureRegionFactory.createFromAsset(this.m_arrAlphabet[i], this, m_strAlphabet.charAt(i)+".png", 0, 0);
+			this.m_arrAlphabetTexture[i] = TextureRegionFactory.createTiledFromAsset(this.m_arrAlphabet[i], this, m_strAlphabet.charAt(i)+"1.png", 0, 0, 2, 1 );//m_strAlphabet.charAt(i)+
+			this.m_arrAlphabetTexture[i].setCurrentTileIndex(0);
 		}
  
 		for(int j=0; j < m_strAlphabet.length(); j++){
@@ -700,6 +704,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 							m_arrBoxSprite[m_iCurrentCollideBoxIdx].bCorrect = false;
 
 						m_arrBoxSprite[m_iCurrentCollideBoxIdx].alphabetContainer = this.alphabet;
+						this.setCurrentTileIndex(1);
 						
 						//reset screen to next item when user clear the stage
 						if(isAllBoxesFilled(m_arrBoxSprite)){
@@ -837,7 +842,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		return result;
 	}
 
-	private boolean isCollide(Sprite alphabet, Sprite box){
+	private boolean isCollide(AnimatedSprite alphabet, AnimatedSprite box){
 		if ((getCenterX(alphabet) > getCenterX(box) - CENTER_OFFSET) 
 				&& (getCenterX(alphabet) < getCenterX(box) + CENTER_OFFSET)
 				&& (getCenterY(alphabet) > getCenterY(box) - CENTER_OFFSET) 
@@ -847,14 +852,14 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		return false;
 	}
 
-	private float getCenterX(Sprite s){
+	private float getCenterX(AnimatedSprite s){
 		if (s != null)
 			return s.getX() + 2/s.getWidth();
 		else
 			return 0f;
 	}
 
-	private float getCenterY(Sprite s){
+	private float getCenterY(AnimatedSprite s){
 		if (s != null)
 			return s.getY() + 2/s.getHeight();
 		else
