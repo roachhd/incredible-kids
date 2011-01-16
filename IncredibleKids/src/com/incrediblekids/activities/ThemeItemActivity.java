@@ -54,7 +54,6 @@ import android.widget.Toast;
 import com.incrediblekids.activities.ResourceClass.Item;
 import com.incrediblekids.util.AlphabetSprite;
 import com.incrediblekids.util.Const;
-import com.incrediblekids.util.LoadBaseResources;
 
 /**
  * @author Nicolas Gramlich
