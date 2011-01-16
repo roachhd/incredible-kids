@@ -1,5 +1,7 @@
 package com.incrediblekids.activities;
 
+import com.incrediblekids.util.Const;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -39,14 +41,14 @@ public class MainThemeActivity extends Activity implements OnClickListener {
 		switch(v.getId()) {
 		case R.id.ImageView_theme1:
 			Log.d(TAG, "theme1");
-			res.setTheme("Animal");
+			res.setTheme(Const.THEME_ANIMAL);
 			intent = new Intent(this, ThemeItemActivity.class);
 			startActivity(intent);
 			break;
 			
 		case R.id.ImageView_theme2:
 			Log.d(TAG, "theme2");
-			ResourceClass.m_sTheme = "ToyBox";
+			//ResourceClass.m_sTheme = "ToyBox";
 			intent = new Intent(this, ThemeItemActivity.class);
 			startActivity(intent);
 			break;
@@ -60,7 +62,7 @@ public class MainThemeActivity extends Activity implements OnClickListener {
 			
 		case R.id.ImageView_theme4:
 			Log.d(TAG, "theme4");
-			ResourceClass.m_sTheme = "Animal";
+			//ResourceClass.m_sTheme = "Animal";
 			intent = new Intent(this, SummaryQuiz.class);
 			startActivity(intent);
 			break;
