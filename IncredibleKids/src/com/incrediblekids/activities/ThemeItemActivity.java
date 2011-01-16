@@ -2,6 +2,8 @@ package com.incrediblekids.activities;
 
 import java.io.IOException;
 import java.util.Random;
+import java.util.Vector;
+
 import javax.microedition.khronos.opengles.GL10;
 import org.anddev.andengine.audio.music.Music;
 import org.anddev.andengine.audio.music.MusicFactory;
@@ -48,7 +50,11 @@ import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.widget.Toast;
+
+import com.incrediblekids.activities.ResourceClass.Item;
 import com.incrediblekids.util.AlphabetSprite;
+import com.incrediblekids.util.Const;
+import com.incrediblekids.util.LoadBaseResources;
 
 /**
  * @author Nicolas Gramlich
@@ -59,8 +65,8 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	// Constants
 	// ===========================================================
 
-	public final static int CAMERA_WIDTH = 800;
-	public final static int CAMERA_HEIGHT = 480;
+	public int CAMERA_WIDTH;// = 800;
+	public int CAMERA_HEIGHT;// = 480;
 
 	public final static int CENTER_OFFSET = 36;		//OFFSET for collision detect: larger is less sensitive
 	public final static int BASE_LAYER = 0;		//Base layer for non-changable sprite
@@ -74,7 +80,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	public final static String TAG = "TouchDragExample";
 	public final static char EMPTY_ALPHABET = '0';
 	
-	public final static String [] ARR_ANIMAL = {"dog", "sheep", "bear", "cat", "monkey", "lion", "mouse", "bird"};
+	//public final static String [] ARR_ANIMAL = {"dog", "sheep", "bear", "cat", "monkey", "lion", "mouse", "bird"};
 
 	// ===========================================================
 	// Fields
@@ -94,7 +100,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	private int m_iCurrentCollideBoxIdx;
 
 	//Pass
-	private Texture m_PassTexture;
+	private Texture m_PassTexture;	
 	private TextureRegion m_PassTextureRegion;
 	private Sprite m_PassSprite;
 
@@ -161,6 +167,10 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 
 	private int xRange;
 	private int yRange;
+	
+	private ResourceClass res;
+	private Vector<Item> m_ItemVector;
+	
 
 	@Override
 	public Engine onLoadEngine() {
@@ -171,10 +181,14 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		randomX = new Random();
 		randomY = new Random();
 
-		//		CAMERA_WIDTH = getLCDWidth();
-		//		CAMERA_HEIGHT = getLCDHeight();
+		CAMERA_WIDTH = getLCDWidth();
+		CAMERA_HEIGHT = getLCDHeight();
+		
+		res = ResourceClass.getInstance();
+		m_ItemVector = res.getvItems();
 
-		m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
+		m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
+		//m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
 		m_iCurrentCollideBoxIdx = 0;
 		this.m_Camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 
@@ -334,8 +348,12 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 				Log.e(TAG, "onAreaTouched");
 				
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-					if (m_iCurrentItemNum < ARR_ANIMAL.length)
-						m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
+//					if (m_iCurrentItemNum < ARR_ANIMAL.length)
+//						m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
+					if (m_iCurrentItemNum < m_ItemVector.size()){
+						m_iCurrentItemNum++;
+						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
+					}
 					m_Scene.clearChildScene();
 					resetScreen();
 
@@ -509,15 +527,19 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 							//reset screen to next item when user clear the stage
 							if(isAllBoxesFilled(m_arrBoxSprite)){
 								if(isStageCleared(m_arrBoxSprite)){
-									if (m_iCurrentItemNum < ARR_ANIMAL.length)
-										m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
+									if (m_iCurrentItemNum < m_ItemVector.size()){
+										m_iCurrentItemNum++;
+										m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
+									}
 									drawResult(m_PassSprite);
 									resetAfterDelay(2500);
 								}
 								else{
 									Log.e(TAG, "isStageCleared(m_arrBoxSprite) return false");
-									if (m_iCurrentItemNum < ARR_ANIMAL.length)
-										m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
+									if (m_iCurrentItemNum < m_ItemVector.size()){
+										m_iCurrentItemNum++;
+										m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
+									}
 									drawResult(m_FailSprite);
 									resetAfterDelay(2500);
 								}
@@ -576,8 +598,8 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		Log.e(TAG, "updateScene()");
 
 		//Add ThemeItem Sprite to Scene
-		this.m_ItemTextureRegion = TextureRegionFactory.createFromAsset(this.m_ItemTexture, this, m_strAlphabet+".png", 0, 0);
-
+		//this.m_ItemTextureRegion = TextureRegionFactory.createFromAsset(this.m_ItemTexture, this, m_strAlphabet+".png", 0, 0);
+		this.m_ItemTextureRegion = TextureRegionFactory.createFromResource(this.m_ItemTexture, this, m_ItemVector.get(m_iCurrentItemNum).iItemImgId, 0, 0);
 		this.m_Item = new Sprite(CAMERA_WIDTH/2 - m_ItemTextureRegion.getWidth()/2
 				,CAMERA_HEIGHT/8, this.m_ItemTextureRegion){
 			@Override
@@ -683,8 +705,10 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 						//reset screen to next item when user clear the stage
 						if(isAllBoxesFilled(m_arrBoxSprite)){
 							if(isStageCleared(m_arrBoxSprite)){
-								if (m_iCurrentItemNum < ARR_ANIMAL.length)
-									m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
+								if (m_iCurrentItemNum < m_ItemVector.size()){
+									m_iCurrentItemNum++;
+									m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
+								}
 								drawResult(m_PassSprite);
 								resetAfterDelay(2500);
 							}
