@@ -59,7 +59,7 @@ import com.incrediblekids.util.Const;
  * @author Nicolas Gramlich
  * @since 15:13:46 - 15.06.2010
  */
-public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemClickListener {
+public class ThemeItemActivity extends BaseGameActivity{
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -115,11 +115,6 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	private AlphabetSprite [] m_arrAlphabetSprite;
 	private AlphabetSprite m_CurrentTouchedAlphabetSprite;
 
-	//Pause button Sprite
-	private Texture m_PauseTexture;
-	private TextureRegion m_PauseTextureRegion;
-	private Sprite m_PauseSprite;
-
 	//Theme item Sprite
 	private Sprite m_Item;
 	private Texture  m_ItemTexture;
@@ -133,7 +128,6 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 
 	//Pause
 	private Scene m_Scene;
-	private Scene m_MenuScene;
 	
 	//Sound on/off
 	private Texture m_SoundTexture;
@@ -157,10 +151,6 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	private Sound m_HelpSound;
 	private Sound m_FailToDropSound;
 	
-	//Custom Font
-	private Texture m_FontTexture;
-	private Font m_Font;
-
 	private Random randomX;
 	private Random randomY;
 
@@ -226,24 +216,13 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 			m_Music.play();
 		}
 
-		//Load font
-		FontFactory.setAssetBasePath("font/");
-		this.m_FontTexture = new Texture(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_Font = FontFactory.createFromAsset(this.m_FontTexture, this, "Plok.ttf", 48, true, Color.WHITE);
-		this.mEngine.getTextureManager().loadTexture(this.m_FontTexture);
-		this.mEngine.getFontManager().loadFont(this.m_Font);
-
 		//Load Texture
 		TextureRegionFactory.setAssetBasePath("gfx/");
 
 		//Load Background
 		this.m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.background_1, 0, 0);
-		
-		//Load Pause
-		this.m_PauseTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_PauseTextureRegion = TextureRegionFactory.createFromResource(this.m_PauseTexture, this, R.drawable.pause,0,0);
-		
+
 		//Load Box
 		this.m_BoxTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_BoxTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_BoxTexture, this, R.drawable.box, 0, 0, 1, 1);
@@ -304,7 +283,6 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		this.m_Scene = new Scene(2);
 		this.m_Scene.setBackground(new ColorBackground(0.09804f, 0.6274f, 0.8784f));
 
-		this.m_MenuScene = this.createMenuScene();
 		this.createBaseSprite();
 		
 		//Add all the entities
@@ -368,26 +346,6 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		this.m_RetryScene.registerTouchArea(retryCancelSprite);
 	}
 
-	//Pause Menu
-	protected MenuScene createMenuScene() {
-		Log.e(TAG, "createMenuScene()");
-		final MenuScene menuScene = new MenuScene(this.m_Camera);
-
-		final ColoredTextMenuItem resetMenuItem = new ColoredTextMenuItem(MENU_RESET, this.m_Font, "RESUME", 1.0f,0.0f,0.0f, 0.0f,0.0f,0.0f);
-		resetMenuItem.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-		menuScene.addMenuItem(resetMenuItem);
-
-		final ColoredTextMenuItem quitMenuItem = new ColoredTextMenuItem(MENU_QUIT, this.m_Font, "QUIT", 1.0f,0.0f,0.0f, 0.0f,0.0f,0.0f);
-		quitMenuItem.setBlendFunction(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-		
-		menuScene.addMenuItem(quitMenuItem);
-		menuScene.buildAnimations();
-		menuScene.setBackgroundEnabled(false);
-		menuScene.setOnMenuItemClickListener(this);
-
-		return menuScene;
-	}
-
 	//Reset Screen - Remove all the entities from scene.
 	private void resetScreen(){
 		Log.e(TAG, "resetScreen()");
@@ -418,7 +376,6 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	//Load fixed texture
 	private void loadBaseTexture(){
 		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_PauseTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_HelpTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_PassTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_FailTexture);
@@ -442,7 +399,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
 		m_Scene.getLayer(BASE_LAYER).addEntity(m_BackgroundSprite);
 		
-		this.m_SoundSprite = new AnimatedSprite(10, 10, this.m_SoundTextureRegion){
+		this.m_SoundSprite = new AnimatedSprite(m_SoundTextureRegion.getWidth()/4, m_SoundTextureRegion.getHeight()/2, this.m_SoundTextureRegion){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
@@ -465,17 +422,17 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		this.m_Scene.getLayer(BASE_LAYER).addEntity(m_SoundSprite);
 		
 		this.m_PassSprite = new Sprite(
-				CAMERA_WIDTH/2-(this.m_PassTexture.getWidth()/2),
-				CAMERA_HEIGHT/2 - (this.m_PassTexture.getHeight()/2),
+				CAMERA_WIDTH/2-(this.m_PassTextureRegion.getWidth()/2),
+				CAMERA_HEIGHT/2 - (this.m_PassTextureRegion.getHeight()/2),
 				this.m_PassTextureRegion);
 		
 		this.m_FailSprite = new Sprite(
-				CAMERA_WIDTH/2-(this.m_FailTexture.getWidth()/2),
-				CAMERA_HEIGHT/2 - (this.m_FailTexture.getHeight()/2),
+				CAMERA_WIDTH/2-(this.m_FailTextureRegion.getWidth()/2),
+				CAMERA_HEIGHT/2 - (this.m_FailTextureRegion.getHeight()/2),
 				this.m_FailTextureRegion);
 		
-		this.m_Help = new Sprite(CAMERA_WIDTH - m_HelpTexture.getWidth() - 10,
-				CAMERA_HEIGHT/8 + m_HelpTexture.getHeight() + 10, this.m_HelpTextureRegion){
+		this.m_Help = new Sprite(CAMERA_WIDTH - m_HelpTextureRegion.getWidth() - m_HelpTextureRegion.getWidth()/2,
+				m_HelpTextureRegion.getHeight()/2, this.m_HelpTextureRegion){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				Log.e(TAG, "onAreaTouched");
@@ -556,25 +513,7 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		};
 
 		m_Scene.getLayer(BASE_LAYER).addEntity(m_Help);
-		
-		//Add Pause Sprite to Scene
-		this.m_PauseSprite = new Sprite(CAMERA_WIDTH - m_PauseTextureRegion.getWidth() - 10
-				,CAMERA_HEIGHT/8, this.m_PauseTextureRegion){
-			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-					if(mEngine.isRunning()) {
-						if(!m_Scene.hasChildScene()) {
-							if (m_bSoundOn == true)
-								m_Music.pause();
-							m_Scene.setChildScene(m_MenuScene, false, true, true);
-						}
-					}
-				}
-				return true;
-			}
-		}; 
-		m_Scene.getLayer(BASE_LAYER).addEntity(m_PauseSprite);
+
 	}
 
 	//Update scene with new entities.
@@ -586,7 +525,6 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		
 		//re registe touch area for help and pause btn
 		m_Scene.registerTouchArea(m_Help);
-		m_Scene.registerTouchArea(m_PauseSprite);
 		m_Scene.registerTouchArea(m_SoundSprite);
 		
 		//Load Sound
@@ -804,25 +742,6 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 	@Override
 	public void onLoadComplete() {
 
-	}
-	
-	@Override
-	public boolean onMenuItemClicked(MenuScene pMenuScene, IMenuItem pMenuItem,
-			float pMenuItemLocalX, float pMenuItemLocalY) {
-		Log.e(TAG, "onMenuItemClicked()");
-		switch(pMenuItem.getID()) {
-		case MENU_RESET:
-			if (m_bSoundOn == true)
-				this.m_Music.resume();
-			this.m_Scene.clearChildScene();
-			this.m_MenuScene.reset();
-			return true;
-		case MENU_QUIT:
-			this.finish();
-			return true;
-		default:
-			return false;
-		}
 	}
 	
 	private boolean isAllBoxesFilled(AlphabetSprite [] sprites){
