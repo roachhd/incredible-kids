@@ -238,42 +238,42 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 
 		//Load Background
 		this.m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromAsset(this.m_BackgroundTexture, this, "background_2.png", 0, 0);
+		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.background_1, 0, 0);
 		
 		//Load Pause
 		this.m_PauseTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_PauseTextureRegion = TextureRegionFactory.createFromAsset(this.m_PauseTexture, this, "pause.png",0,0);
+		this.m_PauseTextureRegion = TextureRegionFactory.createFromResource(this.m_PauseTexture, this, R.drawable.pause,0,0);
 		
 		//Load Box
 		this.m_BoxTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_BoxTextureRegion = TextureRegionFactory.createTiledFromAsset(this.m_BoxTexture, this, "box.png", 0, 0, 1, 1);
+		this.m_BoxTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_BoxTexture, this, R.drawable.box, 0, 0, 1, 1);
 		
 		this.m_ItemTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 				
 		//Load Help
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_HelpTextureRegion = TextureRegionFactory.createFromAsset(this.m_HelpTexture, this, "help.png", 0, 0);
+		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.help , 0, 0);
 
 		//Retry popup texture
 		m_RetryTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
 		m_RetryOkTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
 		m_RetryCancelTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
 		
-		m_RetryTextureRegion = TextureRegionFactory.createFromAsset(this.m_RetryTexture, this, "retry_popup_bg.png",0,0);
-		m_RetryOkTextureRegion = TextureRegionFactory.createFromAsset(this.m_RetryOkTexture, this, "retry_ok_btn.png",0,0);
-		m_RetryCancelTextureRegion = TextureRegionFactory.createFromAsset(this.m_RetryCancelTexture, this, "retry_no_btn.png",0,0);
+		m_RetryTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryTexture, this, R.drawable.retry_popup_bg,0,0);
+		m_RetryOkTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryOkTexture, this, R.drawable.retry_ok_btn,0,0);
+		m_RetryCancelTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryCancelTexture, this, R.drawable.retry_no_btn,0,0);
 		
 		//Load sound on/off
 		m_SoundTexture = new Texture(128, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		m_SoundTextureRegion = TextureRegionFactory.createTiledFromAsset(m_SoundTexture, this, "sound_on_off.png", 0, 0, 2, 1);
+		m_SoundTextureRegion = TextureRegionFactory.createTiledFromResource(m_SoundTexture, this, R.drawable.sound_on_off, 0, 0, 2, 1);
 		
 		//Load pass texture
 		this.m_PassTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_PassTextureRegion = TextureRegionFactory.createFromAsset(this.m_PassTexture, this, "pass_128.png", 0, 0);
+		this.m_PassTextureRegion = TextureRegionFactory.createFromResource(this.m_PassTexture, this, R.drawable.pass_128, 0, 0);
 
 		//Load fail texture
 		this.m_FailTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_FailTextureRegion = TextureRegionFactory.createFromAsset(this.m_FailTexture, this, "fail_128.png", 0, 0);
+		this.m_FailTextureRegion = TextureRegionFactory.createFromResource(this.m_FailTexture, this, R.drawable.fail_128, 0, 0);
 
 		//Range of random x and y axis
 		xRange = CAMERA_WIDTH - m_BoxTexture.getWidth() * 2;
@@ -620,8 +620,9 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		m_arrBoxSprite = new AlphabetSprite[m_strAlphabet.length()];
 		int divWidth = CAMERA_WIDTH/length;
 		for(int i=0; i < length; i++){
-			m_arrBoxSprite[i] = new AlphabetSprite(divWidth * i + (divWidth-m_BoxTexture.getWidth())/2,
-					CAMERA_HEIGHT-m_BoxTexture.getWidth()- CAMERA_HEIGHT/10, this.m_BoxTextureRegion, i, m_strAlphabet.charAt(i));
+			m_arrBoxSprite[i] = new AlphabetSprite(divWidth * i + (divWidth-m_BoxTextureRegion.getWidth())/2,
+					CAMERA_HEIGHT-m_BoxTextureRegion.getHeight()- CAMERA_HEIGHT/10, this.m_BoxTextureRegion, i, m_strAlphabet.charAt(i));
+			Log.e(TAG, "CAMERA_HEIGHT:"+CAMERA_HEIGHT+" m_BoxTexture.getWidth()"+m_BoxTexture.getWidth()+" CAMERA_HEIGHT/10:"+CAMERA_HEIGHT/10);
 			m_Scene.getLayer(ENTITIES_LAYER).addEntity(m_arrBoxSprite[i]);
 		}
 
@@ -633,10 +634,10 @@ public class ThemeItemActivity extends BaseGameActivity implements IOnMenuItemCl
 		for(int i=0; i<m_strAlphabet.length(); i++){
 			this.m_arrAlphabet[i] = new Texture(256,128,TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 			this.mEngine.getTextureManager().loadTexture(this.m_arrAlphabet[i]);
-			this.m_arrAlphabetTexture[i] = TextureRegionFactory.createTiledFromAsset(this.m_arrAlphabet[i], this, m_strAlphabet.charAt(i)+"1.png", 0, 0, 2, 1 );//m_strAlphabet.charAt(i)+
+			this.m_arrAlphabetTexture[i] = TextureRegionFactory.createTiledFromResource(this.m_arrAlphabet[i], this, res.getAlphabetResourceId(m_strAlphabet.charAt(i)), 0, 0, 2, 1 );//m_strAlphabet.charAt(i)+
 			this.m_arrAlphabetTexture[i].setCurrentTileIndex(0);
 		}
- 
+  
 		for(int j=0; j < m_strAlphabet.length(); j++){
 			m_arrAlphabetSprite[j] = new AlphabetSprite(randomX.nextInt(xRange),
 					randomY.nextInt(yRange), this.m_arrAlphabetTexture[j], j, m_strAlphabet.charAt(j)) {
