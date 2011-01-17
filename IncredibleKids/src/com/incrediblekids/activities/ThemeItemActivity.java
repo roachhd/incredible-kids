@@ -153,9 +153,6 @@ public class ThemeItemActivity extends BaseGameActivity{
 	
 	private Random randomX;
 	private Random randomY;
-
-	private int xRange;
-	private int yRange;
 	
 	private ResourceClass res;
 	private Vector<Item> m_ItemVector;
@@ -172,6 +169,8 @@ public class ThemeItemActivity extends BaseGameActivity{
 
 		CAMERA_WIDTH = getLCDWidth();
 		CAMERA_HEIGHT = getLCDHeight();
+		
+		Log.e(TAG, "CAMERA_WIDTH:"+CAMERA_WIDTH + " CAMERA_HEIGHT"+CAMERA_HEIGHT);
 		
 		res = ResourceClass.getInstance();
 		m_ItemVector = res.getvItems();
@@ -253,10 +252,24 @@ public class ThemeItemActivity extends BaseGameActivity{
 		//Load fail texture
 		this.m_FailTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_FailTextureRegion = TextureRegionFactory.createFromResource(this.m_FailTexture, this, R.drawable.fail_128, 0, 0);
-
-		//Range of random x and y axis
-		xRange = CAMERA_WIDTH - m_BoxTexture.getWidth() * 2;
-		yRange = CAMERA_HEIGHT - CAMERA_HEIGHT/3 - m_BoxTexture.getHeight();
+	}
+	
+	private int getRandomX(){
+		int result = randomX.nextInt(CAMERA_WIDTH);
+		if (result < m_BoxTextureRegion.getWidth())
+			result = m_BoxTextureRegion.getWidth();
+		if (result > CAMERA_WIDTH - 2*m_BoxTextureRegion.getWidth())
+			result = CAMERA_WIDTH - 2*m_BoxTextureRegion.getWidth();
+		Log.e(TAG, "random x:" + result);
+		return result;
+	}
+	
+	private int getRandomY(){
+		int result = randomY.nextInt(CAMERA_HEIGHT);
+		if (result > CAMERA_HEIGHT * 2 / 3 - m_BoxTextureRegion.getHeight())
+			result = CAMERA_HEIGHT * 2 / 3 - m_BoxTextureRegion.getHeight();
+		Log.e(TAG, "random y:" + result + " m_BoxTextureRegion.getHeight():"+ m_BoxTextureRegion.getHeight());
+		return result;
 	}
 
 	@Override
@@ -447,8 +460,8 @@ public class ThemeItemActivity extends BaseGameActivity{
 						if(m_arrBoxSprite[i].bFilled && !m_arrBoxSprite[i].bCorrect){
 
 							m_arrAlphabetSprite[m_arrBoxSprite[i].filledAlphabetIndex].addShapeModifier(new MoveModifier(1,
-									m_arrBoxSprite[i].getX(), randomX.nextInt(xRange),
-									m_arrBoxSprite[i].getY(), randomY.nextInt(yRange),
+									m_arrBoxSprite[i].getX(), getRandomX(),
+									m_arrBoxSprite[i].getY(), getRandomY(),
 									EaseExponentialOut.getInstance()));
 							m_arrAlphabetSprite[m_arrBoxSprite[i].filledAlphabetIndex].setCurrentTileIndex(0);
 							m_arrBoxSprite[i].bFilled = false;
@@ -575,10 +588,10 @@ public class ThemeItemActivity extends BaseGameActivity{
 			this.m_arrAlphabetTexture[i] = TextureRegionFactory.createTiledFromResource(this.m_arrAlphabet[i], this, res.getAlphabetResourceId(m_strAlphabet.charAt(i)), 0, 0, 2, 1 );//m_strAlphabet.charAt(i)+
 			this.m_arrAlphabetTexture[i].setCurrentTileIndex(0);
 		}
-  
+		  
 		for(int j=0; j < m_strAlphabet.length(); j++){
-			m_arrAlphabetSprite[j] = new AlphabetSprite(randomX.nextInt(xRange),
-					randomY.nextInt(yRange), this.m_arrAlphabetTexture[j], j, m_strAlphabet.charAt(j)) {
+			m_arrAlphabetSprite[j] = new AlphabetSprite(getRandomX(),
+					getRandomY(), this.m_arrAlphabetTexture[j], j, m_strAlphabet.charAt(j)) {
 				@Override
 				public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 					if (pSceneTouchEvent.getAction() == MotionEvent.ACTION_UP){
@@ -616,8 +629,8 @@ public class ThemeItemActivity extends BaseGameActivity{
 							m_FailToDropSound.play();
 							
 							this.addShapeModifier(new MoveModifier(1,
-									this.getX(), randomX.nextInt(xRange),
-									this.getY(), randomY.nextInt(yRange),
+									this.getX(), getRandomX(),
+									this.getY(), getRandomY(),
 									EaseExponentialOut.getInstance()));
 							m_CurrentTouchedAlphabetSprite = null;
 							return true;
