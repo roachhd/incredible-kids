@@ -370,10 +370,8 @@ public class ThemeItemActivity extends BaseGameActivity{
 
 				while(m_Scene.getLayer(ENTITIES_LAYER).getEntityCount()>0){
 					m_Scene.getLayer(ENTITIES_LAYER).removeEntity(0);
-				}
-				
+				}				
 				m_Scene.clearUpdateHandlers();
-				m_Scene.clearTouchAreas();	
 				m_iCurrentCollideBoxIdx = 0;
 				m_CurrentTouchedAlphabetSprite = null;
 				m_ItemTextureRegion = null;
@@ -505,6 +503,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 										m_iCurrentItemNum++;
 										m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
 									}
+									m_Scene.clearTouchAreas();
 									drawResult(m_PassSprite);
 									resetAfterDelay(2500);
 								}
@@ -514,6 +513,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 										m_iCurrentItemNum++;
 										m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
 									}
+									m_Scene.clearTouchAreas();
 									drawResult(m_FailSprite);
 									resetAfterDelay(2500);
 								}
@@ -668,10 +668,12 @@ public class ThemeItemActivity extends BaseGameActivity{
 									m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
 								}
 								drawResult(m_PassSprite);
+								m_Scene.clearTouchAreas();
 								resetAfterDelay(2500);
 							}
 							else{								
 								drawResult(m_FailSprite);
+								m_Scene.clearTouchAreas();
 								popupAfterDelay(2500);								
 							}
 						}
