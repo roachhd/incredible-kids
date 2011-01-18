@@ -64,8 +64,8 @@ public class ThemeItemActivity extends BaseGameActivity{
 	// Constants
 	// ===========================================================
 
-	public int CAMERA_WIDTH;// = 800;
-	public int CAMERA_HEIGHT;// = 480;
+	public int CAMERA_WIDTH;
+	public int CAMERA_HEIGHT;
 
 	public final static int CENTER_OFFSET = 50;		//OFFSET for collision detect: larger is less sensitive
 	public final static int BASE_LAYER = 0;		//Base layer for non-changable sprite
@@ -173,6 +173,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 		Log.e(TAG, "CAMERA_WIDTH:"+CAMERA_WIDTH + " CAMERA_HEIGHT"+CAMERA_HEIGHT);
 		
 		res = ResourceClass.getInstance();
+
 		m_ItemVector = res.getvItems();
 
 		m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
@@ -255,19 +256,20 @@ public class ThemeItemActivity extends BaseGameActivity{
 	}
 	
 	private int getRandomX(){
-		int result = randomX.nextInt(CAMERA_WIDTH);
-		if (result < m_BoxTextureRegion.getWidth())
+		int result = randomX.nextInt(CAMERA_WIDTH- 3*m_BoxTextureRegion.getWidth());
+/*		if (result < m_BoxTextureRegion.getWidth())
 			result = m_BoxTextureRegion.getWidth();
 		if (result > CAMERA_WIDTH - 2*m_BoxTextureRegion.getWidth())
-			result = CAMERA_WIDTH - 2*m_BoxTextureRegion.getWidth();
+			result = CAMERA_WIDTH - 2*m_BoxTextureRegion.getWidth();*/
 		Log.e(TAG, "random x:" + result);
-		return result;
+		return result + m_BoxTextureRegion.getWidth();
 	}
 	
 	private int getRandomY(){
-		int result = randomY.nextInt(CAMERA_HEIGHT);
-		if (result > CAMERA_HEIGHT * 2 / 3 - m_BoxTextureRegion.getHeight())
-			result = CAMERA_HEIGHT * 2 / 3 - m_BoxTextureRegion.getHeight();
+		int result = randomY.nextInt(CAMERA_HEIGHT * 2 / 3 - m_BoxTextureRegion.getHeight());
+/*		if (result > CAMERA_HEIGHT * 2 / 3 - m_BoxTextureRegion.getHeight())
+			result = CAMERA_HEIGHT * 2 / 3 - m_BoxTextureRegion.getHeight();*/
+		
 		Log.e(TAG, "random y:" + result + " m_BoxTextureRegion.getHeight():"+ m_BoxTextureRegion.getHeight());
 		return result;
 	}
@@ -688,8 +690,11 @@ public class ThemeItemActivity extends BaseGameActivity{
 					return true;
 				}			
 			};	
-			m_Scene.registerTouchArea(m_arrAlphabetSprite[j]);
+			
 			m_Scene.getLayer(ENTITIES_LAYER).addEntity(m_arrAlphabetSprite[j]);
+		}
+		for (int k = m_strAlphabet.length(); k > 0; k--){
+			m_Scene.registerTouchArea(m_arrAlphabetSprite[k-1]);
 		}
 
 		m_Scene.registerTouchArea(m_Item);	
