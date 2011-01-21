@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.Vector;
 
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.camera.Camera;
@@ -11,34 +12,29 @@ import org.anddev.andengine.engine.options.EngineOptions;
 import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.anddev.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.anddev.andengine.entity.scene.Scene;
-import org.anddev.andengine.entity.scene.background.ColorBackground;
+import org.anddev.andengine.entity.scene.Scene.ITouchArea;
 import org.anddev.andengine.entity.shape.modifier.AlphaModifier;
 import org.anddev.andengine.entity.shape.modifier.SequenceShapeModifier;
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.entity.util.FPSLogger;
 import org.anddev.andengine.input.touch.TouchEvent;
-import org.anddev.andengine.opengl.font.Font;
 import org.anddev.andengine.opengl.texture.Texture;
 import org.anddev.andengine.opengl.texture.TextureOptions;
 import org.anddev.andengine.opengl.texture.region.TextureRegion;
 import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
-import org.anddev.andengine.util.HorizontalAlign;
 
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.incrediblekids.activities.ResourceClass.Item;
 import com.incrediblekids.util.ItemSizeInfo;
 import com.incrediblekids.util.QuizLine;
 import com.incrediblekids.util.ThemeSprite;
-import com.incrediblekids.util.WordSprite;
-import com.incrediblekids.util.WordText;
 
 public class SummaryQuiz extends BaseGameActivity {
-	//	TODO: 카메라 크기 조절
 	//	TODO: O,X 타이밍
+	//	TODO: Hint, Sound on
+	//	TODO: 선 그리기
 	
 	
 	// ===========================================================
@@ -51,11 +47,12 @@ public class SummaryQuiz extends BaseGameActivity {
 	public static int CAMERA_WIDTH;
 	public static int CAMERA_HEIGHT;
 	
-	public static int THEME_ITEM_HEIGHT;
-	public static int THEME_ITEM_WIDTH;
-	public static int THEME_GAP_HEIGHT;
-	public static int THEME_GAP_WIDTH;
-	public static int THEME_MARGIN_HEIGHT;
+	public static float THEME_ITEM_HEIGHT;
+	public static float THEME_ITEM_WIDTH;
+	public static float THEME_GAP_HEIGHT;
+	public static float THEME_GAP_WIDTH;
+	public static float THEME_MARGIN_HEIGHT;
+	public static float THEME_POINT_GAP;
 	
 	public static int WORD_ITEM_HEIGHT;
 	public static int WORD_ITEM_WIDTH;
@@ -64,6 +61,7 @@ public class SummaryQuiz extends BaseGameActivity {
 	public static int WORD_MARGIN_HEIGHT;
 	
 	public static float THEME_ITEM_SCALE;
+	public static float THEME_ITEM_SCALE_X;
 	public static float WORD_ITEM_SCALE;
 	
 	// ===========================================================
@@ -84,14 +82,18 @@ public class SummaryQuiz extends BaseGameActivity {
 	private TextureRegion[] m_ItemTextureRegion;
 	
 	//Word item
+	/**
 	private WordSprite[] m_WordItems;
 	private Texture[]  m_WordItemTextures;
 	private TextureRegion[] m_WordItemTextureRegion;
+	**/
 	
-	//Word Text
-	private WordText[] m_WordText;
-	private Texture[] m_WordTextures;
-	private Font[] m_Font;
+	/**
+	//Point
+	private Sprite[] m_Point;
+	private Texture[]  m_PointTextures;
+	private TextureRegion[] m_PointTextureRegion;
+	**/
 	
 	//Pass
 	private Texture m_PassTexture;
@@ -109,12 +111,12 @@ public class SummaryQuiz extends BaseGameActivity {
 	private Scene m_Scene;
 	
 	//Line
-	private QuizLine[] m_QuizLine;
+//	private QuizLine[] m_QuizLine;
 	
 	private HashMap<Integer, Integer> m_RandomHashMap;
 	
-	//Temp
-	private ArrayList<String> m_tempString = new ArrayList<String>(5);
+	private ResourceClass m_Res;
+	private Vector<Item> m_ItemVector;
 	
 	
 	@Override
@@ -133,50 +135,50 @@ public class SummaryQuiz extends BaseGameActivity {
 		
 		m_ThemeItemSizeInfo = new ItemSizeInfo(getApplicationContext(), THEME_ITEM_COUNT);
 		
-		
-//		CAMERA_WIDTH 		= m_ThemeItemSizeInfo.getLcdWidth();
-//		CAMERA_HEIGHT 		= m_ThemeItemSizeInfo.getLcdHeight();
-		
-		CAMERA_WIDTH 		= 800;
-		CAMERA_HEIGHT 		= 480;
+		CAMERA_WIDTH 		= m_ThemeItemSizeInfo.getLcdWidth();
+		CAMERA_HEIGHT 		= m_ThemeItemSizeInfo.getLcdHeight();
 		
 		THEME_ITEM_HEIGHT	= m_ThemeItemSizeInfo.getItemHeight();
 		THEME_ITEM_WIDTH	= m_ThemeItemSizeInfo.getItemHeight();
 		THEME_GAP_HEIGHT	= m_ThemeItemSizeInfo.getGapHeight();
 		THEME_GAP_WIDTH		= THEME_GAP_HEIGHT * 2;
 		THEME_MARGIN_HEIGHT	= m_ThemeItemSizeInfo.getMarginHeight();
+		THEME_POINT_GAP     = (int) ((ItemSizeInfo.getDP_X(10)) * ItemSizeInfo.DENSITY);	
 		
-		/** to be deleted
+		Log.d(TAG, "THEME_ITEM_HEIGHT:" + THEME_ITEM_HEIGHT);
+		Log.d(TAG, "THEME_ITEM_WIDTH:" + THEME_ITEM_WIDTH);
+		Log.d(TAG, "THEME_GAP_HEIGHT:" + THEME_GAP_HEIGHT);
+		Log.d(TAG, "THEME_GAP_WIDTH:" + THEME_GAP_WIDTH);
+		Log.d(TAG, "THEME_MARGIN_HEIGHT:" + THEME_MARGIN_HEIGHT);
+		
 		m_WordItemSizeInfo 	= new ItemSizeInfo(getApplicationContext(), WORD_ITEM_COUNT);
 		WORD_ITEM_HEIGHT	= m_WordItemSizeInfo.getItemHeight();
 		WORD_ITEM_WIDTH		= m_WordItemSizeInfo.getItemHeight();
 		WORD_GAP_HEIGHT		= m_WordItemSizeInfo.getGapHeight();
 		WORD_GAP_WIDTH		= WORD_GAP_HEIGHT * 2;
 		WORD_MARGIN_HEIGHT	= m_WordItemSizeInfo.getMarginHeight();
-		**/
 		
 		m_Items 			= new ThemeSprite[THEME_ITEM_COUNT];
 		m_ItemTextures 		= new Texture[THEME_ITEM_COUNT];
 		m_ItemTextureRegion = new TextureRegion[THEME_ITEM_COUNT];
 		
+		/**
 		m_WordItems 			= new WordSprite[WORD_ITEM_COUNT];
 		m_WordItemTextures 		= new Texture[WORD_ITEM_COUNT];
 		m_WordItemTextureRegion = new TextureRegion[WORD_ITEM_COUNT];
+		**/
 		
-		m_WordText			= new WordText[WORD_ITEM_COUNT];
-		m_WordTextures		= new Texture[WORD_ITEM_COUNT];
-		m_Font				= new Font[WORD_ITEM_COUNT];
+		// TODO: 라인과 Point init 수정
+//		m_QuizLine			= new QuizLine[THEME_ITEM_COUNT];
 		
-		m_QuizLine	= new QuizLine[THEME_ITEM_COUNT];
+		/** to be deleted
+		m_Point 				= new Sprite[THEME_ITEM_COUNT];
+		m_PointTextures		 	= new Texture[THEME_ITEM_COUNT];
+		m_PointTextureRegion 	= new TextureRegion[THEME_ITEM_COUNT];
+		**/
 		
-		m_tempString.add("bear");
-		m_tempString.add("dog");
-		m_tempString.add("monkey");
-		m_tempString.add("mouse");
-		m_tempString.add("bird");
-		
-		Log.d(TAG, "CAMERA_WIDTH: " + CAMERA_WIDTH);
-		Log.d(TAG, "CAMERA_HEIGHT: " + CAMERA_HEIGHT);
+		m_Res = ResourceClass.getInstance();
+		m_ItemVector = m_Res.getvItems();
 	}
 
 	@Override
@@ -187,7 +189,7 @@ public class SummaryQuiz extends BaseGameActivity {
 		
 		//Background image
 		m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		m_BackgroundTextureRegion = TextureRegionFactory.createFromAsset(m_BackgroundTexture, this, "background_3.png", 0, 0);
+		m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(m_BackgroundTexture, this, R.drawable.background_1, 0, 0);
 		this.mEngine.getTextureManager().loadTexture(m_BackgroundTexture);
 	
 		makeRandomHashMap();
@@ -197,53 +199,65 @@ public class SummaryQuiz extends BaseGameActivity {
 		while(ii.hasNext()) {
 			Integer key = ii.next();
 			int value = m_RandomHashMap.get(key);
+			
+			m_ItemTextures[key] = new Texture(512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+			m_ItemTextureRegion[key] = TextureRegionFactory.createFromResource(m_ItemTextures[key], this, m_ItemVector.get(value).iItemImgId, 0, 0);
+			this.mEngine.getTextureManager().loadTexture(m_ItemTextures[key]);
+		}
+		/**
+		Iterator<Integer> ii = m_RandomHashMap.keySet().iterator();
+		while(ii.hasNext()) {
+			Integer key = ii.next();
+			int value = m_RandomHashMap.get(key);
 			m_ItemTextures[key] = new Texture(512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 			m_ItemTextureRegion[key] = TextureRegionFactory.createFromAsset(this.m_ItemTextures[key], this, m_tempString.get(value) + ".png", 0, 0);
 			this.mEngine.getTextureManager().loadTexture(m_ItemTextures[key]);
-		}
-		
-		/** to be deleted
-		for(int i = 0; i < THEME_ITEM_COUNT; i++) {
-			m_ItemTextures[i] = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-			m_ItemTextureRegion[i] = TextureRegionFactory.createFromAsset(this.m_ItemTextures[i], this, "tiger.png", 0, 0);
-			this.mEngine.getTextureManager().loadTexture(m_ItemTextures[i]);
+			
+			m_PointTextures[key] = new Texture(16, 16, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+			m_PointTextureRegion[key] = TextureRegionFactory.createFromResource(this.m_PointTextures[key], this, R.drawable.dot_16, 0, 0);
+			this.mEngine.getTextureManager().loadTexture(m_PointTextures[key]);
 		}
 		**/
-			
-		/** to be deleted
+		
+		//Load Word Texture
+		/**
 		for(int i = 0; i < WORD_ITEM_COUNT; i++) {
-			m_WordItemTextures[i] = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-			m_WordItemTextureRegion[i] = TextureRegionFactory.createFromAsset(this.m_WordItemTextures[i], this, "tiger.png", 0, 0);
+			m_WordItemTextures[i] = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+			m_WordItemTextureRegion[i] = TextureRegionFactory.createFromResource(m_WordItemTextures[i], this, m_ItemVector.get(i).iWordImgId, 0, 0);
 			this.mEngine.getTextureManager().loadTexture(m_WordItemTextures[i]);
 		}
 		**/
 		
 		//Load WordText texture
+		/** too be deleted
 		for(int i = 0; i < WORD_ITEM_COUNT; i++) {
 			m_WordTextures[i] = new Texture(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 			m_Font[i] = new Font(m_WordTextures[i], Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 32, true, Color.RED);
 			this.mEngine.getTextureManager().loadTexture(m_WordTextures[i]);
 			this.mEngine.getFontManager().loadFont(m_Font[i]);
 		}
+		**/
 		
 		//Load pass texture
 		m_PassTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		m_PassTextureRegion = TextureRegionFactory.createFromAsset(m_PassTexture, this, "pass_128.png", 0, 0);
+		m_PassTextureRegion = TextureRegionFactory.createFromResource(m_PassTexture, this, R.drawable.pass_128, 0, 0);
 		this.mEngine.getTextureManager().loadTexture(m_PassTexture);
 		
 		//Load fail texture
 		m_FailTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		m_FailTextureRegion = TextureRegionFactory.createFromAsset(m_FailTexture, this, "fail_128.png", 0, 0);
+		m_FailTextureRegion = TextureRegionFactory.createFromResource(m_FailTexture, this, R.drawable.fail_128, 0, 0);
 		this.mEngine.getTextureManager().loadTexture(m_FailTexture);
 		
 		// getScale;
 		m_ThemeItemSizeInfo.setRealItemPixel(m_ItemTextureRegion[0].getHeight());
 		THEME_ITEM_SCALE = m_ThemeItemSizeInfo.getMeasuredItemScale();
 		
-		/** to be deleted
+		/**
 		m_WordItemSizeInfo.setRealItemPixel(m_WordItemTextureRegion[0].getHeight());
 		WORD_ITEM_SCALE = m_WordItemSizeInfo.getMeasuredItemScale();
 		**/
+		
+		makeItems();
 	}
 
 	private void makeRandomHashMap() {
@@ -273,31 +287,59 @@ public class SummaryQuiz extends BaseGameActivity {
 
 		//Make scene
 		m_Scene = new Scene(1);
-		m_Scene.setBackground(new ColorBackground(0.09804f, 0.6274f, 0.8784f));
+//		m_Scene.setBackground(new ColorBackground(0.09804f, 0.6274f, 0.8784f));
 		
 		//Add all the entities
 		updateScene();
 		
+		layoutItemPosition();
+		
 		return m_Scene;
 	}
 	
-	
+	private void layoutItemPosition() {
+		Log.d(TAG, "layoutItemPosition()");
+		//TODO: Random 배치
+		
+		float themePosition = THEME_GAP_HEIGHT;
+		
+		Iterator<Integer> ii = m_RandomHashMap.keySet().iterator();
+		for(int i = 0; i < THEME_ITEM_COUNT; i++) {
+			
+			Log.d(TAG, "before x : " + m_Items[i].getX());
+			m_Items[i].setPosition(ItemSizeInfo.getDP_X(THEME_GAP_WIDTH) * ItemSizeInfo.DENSITY, themePosition);
+			m_Items[i].getPoint().setPosition(m_Items[i].getX() + m_Items[i].getWidthScaled(), 
+					m_Items[i].getY() + m_Items[i].getHeightScaled()/2);
+			Log.d(TAG, "x : " + m_Items[i].getX());
+			
+			themePosition = themePosition + THEME_ITEM_HEIGHT + THEME_GAP_HEIGHT;
+		}
+		//TODO: Margin 고려 
+		
+	}
+
 	//Update scene with new entities.
 	private void updateScene() {
 		Log.d(TAG, "updateScene()");
 		
-		makeItems();
 			
 		m_Scene.getTopLayer().addEntity(m_BackgroundSprite);
 		for(int i = 0; i < THEME_ITEM_COUNT; i++) {
-			m_Scene.getTopLayer().addEntity(m_QuizLine[i]);
-			
+//			m_Scene.getTopLayer().addEntity(m_QuizLine[i]);
+//			
+//			if( i == 0) {
+//			}
+			m_Items[i].setScaleCenter(0, 0);
 			m_Items[i].setScale(THEME_ITEM_SCALE);
-			m_Scene.getTopLayer().addEntity(m_Items[i]);
-			m_Scene.registerTouchArea(m_Items[i]);
-		}
 			
-		/** to be deleted
+			m_Scene.getTopLayer().addEntity(m_Items[i]);
+			m_Scene.getTopLayer().addEntity(m_Items[i].getPoint());
+			m_Scene.registerTouchArea(m_Items[i].getPoint());
+		}
+		
+//		m_Items[0].setPosition(0, 0);
+			
+		/**
 		for(int i = 0; i < WORD_ITEM_COUNT; i++) {
 			m_WordItems[i].setScale(WORD_ITEM_SCALE);
 			m_Scene.getTopLayer().addEntity(m_WordItems[i]);
@@ -305,13 +347,57 @@ public class SummaryQuiz extends BaseGameActivity {
 		}
 		**/
 		
-		for(int i = 0; i < WORD_ITEM_COUNT; i++) {
-			m_Scene.getTopLayer().addEntity(m_WordText[i]);
-		}
 		m_Scene.setTouchAreaBindingEnabled(true);
 	}
 
 	private void makeItems() {
+		Log.d(TAG, "makeItems()");
+		
+		Iterator<Integer> ii = m_RandomHashMap.keySet().iterator();
+		while(ii.hasNext()) {
+			Integer key = ii.next();
+			int value = m_RandomHashMap.get(key);
+			
+			m_Items[key] = new ThemeSprite(0, 0, m_ItemTextureRegion[key], m_ItemVector.get(value).strWordCharId, getApplicationContext());
+			
+			m_Items[key].getPoint().setOnAreaTouchListener(new ITouchArea() {
+				
+				@Override
+				public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
+					// TODO Auto-generated method stub
+					return false;
+				}
+				
+				@Override
+				public float[] convertSceneToLocalCoordinates(float pX, float pY) {
+					return null;
+				}
+				
+				@Override
+				public float[] convertLocalToSceneCoordinates(float pX, float pY) {
+					return null;
+				}
+				
+				@Override
+				public boolean contains(float pX, float pY) {
+					return false;
+				}
+			});
+			
+			this.mEngine.getTextureManager().loadTexture(m_Items[key].getPointTexture());
+		}
+		
+		m_PassSprite = new Sprite(CAMERA_WIDTH / 2- (m_PassTexture.getWidth() / 2),
+				CAMERA_HEIGHT / 2 - (m_PassTexture.getHeight()/2), m_PassTextureRegion);		
+		
+		m_FailSprite = new Sprite(CAMERA_WIDTH / 2- (m_PassTexture.getWidth() / 2),
+				CAMERA_HEIGHT / 2 - (m_FailTexture.getHeight()/2), m_FailTextureRegion);		
+		
+		m_BackgroundSprite = new Sprite(0, 0, m_BackgroundTextureRegion); 
+	}
+	
+	@Deprecated
+	private void makeItemsTemp() {
 		Log.d(TAG, "makeItems()");
 		
 		int count = 0;
@@ -335,24 +421,26 @@ public class SummaryQuiz extends BaseGameActivity {
 //		themePosition = 0;
 		wordPosition = 0;
 		
-		Log.d(TAG, "m_WordItem.SCALE :" + WORD_ITEM_SCALE);
+//		Log.d(TAG, "m_WordItem.SCALE :" + WORD_ITEM_SCALE);
 		
-		Log.d(TAG, "leftPosition : " + leftPosition);
-		Log.d(TAG, "position: " + position);
-		Log.d(TAG, "rightPosition: " + rightItemPosition);
-		Log.d(TAG, "themePosition: "+ themePosition);
-		Log.d(TAG, "wordPosition: "+ wordPosition);
+//		Log.d(TAG, "leftPosition : " + leftPosition);
+//		Log.d(TAG, "position: " + position);
+//		Log.d(TAG, "rightPosition: " + rightItemPosition);
+//		Log.d(TAG, "themePosition: "+ themePosition);
+//		Log.d(TAG, "wordPosition: "+ wordPosition);
 		
+		/**
 		for(int i = 0; i < THEME_ITEM_COUNT; i++) {
 			m_QuizLine[i] = new QuizLine(0,0,0,0,5f);
 			m_QuizLine[i].setColor(0.0f,0.0f,0.0f);
 		}
+		**/
 		
 		Iterator<Integer> ii = m_RandomHashMap.keySet().iterator();
 		while(ii.hasNext()) {
 			Integer key = ii.next();
 			int value = m_RandomHashMap.get(key);
-			m_Items[count] = new ThemeSprite(leftPosition, themePosition, m_ItemTextureRegion[count], m_tempString.get(value), m_QuizLine[count]) {
+			m_Items[count] = new ThemeSprite(leftPosition, themePosition, m_ItemTextureRegion[count], "", getApplicationContext()) {
 				
 				@Override
 				public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
@@ -362,10 +450,13 @@ public class SummaryQuiz extends BaseGameActivity {
 						Log.d(TAG, "getString: " + this.get_Id());
 						for(int i = 0; i < WORD_ITEM_COUNT; i++) {
 							// collide with Text
+							/** temp
 							if(getLine().collidesWithAnObject(m_WordText[i])) {
 								getLine().drawLine(getX() + getWidth()/2, getY() + getHeight()/2, m_WordText[i].getX(), m_WordText[i].getY() + m_WordText[i].getHeight()/2);
+								m_WordText[i].getScaleY();
 								getLine().setCollide(true);
 								flag = true;
+								// Hide text and Show TickerText
 								if(get_Id().equals(m_WordText[i].getText())) {
 									Toast.makeText(SummaryQuiz.this, "Right", Toast.LENGTH_SHORT).show();
 									getLine().setCollideState(QuizLine.SUCCESS);
@@ -375,6 +466,7 @@ public class SummaryQuiz extends BaseGameActivity {
 								}
 								break;
 							}
+							**/
 						}
 						if(!flag) {
 							getLine().setPosition(0, 0, 0, 0);
@@ -382,7 +474,9 @@ public class SummaryQuiz extends BaseGameActivity {
 							getLine().setCollide(false);
 						}
 						// TODO: 
+						/** temp
 						updateResultScreen();
+						**/
 						/*
 						for(int i = 0; i < WORD_ITEM_COUNT; i++) {
 							Log.d(TAG, "i : " + i);
@@ -404,7 +498,8 @@ public class SummaryQuiz extends BaseGameActivity {
 					*/
 					}
 					else {	// Drawing Line
-						getLine().setPosition(getX() + getWidth()/2, getY() + getHeight()/2, pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
+//						getLine().setPosition(getX() + getWidth()/2, getY() + getHeight()/2, pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
+						getLine().setPosition(getWidthScaled(), getHeightScaled()/2, pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
 						getLine().setCollideState(QuizLine.FAIL);
 						getLine().setCollide(false);
 						updateResultScreen();
@@ -413,12 +508,23 @@ public class SummaryQuiz extends BaseGameActivity {
 				}
 			};
 			
-			m_WordText[count] = new WordText(0, 0, m_Font[count], m_tempString.get(value), HorizontalAlign.RIGHT);
+//			setPointLayout(m_Items[count], count);
+			
+			/** temp
+			m_WordItems[count] = new WordSprite(rightItemPosition, wordPosition, m_WordItemTextureRegion[count], m_tempString.get(count)) {
+				@Override
+				public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+					return true;
+				}
+			};
+			**/
+			
 			count++;
 			themePosition = themePosition + THEME_ITEM_HEIGHT + THEME_GAP_HEIGHT;
+			wordPosition = wordPosition + WORD_ITEM_HEIGHT + WORD_GAP_HEIGHT;
 		}
 		
-		relocationWordText();
+//		relocationWordText();
 		
 		m_PassSprite = new Sprite(CAMERA_WIDTH / 2- (m_PassTexture.getWidth() / 2),
 				CAMERA_HEIGHT / 2 - (this.m_PassTexture.getHeight()/2), this.m_PassTextureRegion);		
@@ -474,6 +580,18 @@ public class SummaryQuiz extends BaseGameActivity {
 	}
 	
 
+	@Deprecated
+	private void setPointLayout(ThemeSprite theme, int count) {
+		/**
+		Log.d(TAG, "setPointLayout()");
+		
+//			m_Items[count] = new ThemeSprite(leftPosition, themePosition, m_ItemTextureRegion[count], m_tempString.get(value), m_QuizLine[count]) {
+		m_Point[count] = new Sprite(theme.getX() + theme.getWidthScaled() - 160, 
+									theme.getY() + theme.getHeightScaled()/2, m_PointTextureRegion[count]);
+		theme.setPoint(m_Point[count]);
+		**/
+	}
+
 	private void updateResultScreen() {
 		boolean isCollide = true;
 		int collideState = 1;
@@ -496,6 +614,8 @@ public class SummaryQuiz extends BaseGameActivity {
 		}
 	}
 
+	@Deprecated
+	/*
 	private void relocationWordText() {
 		Log.d(TAG, "relocationWordText()");
 		
@@ -511,7 +631,7 @@ public class SummaryQuiz extends BaseGameActivity {
 		
 		// calculator maxWidth
 		for(int i = 0; i < WORD_ITEM_COUNT; i++) {
-			float width = m_WordText[i].getWidth();
+			float width = m_WordText[i].getWidthScaled();
 			if(maxWidth < width)
 				maxWidth = width;
 		}
@@ -542,9 +662,11 @@ public class SummaryQuiz extends BaseGameActivity {
 			Log.d(TAG, "ArrayList[" + "i" + "]: " + randomNum.get(i));
 			Log.d(TAG, "prevHeight: " + prevHeight);
 			m_WordText[randomNum.get(i)].setPosition(leftPosition, prevHeight);
+			m_WordTickerText[randomNum.get(i)].setPosition(leftPosition, prevHeight);
 			prevHeight = prevHeight + m_WordText[0].getHeight() + heightGap;
 		}
 	}
+	*/
 	
 	private void drawResult(Sprite sprite) {
 		Log.d(TAG, "drawResult()");

@@ -47,13 +47,6 @@ public class QuizLine extends Line {
 		float altitude = (pY2 - pY1);
 		final float slope = altitude / baseWidth;
 		
-		// TODO: Thread
-		/*
-		for(float i = pX1; i < pX2; i = i + 0.01f) {
-			setPosition(pX1, pY1, i, pY1 + (i - pX1) * slope);
-		}
-		*/
-		
 		new Thread(new Runnable() {
 			
 			@Override

@@ -20,15 +20,22 @@ public class ItemSizeInfo {
 	
 	private float m_fItemScale;
 	
-	public static final int CAMERA_WIDTH 	= 800;
-	public static final int CAMERA_HEIGHT 	= 480;
+	public static int CAMERA_WIDTH 	= 0;
+	public static int CAMERA_HEIGHT = 0;
+	public static int DENSITY_DPI = 0;
+	public static float DENSITY = 0f;
+	
+	private final float DEFAULT_DP_X = 480f;
+	private final float DEFAULT_DP_Y = 320f;
+	public static float DP_SCALE_X = 0f;
+	public static float DP_SCALE_Y = 0f;
 
 	public ItemSizeInfo(Context mContext, int mItemCount) {
 		Log.d(TAG, "ItemSizeInfo()");
 		m_Context = mContext;
 		m_iItemCount = mItemCount;
 		
-//		measureLcdSize();
+		measureLcdSize();
 		measureItemSize();
 		measureMarginHeight();
 	}
@@ -39,18 +46,36 @@ public class ItemSizeInfo {
 		m_iMarginHeight = (CAMERA_HEIGHT - (m_iItemHeight + m_iGapHeight) * m_iItemCount - m_iGapHeight)/2;
 	}
 
-	@Deprecated
 	private void measureLcdSize() {
 		Log.d(TAG, "measureLcdSize()");
 		DisplayMetrics displayMetrics = m_Context.getResources().getDisplayMetrics();
 		m_iLcdHeight	= displayMetrics.heightPixels;
 		m_iLcdWidth 	= displayMetrics.widthPixels;
+		
+		CAMERA_HEIGHT = m_iLcdHeight;
+		CAMERA_WIDTH  = m_iLcdWidth;
+		
+		DENSITY_DPI = displayMetrics.densityDpi;
+		DENSITY 	= displayMetrics.density;
+		Log.d(TAG, "densityDpi : " + DENSITY_DPI);
+		Log.d(TAG, "density : " + DENSITY);
+		Log.d(TAG, "WIDTH : " + CAMERA_WIDTH);
+		Log.d(TAG, "HEIGHT : " + CAMERA_HEIGHT);
+		
+		DP_SCALE_X = ((CAMERA_WIDTH * 160) / DENSITY_DPI) / DEFAULT_DP_X;
+		DP_SCALE_Y = ((CAMERA_HEIGHT * 160) / DENSITY_DPI) / DEFAULT_DP_Y;
+		Log.d(TAG, "dp_scaleX: " + DP_SCALE_X);
+		Log.d(TAG, "dp_scaleY: " + DP_SCALE_Y);
+		
 	}
 
 	private void measureItemSize() {
 		Log.d(TAG, "measureItemSize()");
 //		m_iItemHeight = m_iLcdHeight / m_iItemCount;
 		m_iItemHeight = CAMERA_HEIGHT / m_iItemCount;
+		m_iItemHeight -= 20 * DP_SCALE_Y * DENSITY;
+		Log.d(TAG, "m_iITemHeight :" + m_iItemHeight);
+		
 		if(CAMERA_HEIGHT % m_iItemCount == 0) {
 			m_iItemHeight = CAMERA_HEIGHT / (m_iItemCount + 1);
 		}
@@ -70,11 +95,11 @@ public class ItemSizeInfo {
 	}
 	
 	public int getLcdHeight() {
-		return CAMERA_HEIGHT;
+		return m_iLcdHeight;
 	}
 
 	public int getLcdWidth() {
-		return CAMERA_WIDTH;
+		return m_iLcdWidth;
 	}
 	
 	public void setRealItemPixel(int realItemPixel) {
@@ -89,5 +114,13 @@ public class ItemSizeInfo {
 	
 	public float getMeasuredItemScale() {
 		return m_fItemScale;
+	}
+	
+	public static float getDP_X(float dp) {
+		return dp * DP_SCALE_X;
+	}
+	
+	public static float getDP_Y(float dp) {
+		return dp * DP_SCALE_Y;
 	}
 }
