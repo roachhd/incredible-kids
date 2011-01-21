@@ -8,6 +8,12 @@
 package com.incrediblekids.activities;
 
 public final class R {
+    public static final class anim {
+        public static final int push_left_in=0x7f040000;
+        public static final int push_left_out=0x7f040001;
+        public static final int push_right_in=0x7f040002;
+        public static final int push_right_out=0x7f040003;
+    }
     public static final class attr {
     }
     public static final class drawable {
@@ -43,51 +49,60 @@ public final class R {
         public static final int l1=0x7f02001d;
         public static final int m1=0x7f02001e;
         public static final int n1=0x7f02001f;
-        public static final int o1=0x7f020020;
-        public static final int p1=0x7f020021;
-        public static final int pass_128=0x7f020022;
-        public static final int q1=0x7f020023;
-        public static final int r1=0x7f020024;
-        public static final int retry_no_btn=0x7f020025;
-        public static final int retry_ok_btn=0x7f020026;
-        public static final int retry_popup_bg=0x7f020027;
-        public static final int s1=0x7f020028;
-        public static final int sound_on_off=0x7f020029;
-        public static final int t1=0x7f02002a;
-        public static final int u1=0x7f02002b;
-        public static final int v1=0x7f02002c;
-        public static final int w1=0x7f02002d;
-        public static final int word_bear=0x7f02002e;
-        public static final int word_bird=0x7f02002f;
-        public static final int word_cat=0x7f020030;
-        public static final int word_dog=0x7f020031;
-        public static final int word_lion=0x7f020032;
-        public static final int word_monkey=0x7f020033;
-        public static final int word_mouse=0x7f020034;
-        public static final int x1=0x7f020035;
-        public static final int y1=0x7f020036;
-        public static final int z1=0x7f020037;
+        public static final int nav=0x7f020020;
+        public static final int o1=0x7f020021;
+        public static final int p1=0x7f020022;
+        public static final int pass_128=0x7f020023;
+        public static final int q1=0x7f020024;
+        public static final int r1=0x7f020025;
+        public static final int retry_no_btn=0x7f020026;
+        public static final int retry_ok_btn=0x7f020027;
+        public static final int retry_popup_bg=0x7f020028;
+        public static final int s1=0x7f020029;
+        public static final int show_pic=0x7f02002a;
+        public static final int sound_on_off=0x7f02002b;
+        public static final int t1=0x7f02002c;
+        public static final int theme_bg=0x7f02002d;
+        public static final int u1=0x7f02002e;
+        public static final int v1=0x7f02002f;
+        public static final int w1=0x7f020030;
+        public static final int word_bear=0x7f020031;
+        public static final int word_bird=0x7f020032;
+        public static final int word_cat=0x7f020033;
+        public static final int word_dog=0x7f020034;
+        public static final int word_lion=0x7f020035;
+        public static final int word_monkey=0x7f020036;
+        public static final int word_mouse=0x7f020037;
+        public static final int x1=0x7f020038;
+        public static final int y1=0x7f020039;
+        public static final int z1=0x7f02003a;
     }
     public static final class id {
-        public static final int ImageView_center=0x7f050005;
-        public static final int ImageView_theme1=0x7f050001;
-        public static final int ImageView_theme2=0x7f050002;
-        public static final int ImageView_theme3=0x7f050003;
-        public static final int ImageView_theme4=0x7f050004;
-        public static final int intro=0x7f050000;
-        public static final int preview_center_image=0x7f050007;
-        public static final int preview_gallery=0x7f05000a;
-        public static final int preview_leftbtn=0x7f050006;
-        public static final int preview_rightbtn=0x7f050009;
-        public static final int preview_word_image=0x7f050008;
+        public static final int ImageView_center=0x7f06000a;
+        public static final int ImageView_theme1=0x7f060006;
+        public static final int ImageView_theme2=0x7f060007;
+        public static final int ImageView_theme3=0x7f060008;
+        public static final int ImageView_theme4=0x7f060009;
+        public static final int intro=0x7f060005;
+        public static final int nav_1=0x7f060001;
+        public static final int nav_2=0x7f060002;
+        public static final int nav_3=0x7f060003;
+        public static final int nav_4=0x7f060004;
+        public static final int preview_center_image=0x7f06000c;
+        public static final int preview_gallery=0x7f06000f;
+        public static final int preview_leftbtn=0x7f06000b;
+        public static final int preview_rightbtn=0x7f06000e;
+        public static final int preview_word_image=0x7f06000d;
+        public static final int viewFlipper=0x7f060000;
     }
     public static final class layout {
-        public static final int main_act=0x7f030000;
-        public static final int main_theme=0x7f030001;
-        public static final int previewwords=0x7f030002;
+        public static final int item_pic_layout=0x7f030000;
+        public static final int main_act=0x7f030001;
+        public static final int main_theme=0x7f030002;
+        public static final int previewwords=0x7f030003;
     }
     public static final class string {
-        public static final int app_name=0x7f040001;
-        public static final int hello=0x7f040000;
+        public static final int app_name=0x7f050001;
+        public static final int hello=0x7f050000;
     }
 }

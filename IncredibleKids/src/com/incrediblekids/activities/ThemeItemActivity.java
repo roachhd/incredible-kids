@@ -42,6 +42,7 @@ import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
 import org.anddev.andengine.util.Debug;
 
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Handler;
@@ -126,6 +127,11 @@ public class ThemeItemActivity extends BaseGameActivity{
 	private Texture  m_HelpTexture;
 	private TextureRegion m_HelpTextureRegion;
 
+	//Show Pic Button Sprite
+	private Sprite m_ShowPicSprite;
+	private Texture  m_ShowPicTexture;
+	private TextureRegion m_ShowPicTextureRegion;
+	
 	//Pause
 	private Scene m_Scene;
 	
@@ -233,6 +239,10 @@ public class ThemeItemActivity extends BaseGameActivity{
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.help , 0, 0);
 
+		//Load Show pic
+		this.m_ShowPicTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_ShowPicTextureRegion = TextureRegionFactory.createFromResource(this.m_ShowPicTexture, this, R.drawable.show_pic, 0, 0);
+		
 		//Retry popup texture
 		m_RetryTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
 		m_RetryOkTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
@@ -321,6 +331,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 		final Sprite retryBGSprite = new Sprite(x , y, this.m_RetryTextureRegion);
 		
 		final Sprite retryOKSprite = new Sprite(x + OFFSET, y + height - okHeight/2, this.m_RetryOkTextureRegion){
+			
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				Log.e(TAG, "onAreaTouched");
@@ -332,6 +343,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 				}
 				return true;
 			}			
+			
 		};
 		
 		final Sprite retryCancelSprite = new Sprite(x + width - okWidth - OFFSET, y + height - okHeight/2, this.m_RetryCancelTextureRegion){
@@ -390,6 +402,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 	private void loadBaseTexture(){
 		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_HelpTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_ShowPicTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_PassTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_FailTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryTexture);
@@ -443,9 +456,10 @@ public class ThemeItemActivity extends BaseGameActivity{
 				CAMERA_WIDTH/2-(this.m_FailTextureRegion.getWidth()/2),
 				CAMERA_HEIGHT/2 - (this.m_FailTextureRegion.getHeight()/2),
 				this.m_FailTextureRegion);
-		
+
 		this.m_Help = new Sprite(CAMERA_WIDTH - m_HelpTextureRegion.getWidth() - m_HelpTextureRegion.getWidth()/2,
 				m_HelpTextureRegion.getHeight()/2, this.m_HelpTextureRegion){
+
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				Log.e(TAG, "onAreaTouched");
@@ -526,9 +540,23 @@ public class ThemeItemActivity extends BaseGameActivity{
 				return true;
 			}
 		};
-
 		m_Scene.getLayer(BASE_LAYER).addEntity(m_Help);
 
+		this.m_ShowPicSprite = new Sprite(CAMERA_WIDTH - m_ShowPicTextureRegion.getWidth() - m_ShowPicTextureRegion.getWidth()/2,
+				m_ShowPicTextureRegion.getHeight() / 2 * 3, this.m_ShowPicTextureRegion){
+			Intent intent = null;
+			@Override
+			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+				Log.e(TAG, "onAreaTouched");
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+					intent = new Intent(ThemeItemActivity.this, ItemPicActivity.class);
+					intent.putExtra(Const.ITEM_NAME, m_strAlphabet);
+					startActivity(intent);
+				}
+				return true;
+			}
+		};
+		m_Scene.getLayer(BASE_LAYER).addEntity(m_ShowPicSprite);
 	}
 
 	//Update scene with new entities.
@@ -540,6 +568,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 		
 		//re registe touch area for help and pause btn
 		m_Scene.registerTouchArea(m_Help);
+		m_Scene.registerTouchArea(m_ShowPicSprite);
 		m_Scene.registerTouchArea(m_SoundSprite);
 		
 		//Load Sound
@@ -616,8 +645,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 							return true;		
 						}	
 
-						//When drop the alphabet to Box
-						
+						//When drop the alphabet to Box						
 						
 						for (int j=0; j < m_arrBoxSprite.length; j++){
 							if(m_arrBoxSprite[j].filledAlphabetIndex == this.sequence){

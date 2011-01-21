@@ -30,8 +30,12 @@
 	    <activity android:name="PreviewWords"
 	    		  android:theme="@android:style/Theme.NoTitleBar"
 	    		  android:screenOrientation="landscape"/>
+	    <activity android:name=".ItemPicActivity"
+	    		  android:theme="@android:style/Theme.NoTitleBar"
+	    		  android:screenOrientation="landscape"/>
 	    		  
 </application>
     <uses-sdk android:minSdkVersion="7" />
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
+	<uses-permission android:name="android.permission.INTERNET" /> 
 </manifest> 
