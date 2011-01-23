@@ -18,6 +18,7 @@ import org.anddev.andengine.engine.options.resolutionpolicy.RatioResolutionPolic
 import org.anddev.andengine.entity.scene.CameraScene;
 import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.scene.background.ColorBackground;
+import org.anddev.andengine.entity.scene.background.SpriteBackground;
 import org.anddev.andengine.entity.scene.menu.MenuScene;
 import org.anddev.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
 import org.anddev.andengine.entity.scene.menu.item.ColoredTextMenuItem;
@@ -141,6 +142,11 @@ public class ThemeItemActivity extends BaseGameActivity{
 	private AnimatedSprite m_SoundSprite;
 	private Boolean m_bSoundOn;
 	
+	//Back button
+	private Texture m_BackTexture;
+	private TextureRegion m_BackTextureRegion;
+	private Sprite m_BackSprite;
+	
 	//Retry 
 	private CameraScene m_RetryScene;
 	private Texture m_RetryTexture;
@@ -212,9 +218,9 @@ public class ThemeItemActivity extends BaseGameActivity{
 		
 		MusicFactory.setAssetBasePath("mfx/");		
 		try {
-			this.m_Music = MusicFactory.createMusicFromAsset(this.mEngine.getMusicManager(), this, "background_animal.ogg");
+			this.m_Music = MusicFactory.createMusicFromAsset(this.mEngine.getMusicManager(), this, "theme_animal.mp3");
 			this.m_Music.setLooping(true);
-			this.m_Music.setVolume(0.2f);
+			this.m_Music.setVolume(0.5f);
 		} catch (final IOException e) {
 			Debug.e("Error", e);
 		}
@@ -243,6 +249,9 @@ public class ThemeItemActivity extends BaseGameActivity{
 		this.m_ShowPicTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_ShowPicTextureRegion = TextureRegionFactory.createFromResource(this.m_ShowPicTexture, this, R.drawable.show_pic, 0, 0);
 		
+		this.m_BackTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_BackTextureRegion = TextureRegionFactory.createFromResource(this.m_BackTexture, this, R.drawable.arrow_back, 0, 0);
+		
 		//Retry popup texture
 		m_RetryTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
 		m_RetryOkTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
@@ -267,19 +276,12 @@ public class ThemeItemActivity extends BaseGameActivity{
 	
 	private int getRandomX(){
 		int result = randomX.nextInt(CAMERA_WIDTH- 3*m_BoxTextureRegion.getWidth());
-/*		if (result < m_BoxTextureRegion.getWidth())
-			result = m_BoxTextureRegion.getWidth();
-		if (result > CAMERA_WIDTH - 2*m_BoxTextureRegion.getWidth())
-			result = CAMERA_WIDTH - 2*m_BoxTextureRegion.getWidth();*/
 		Log.e(TAG, "random x:" + result);
 		return result + m_BoxTextureRegion.getWidth();
 	}
 	
 	private int getRandomY(){
-		int result = randomY.nextInt(CAMERA_HEIGHT * 2 / 3 - m_BoxTextureRegion.getHeight());
-/*		if (result > CAMERA_HEIGHT * 2 / 3 - m_BoxTextureRegion.getHeight())
-			result = CAMERA_HEIGHT * 2 / 3 - m_BoxTextureRegion.getHeight();*/
-		
+		int result = randomY.nextInt(CAMERA_HEIGHT * 2 / 3 - m_BoxTextureRegion.getHeight());	
 		Log.e(TAG, "random y:" + result + " m_BoxTextureRegion.getHeight():"+ m_BoxTextureRegion.getHeight());
 		return result;
 	}
@@ -306,9 +308,10 @@ public class ThemeItemActivity extends BaseGameActivity{
 
 		//Make scene
 		this.m_Scene = new Scene(2);
-		this.m_Scene.setBackground(new ColorBackground(0.09804f, 0.6274f, 0.8784f));
 
 		this.createBaseSprite();
+
+		this.m_Scene.setBackground(new SpriteBackground(m_BackgroundSprite));//new ColorBackground(0.09804f, 0.6274f, 0.8784f));
 		
 		//Add all the entities
 		this.updateScene();
@@ -352,15 +355,12 @@ public class ThemeItemActivity extends BaseGameActivity{
 				Log.e(TAG, "onAreaTouched");
 				
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-//					if (m_iCurrentItemNum < ARR_ANIMAL.length)
-//						m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
 					if (m_iCurrentItemNum < m_ItemVector.size()){
 						m_iCurrentItemNum++;
 						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
 					}
 					m_Scene.clearChildScene();
 					resetScreen();
-
 				}
 				return true;
 			}	
@@ -409,6 +409,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryOkTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryCancelTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_SoundTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_BackTexture);
 	}
 	
 	//Load changeable texture
@@ -423,7 +424,6 @@ public class ThemeItemActivity extends BaseGameActivity{
 		loadBaseTexture();
 
 		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
-		m_Scene.getLayer(BASE_LAYER).addEntity(m_BackgroundSprite);
 		
 		this.m_SoundSprite = new AnimatedSprite(m_SoundTextureRegion.getWidth()/4, m_SoundTextureRegion.getHeight()/2, this.m_SoundTextureRegion){
 			@Override
@@ -557,6 +557,19 @@ public class ThemeItemActivity extends BaseGameActivity{
 			}
 		};
 		m_Scene.getLayer(BASE_LAYER).addEntity(m_ShowPicSprite);
+		
+		this.m_BackSprite = new Sprite(CAMERA_WIDTH - m_BackTextureRegion.getWidth() - m_BackTextureRegion.getWidth()/2,
+				CAMERA_HEIGHT - m_BackTextureRegion.getHeight(), this.m_BackTextureRegion){
+			
+			@Override
+			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+					ThemeItemActivity.this.finish();
+				}
+				return true;
+			}
+		};
+		m_Scene.getLayer(BASE_LAYER).addEntity(m_BackSprite);
 	}
 
 	//Update scene with new entities.
@@ -566,14 +579,15 @@ public class ThemeItemActivity extends BaseGameActivity{
 
 		m_FailSprite.setVisible(true);
 		
-		//re registe touch area for help and pause btn
+		//re regist touch area for help and pause btn
 		m_Scene.registerTouchArea(m_Help);
 		m_Scene.registerTouchArea(m_ShowPicSprite);
 		m_Scene.registerTouchArea(m_SoundSprite);
+		m_Scene.registerTouchArea(m_BackSprite);
 		
 		//Load Sound
 		try {
-			this.m_ItemSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "monkey.mp3");//m_strAlphabet+".mp3");
+			this.m_ItemSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, m_strAlphabet+".mp3");
 			this.m_ItemSound.setVolume(1.0f);
 		} catch (final IOException e) {
 			Debug.e("Error", e);
@@ -792,6 +806,11 @@ public class ThemeItemActivity extends BaseGameActivity{
 
 	}
 	
+	@Override
+	public void onBackPressed() {
+		//do nothing
+	}
+	
 	private boolean isAllBoxesFilled(AlphabetSprite [] sprites){
 		boolean result = true;
 		for(int i=0; i < sprites.length; i++){
@@ -845,4 +864,5 @@ public class ThemeItemActivity extends BaseGameActivity{
 		int height = display.getHeight();
 		return height;
 	}
+	
 }
