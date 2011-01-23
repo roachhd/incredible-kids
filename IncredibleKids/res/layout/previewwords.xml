@@ -9,20 +9,21 @@
 	   	android:layout_height="fill_parent"
 	   	android:background="@drawable/background_1"
 	   	>
-	    <ImageButton
+	    <ImageView
 	    	android:id="@+id/preview_leftbtn"
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content"
 	    	android:layout_alignParentLeft="true"
 	    	android:layout_centerVertical="true"
 	    	android:layout_marginLeft="10dip"
-	    	android:src="@drawable/icon"
+	    	android:src="@drawable/left_arrow"
+	    	android:clickable="true"
 	    />
 	    <ImageView
 	    	android:id="@+id/preview_center_image"
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content"
-	    	android:layout_toRightOf="@id/preview_leftbtn"
+	    	android:layout_centerHorizontal = "true"
 	    	android:layout_marginTop="20dip"
 	    	android:src="@drawable/img_mouse"
 	    />
@@ -34,14 +35,15 @@
 		   	android:layout_centerHorizontal="true"
 		   	android:visibility="gone"
 		/>
-	    <ImageButton
+	    <ImageView
 	    	android:id="@+id/preview_rightbtn"
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content"
 	    	android:layout_alignParentRight="true"
 	    	android:layout_centerVertical="true"
 	    	android:layout_marginRight="10dip"
-	    	android:src="@drawable/icon"
+	    	android:src="@drawable/right_arrow"
+	    	android:clickable="true"
 	    />	    
 	   <Gallery
 			android:id="@+id/preview_gallery"
@@ -51,6 +53,7 @@
 			android:paddingBottom="10dip"
 			android:background="#00ffffff"
 			android:animationDuration="2000"
+			
 		/>
 	</RelativeLayout>
 </LinearLayout>
