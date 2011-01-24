@@ -10,18 +10,18 @@ public class ItemSizeInfo {
 	
 	private final Context m_Context;
 	
-	private int m_iItemHeight;
-	private int m_iGapHeight;
-	private int m_iLcdHeight;
-	private int m_iLcdWidth;
-	private int m_iMarginHeight;
+	private float m_iItemHeight;
+	private float m_iGapHeight;
+	private float m_iLcdHeight;
+	private float m_iLcdWidth;
+	private float m_iMarginHeight;
 	
 	private int m_iItemCount;
 	
 	private float m_fItemScale;
 	
-	public static int CAMERA_WIDTH 	= 0;
-	public static int CAMERA_HEIGHT = 0;
+	public static float CAMERA_WIDTH 	= 0;
+	public static float CAMERA_HEIGHT = 0;
 	public static int DENSITY_DPI = 0;
 	public static float DENSITY = 0f;
 	
@@ -43,7 +43,13 @@ public class ItemSizeInfo {
 	private void measureMarginHeight() {
 		Log.d(TAG, "measureMarginHeight()");
 		
+		Log.d(TAG, "getItemHeight: " + m_iItemHeight);
+		Log.d(TAG, "getGapHeight: " + m_iGapHeight);
+		Log.d(TAG, "CAMERA_HEIGHT: " + CAMERA_HEIGHT);
+		Log.d(TAG, "m_iItemCount: " + m_iItemCount);
 		m_iMarginHeight = (CAMERA_HEIGHT - (m_iItemHeight + m_iGapHeight) * m_iItemCount - m_iGapHeight)/2;
+		Log.d(TAG, "a: " + (CAMERA_HEIGHT - (m_iItemHeight + m_iGapHeight) * m_iItemCount));
+		Log.d(TAG, "m_iMarginHeight: " + m_iMarginHeight);
 	}
 
 	private void measureLcdSize() {
@@ -73,39 +79,48 @@ public class ItemSizeInfo {
 		Log.d(TAG, "measureItemSize()");
 //		m_iItemHeight = m_iLcdHeight / m_iItemCount;
 		m_iItemHeight = CAMERA_HEIGHT / m_iItemCount;
-		m_iItemHeight -= 20 * DP_SCALE_Y * DENSITY;
 		Log.d(TAG, "m_iITemHeight :" + m_iItemHeight);
 		
 		if(CAMERA_HEIGHT % m_iItemCount == 0) {
 			m_iItemHeight = CAMERA_HEIGHT / (m_iItemCount + 1);
 		}
+		
+		m_iItemHeight -= 20 * DP_SCALE_Y * DENSITY;
+		
 		m_iGapHeight = (CAMERA_HEIGHT - (m_iItemHeight * m_iItemCount)) / (m_iItemCount + 1);
 	}
 
-	public int getItemHeight() {
+	public float getItemHeight() {
+		Log.d(TAG, "getItemHeight: " + m_iItemHeight);
 		return m_iItemHeight;
 	}
 	
-	public int getGapHeight() {
+	public float getGapHeight() {
+		Log.d(TAG, "getGapHeight: " + m_iGapHeight);
 		return m_iGapHeight;
 	}
 	
-	public int getMarginHeight() {
+	public float getMarginHeight() {
+		Log.d(TAG, "getMarginHeight: " + m_iMarginHeight);
 		return m_iMarginHeight;
 	}
 	
-	public int getLcdHeight() {
+	public float getLcdHeight() {
 		return m_iLcdHeight;
 	}
 
-	public int getLcdWidth() {
+	public float getLcdWidth() {
 		return m_iLcdWidth;
 	}
 	
 	public void setRealItemPixel(int realItemPixel) {
 		Log.d(TAG, "measureItemScale()");
+		Log.d(TAG, "realItemPixel : " + realItemPixel);
+		Log.d(TAG, "m_iItemHeight : " + m_iItemHeight);
 		try {
 			m_fItemScale = ((float)m_iItemHeight / (float)realItemPixel);
+			Log.d(TAG, "m_fItemScale : " + m_fItemScale);
+			
 		}
 		catch (Exception e) {
 			Log.e(TAG, "measureITemScale, error: " + e.getMessage());

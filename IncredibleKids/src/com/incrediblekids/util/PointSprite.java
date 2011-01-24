@@ -6,9 +6,12 @@ import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.opengl.texture.region.TextureRegion;
 import org.anddev.andengine.opengl.vertex.RectangleVertexBuffer;
 
+import android.util.Log;
+
 public class PointSprite extends Sprite {
 	
 	private ITouchArea m_Listener;
+	private final String TAG = "PointSprite";
 
 	
 	public PointSprite(float pX, float pY, float pWidth, float pHeight, TextureRegion pTextureRegion, RectangleVertexBuffer pRectangleVertexBuffer) {
@@ -34,6 +37,9 @@ public class PointSprite extends Sprite {
 	@Override
 	public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 			float pTouchAreaLocalX, float pTouchAreaLocalY) {
+		Log.d(TAG, "onAreaTouched()");
 		return m_Listener.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
 	}
+	
+	
 }

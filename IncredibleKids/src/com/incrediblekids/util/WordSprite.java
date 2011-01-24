@@ -58,4 +58,8 @@ public class WordSprite extends Sprite {
 	public Texture getPointTexture() {
 		return m_PointTexture;
 	}
+	
+	public WordSprite getParentSprite() {
+		return this;
+	}
 }

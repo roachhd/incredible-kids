@@ -10,13 +10,15 @@ public class ThemeSprite extends WordSprite {
 	
 	public ThemeSprite(float pX, float pY, TextureRegion pTextureRegion, String mId, Context mContext) {
 		super(pX, pY, pTextureRegion, mId, mContext);
+		init();
 	}
 	
 	public QuizLine getLine() {
 		return m_Line;
 	}
 
-	public void setLine(QuizLine pLine) {
-		m_Line = pLine;
+	private void init() {
+		m_Line = new QuizLine(0,0,0,0,5f);
+		m_Line.setColor(0.0f,0.0f,0.0f);
 	}
 }
