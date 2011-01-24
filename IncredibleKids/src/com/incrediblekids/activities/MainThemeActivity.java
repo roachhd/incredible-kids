@@ -171,7 +171,7 @@ public class MainThemeActivity extends BaseGameActivity{
 			}
 		};
 		this.m_AnimalAnimSprite.animate(800);
-		this.m_ToyAnimSprite = new AnimatedSprite(500, 10, this.m_ToyTextureRegion){
+		this.m_ToyAnimSprite = new AnimatedSprite(m_CameraWidth - m_ToyTextureRegion.getWidth() - 10, 10, this.m_ToyTextureRegion){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				Intent intent;
@@ -183,7 +183,8 @@ public class MainThemeActivity extends BaseGameActivity{
 				return true;
 			}
 		};
-		this.m_NumberAnimSprite = new AnimatedSprite(10, 300, this.m_NumberTextureRegion){
+		
+		this.m_NumberAnimSprite = new AnimatedSprite(10, m_CameraHeight - m_NumberTextureRegion.getHeight() - 10, this.m_NumberTextureRegion){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				Intent intent;
@@ -195,7 +196,7 @@ public class MainThemeActivity extends BaseGameActivity{
 				return true;
 			}
 		};
-		this.m_FruitAnimSprite = new AnimatedSprite(500, 300, this.m_FruitTextureRegion){
+		this.m_FruitAnimSprite = new AnimatedSprite(m_CameraWidth - m_ToyTextureRegion.getWidth() - 10, m_CameraHeight - m_NumberTextureRegion.getHeight() - 10, this.m_FruitTextureRegion){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				Intent intent;
