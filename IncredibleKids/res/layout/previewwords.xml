@@ -19,13 +19,12 @@
 	    	android:src="@drawable/left_arrow"
 	    	android:clickable="true"
 	    />
-	    <ImageView
+	    <ImageSwitcher
 	    	android:id="@+id/preview_center_image"
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content"
 	    	android:layout_centerHorizontal = "true"
 	    	android:layout_marginTop="20dip"
-	    	android:src="@drawable/img_mouse"
 	    />
 	    <ImageView
 		  	android:id="@+id/preview_word_image"
@@ -45,14 +44,13 @@
 	    	android:src="@drawable/right_arrow"
 	    	android:clickable="true"
 	    />	    
-	   <Gallery
+	   <com.incrediblekids.util.PreviewGallery
 			android:id="@+id/preview_gallery"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:layout_alignParentBottom="true"
 			android:paddingBottom="10dip"
 			android:background="#00ffffff"
-			android:animationDuration="2000"
 			
 		/>
 	</RelativeLayout>
