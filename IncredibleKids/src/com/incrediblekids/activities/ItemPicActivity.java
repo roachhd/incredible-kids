@@ -1,9 +1,23 @@
 package com.incrediblekids.activities;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xml.sax.SAXException;
+
+import com.aetrion.flickr.Flickr;
+import com.aetrion.flickr.FlickrException;
+import com.aetrion.flickr.REST;
+import com.aetrion.flickr.Transport;
+import com.aetrion.flickr.photos.Photo;
+import com.aetrion.flickr.photos.PhotoList;
+import com.aetrion.flickr.photos.PhotosInterface;
+import com.aetrion.flickr.photos.SearchParameters;
 import com.incrediblekids.network.HttpCall;
 import com.incrediblekids.util.Const;
 import com.incrediblekids.util.ImageManager;
@@ -15,6 +29,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -24,14 +39,19 @@ import android.widget.LinearLayout;
 import android.widget.ViewFlipper;
 
 public class ItemPicActivity extends Activity implements View.OnTouchListener{
-	/** Called when the activity is first created. */
+	
+	private final String TAG = "ItemPicActivity";
+	private final String FLICKR_KEY = "edce333ce82dfc77c47fce4bfb7a2803";
+	private final String FLICKR_SEC = "e48bbb5063ef5943";
+	private final String FLICKR_UID = "24882827@N04";
+	
 	private ProgressDialog m_LoadindDialog = null;
-	ViewFlipper flipper;
-	// 터치 이벤트 발생 지점의 x좌표 저장
-	float xAtDown;
-	float xAtUp;
-	Bitmap bitmap[] = null;
-	private ArrayList <String> imageUrlArr = null;
+	private ViewFlipper m_flipper;
+
+	private float m_fAtDown;
+	private float m_fAtUp;
+	private Bitmap m_aBitmap[] = null;
+	private ArrayList <String> m_ImageUrlArr = null;
 
 	@Override  
 	public void onCreate(Bundle savedInstanceState) {
@@ -54,10 +74,11 @@ public class ItemPicActivity extends Activity implements View.OnTouchListener{
 		
 		Thread thread = new Thread(new Runnable() {
 			public void run(){	
-				imageUrlArr = getImageURLs(term, Const.PIC_ANIMAL);
-				bitmap = new Bitmap[imageUrlArr.size()];
-				for (int count=0; count < imageUrlArr.size(); count++){
-					bitmap[count] = ImageManager.UrlToBitmap((imageUrlArr.get(count)));
+				m_ImageUrlArr = getImageURLs(term, 4, 1);
+				m_aBitmap = new Bitmap[m_ImageUrlArr.size()];
+				for (int count=0; count < m_ImageUrlArr.size(); count++){
+					Log.e(TAG, m_ImageUrlArr.get(count));
+					m_aBitmap[count] = ImageManager.getImageBitmap((m_ImageUrlArr.get(count)));
 				}
 				mainHandler.sendEmptyMessage(0);
 			} 
@@ -68,18 +89,66 @@ public class ItemPicActivity extends Activity implements View.OnTouchListener{
 	private Handler mainHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			m_LoadindDialog.dismiss();
-			flipper = (ViewFlipper)findViewById(R.id.viewFlipper);
-			flipper.setOnTouchListener(ItemPicActivity.this);
+			m_flipper = (ViewFlipper)findViewById(R.id.viewFlipper);
+			m_flipper.setOnTouchListener(ItemPicActivity.this);
 			LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-			for (int i=0; i < imageUrlArr.size(); i++){
+			for (int i=0; i < m_ImageUrlArr.size(); i++){
 				ImageView iv = new ImageView(ItemPicActivity.this);
 				iv.setLayoutParams(layoutParams);
-				iv.setImageBitmap(bitmap[i]);
-				flipper.addView(iv);
+				iv.setImageBitmap(m_aBitmap[i]);
+				m_flipper.addView(iv);
 			}
 		}
 	};
-	private ArrayList <String> getImageURLs(String searchText, String pic_source){
+	
+	//Get Image from flickr
+	public ArrayList <String> getImageURLs(String searchText, int perPage, int pageNum){
+		Log.e(TAG, "getImageURLs for term " + searchText);
+		ArrayList <String> urlArray = new ArrayList <String>();
+		Transport rest;
+		try {
+			rest = new REST();
+			String [] a = new String[1];
+			a[0] = new String(searchText);
+			Flickr flickr=new Flickr(FLICKR_KEY, FLICKR_SEC, rest);
+			SearchParameters searchParams=new SearchParameters();
+			searchParams.setTagMode("all");
+			searchParams.setUserId(FLICKR_UID);
+			searchParams.setTags(a);
+
+			PhotosInterface photosInterface=flickr.getPhotosInterface();
+			PhotoList photoList = photosInterface.search(searchParams,perPage,pageNum);
+			
+			if(photoList!=null){
+
+				for(int i=0;i<photoList.size();i++){
+					Log.e(TAG, "photo");
+					Photo photo=(Photo)photoList.get(i);
+					urlArray.add(photo.getLargeUrl());
+				}
+			}
+			else{
+				Log.e(TAG, "photo list is null");
+			}
+			Log.e(TAG, "getPhotosInterface() photoList.size = "+photoList.size());
+		} catch (ParserConfigurationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}  catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FlickrException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return urlArray;
+	}
+	
+	private ArrayList <String> getImageURLsFromGoogle(String searchText, String pic_source){
 		String response = HttpCall.execute("https://ajax.googleapis.com/ajax/services/search/images?v=1.0&as_sitesearch=" + pic_source + "&q="+searchText);
 		ArrayList <String> result = new ArrayList<String>();
 		JSONObject root	= null;
@@ -102,36 +171,30 @@ public class ItemPicActivity extends Activity implements View.OnTouchListener{
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		// 터치 이벤트가 일어난 뷰가 ViewFlipper가 아니면 return
-		if(v != flipper) return false;		
+		if(v != m_flipper) return false;		
 
 		if(event.getAction() == MotionEvent.ACTION_DOWN) {
-			xAtDown = event.getX(); // 터치 시작지점 x좌표 저장			
+			m_fAtDown = event.getX();
 		}
 		else if(event.getAction() == MotionEvent.ACTION_UP){
-			xAtUp = event.getX(); 	// 터치 끝난지점 x좌표 저장
+			m_fAtUp = event.getX(); 
 
-			if( xAtUp < xAtDown ) {
-				// 왼쪽 방향 에니메이션 지정
-				flipper.setInAnimation(AnimationUtils.loadAnimation(this,
+			if( m_fAtUp < m_fAtDown ) {
+				m_flipper.setInAnimation(AnimationUtils.loadAnimation(this,
 						R.anim.push_left_in));
-				flipper.setOutAnimation(AnimationUtils.loadAnimation(this,
+				m_flipper.setOutAnimation(AnimationUtils.loadAnimation(this,
 						R.anim.push_left_out));
-
-				// 다음 view 보여줌
-				flipper.showNext();
+				m_flipper.showNext();
 				
 			}
-			else if (xAtUp > xAtDown){
-				// 오른쪽 방향 에니메이션 지정
-				flipper.setInAnimation(AnimationUtils.loadAnimation(this,
+			else if (m_fAtUp > m_fAtDown){
+				m_flipper.setInAnimation(AnimationUtils.loadAnimation(this,
 						R.anim.push_right_in));
-				flipper.setOutAnimation(AnimationUtils.loadAnimation(this,
+				m_flipper.setOutAnimation(AnimationUtils.loadAnimation(this,
 						R.anim.push_right_out));
-				// 전 view 보여줌
-				flipper.showPrevious();			
+				m_flipper.showPrevious();			
 			}
-			turnNaviOn(flipper.getDisplayedChild());
+			turnNaviOn(m_flipper.getDisplayedChild());
 		}		
 		return true;
 	}
@@ -166,6 +229,9 @@ public class ItemPicActivity extends Activity implements View.OnTouchListener{
 			iv2.setBackgroundColor(Color.TRANSPARENT);
 			iv3.setBackgroundColor(Color.TRANSPARENT);
 			break;
+		default:
+			break;
+				
 		}
 	}
 }

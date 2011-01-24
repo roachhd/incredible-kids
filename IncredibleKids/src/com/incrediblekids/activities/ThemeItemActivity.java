@@ -3,8 +3,6 @@ package com.incrediblekids.activities;
 import java.io.IOException;
 import java.util.Random;
 import java.util.Vector;
-
-import javax.microedition.khronos.opengles.GL10;
 import org.anddev.andengine.audio.music.Music;
 import org.anddev.andengine.audio.music.MusicFactory;
 import org.anddev.andengine.audio.sound.Sound;
@@ -17,15 +15,9 @@ import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.anddev.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.anddev.andengine.entity.scene.CameraScene;
 import org.anddev.andengine.entity.scene.Scene;
-import org.anddev.andengine.entity.scene.background.ColorBackground;
 import org.anddev.andengine.entity.scene.background.SpriteBackground;
-import org.anddev.andengine.entity.scene.menu.MenuScene;
-import org.anddev.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
-import org.anddev.andengine.entity.scene.menu.item.ColoredTextMenuItem;
-import org.anddev.andengine.entity.scene.menu.item.IMenuItem;
 import org.anddev.andengine.entity.shape.modifier.AlphaModifier;
 import org.anddev.andengine.entity.shape.modifier.MoveModifier;
-import org.anddev.andengine.entity.shape.modifier.RotationModifier;
 import org.anddev.andengine.entity.shape.modifier.SequenceShapeModifier;
 import org.anddev.andengine.entity.shape.modifier.ease.EaseElasticOut;
 import org.anddev.andengine.entity.shape.modifier.ease.EaseExponentialOut;
@@ -33,8 +25,6 @@ import org.anddev.andengine.entity.sprite.AnimatedSprite;
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.entity.util.FPSLogger;
 import org.anddev.andengine.input.touch.TouchEvent;
-import org.anddev.andengine.opengl.font.Font;
-import org.anddev.andengine.opengl.font.FontFactory;
 import org.anddev.andengine.opengl.texture.Texture;
 import org.anddev.andengine.opengl.texture.TextureOptions;
 import org.anddev.andengine.opengl.texture.region.TextureRegion;
@@ -42,17 +32,11 @@ import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
 import org.anddev.andengine.util.Debug;
-
 import android.content.Intent;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
-import android.widget.Toast;
-
 import com.incrediblekids.activities.ResourceClass.Item;
 import com.incrediblekids.util.AlphabetSprite;
 import com.incrediblekids.util.Const;
@@ -80,8 +64,6 @@ public class ThemeItemActivity extends BaseGameActivity{
 	public final static int MENU_QUIT = MENU_RESET + 1;
 	public final static String TAG = "TouchDragExample";
 	public final static char EMPTY_ALPHABET = '0';
-	
-	//public final static String [] ARR_ANIMAL = {"dog", "sheep", "bear", "cat", "monkey", "lion", "mouse", "bird"};
 
 	// ===========================================================
 	// Fields
@@ -173,24 +155,19 @@ public class ThemeItemActivity extends BaseGameActivity{
 	@Override
 	public Engine onLoadEngine() {
 
-		m_iCurrentItemNum = 0;
-		m_bSoundOn = true;
+		this.m_iCurrentItemNum = 0;
+		this.m_bSoundOn = true;
 
-		randomX = new Random();
-		randomY = new Random();
+		this.randomX = new Random();
+		this.randomY = new Random();
 
-		CAMERA_WIDTH = getLCDWidth();
-		CAMERA_HEIGHT = getLCDHeight();
-		
-		Log.e(TAG, "CAMERA_WIDTH:"+CAMERA_WIDTH + " CAMERA_HEIGHT"+CAMERA_HEIGHT);
-		
-		res = ResourceClass.getInstance();
+		this.CAMERA_WIDTH = getLCDWidth();
+		this.CAMERA_HEIGHT = getLCDHeight();
+		this.res = ResourceClass.getInstance();
+		this.m_ItemVector = res.getvItems();
+		this.m_strAlphabet = this.m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
 
-		m_ItemVector = res.getvItems();
-
-		m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
-		//m_strAlphabet = ARR_ANIMAL[m_iCurrentItemNum++];
-		m_iCurrentCollideBoxIdx = 0;
+		this.m_iCurrentCollideBoxIdx = 0;
 		this.m_Camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 
 		return new Engine(new EngineOptions(true, ScreenOrientation.LANDSCAPE,
@@ -253,17 +230,17 @@ public class ThemeItemActivity extends BaseGameActivity{
 		this.m_BackTextureRegion = TextureRegionFactory.createFromResource(this.m_BackTexture, this, R.drawable.arrow_back, 0, 0);
 		
 		//Retry popup texture
-		m_RetryTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
-		m_RetryOkTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
-		m_RetryCancelTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
+		this.m_RetryTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
+		this.m_RetryOkTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
+		this.m_RetryCancelTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
 		
-		m_RetryTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryTexture, this, R.drawable.retry_popup_bg,0,0);
-		m_RetryOkTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryOkTexture, this, R.drawable.retry_ok_btn,0,0);
-		m_RetryCancelTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryCancelTexture, this, R.drawable.retry_no_btn,0,0);
+		this.m_RetryTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryTexture, this, R.drawable.retry_popup_bg,0,0);
+		this.m_RetryOkTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryOkTexture, this, R.drawable.retry_ok_btn,0,0);
+		this.m_RetryCancelTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryCancelTexture, this, R.drawable.retry_no_btn,0,0);
 		
 		//Load sound on/off
-		m_SoundTexture = new Texture(128, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		m_SoundTextureRegion = TextureRegionFactory.createTiledFromResource(m_SoundTexture, this, R.drawable.sound_on_off, 0, 0, 2, 1);
+		this.m_SoundTexture = new Texture(128, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_SoundTextureRegion = TextureRegionFactory.createTiledFromResource(m_SoundTexture, this, R.drawable.sound_on_off, 0, 0, 2, 1);
 		
 		//Load pass texture
 		this.m_PassTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -308,9 +285,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 
 		//Make scene
 		this.m_Scene = new Scene(2);
-
 		this.createBaseSprite();
-
 		this.m_Scene.setBackground(new SpriteBackground(m_BackgroundSprite));//new ColorBackground(0.09804f, 0.6274f, 0.8784f));
 		
 		//Add all the entities
@@ -320,7 +295,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 	}
 	
 	private void composeRetryScene(){
-		final int OFFSET = 80;	
+		final int OFFSET = CAMERA_WIDTH/10;	
 		final int width = this.m_RetryTextureRegion.getWidth();
 		final int height = this.m_RetryTextureRegion.getHeight();
 		final int okHeight = this.m_RetryOkTextureRegion.getHeight();
@@ -510,6 +485,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 							m_arrBoxSprite[i].bCorrect = true;
 							m_arrBoxSprite[i].filledAlphabetIndex = i;
 							m_arrBoxSprite[i].alphabetContainer = m_arrAlphabetSprite[i].alphabet;
+							
 							//reset screen to next item when user clear the stage
 							if(isAllBoxesFilled(m_arrBoxSprite)){
 								if(isStageCleared(m_arrBoxSprite)){
