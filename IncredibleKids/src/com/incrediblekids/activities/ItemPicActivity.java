@@ -83,8 +83,7 @@ public class ItemPicActivity extends Activity implements View.OnTouchListener{
 				mainHandler.sendEmptyMessage(0);
 			} 
 		}); 
-		thread.start();
-		
+		thread.start();		
 	}
 	private Handler mainHandler = new Handler() {
 		public void handleMessage(Message msg) {
