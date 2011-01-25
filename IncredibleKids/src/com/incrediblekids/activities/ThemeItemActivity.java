@@ -526,6 +526,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 				Log.e(TAG, "onAreaTouched");
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
 					intent = new Intent(ThemeItemActivity.this, ItemPicActivity.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 					intent.putExtra(Const.ITEM_NAME, m_strAlphabet);
 					startActivity(intent);
 				}

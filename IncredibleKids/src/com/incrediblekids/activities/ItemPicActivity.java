@@ -26,6 +26,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -52,10 +53,13 @@ public class ItemPicActivity extends Activity implements View.OnTouchListener{
 	private float m_fAtUp;
 	private Bitmap m_aBitmap[] = null;
 	private ArrayList <String> m_ImageUrlArr = null;
+	
+	private static int s_iPreIndex = 0;
 
 	@Override  
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.e(TAG, "onCreate");
 		Intent intent = getIntent();
 		 
 		setContentView(R.layout.item_pic_layout);
@@ -78,13 +82,14 @@ public class ItemPicActivity extends Activity implements View.OnTouchListener{
 				m_aBitmap = new Bitmap[m_ImageUrlArr.size()];
 				for (int count=0; count < m_ImageUrlArr.size(); count++){
 					Log.e(TAG, m_ImageUrlArr.get(count));
-					m_aBitmap[count] = ImageManager.getImageBitmap((m_ImageUrlArr.get(count)));
+					m_aBitmap[count] = ImageManager.UrlToBitmap((m_ImageUrlArr.get(count)));
 				}
 				mainHandler.sendEmptyMessage(0);
 			} 
 		}); 
 		thread.start();		
 	}
+	
 	private Handler mainHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			m_LoadindDialog.dismiss();
@@ -97,6 +102,7 @@ public class ItemPicActivity extends Activity implements View.OnTouchListener{
 				iv.setImageBitmap(m_aBitmap[i]);
 				m_flipper.addView(iv);
 			}
+			initNav();
 		}
 	};
 	
@@ -113,15 +119,13 @@ public class ItemPicActivity extends Activity implements View.OnTouchListener{
 			SearchParameters searchParams=new SearchParameters();
 			searchParams.setTagMode("all");
 			searchParams.setUserId(FLICKR_UID);
-			searchParams.setTags(a);
+			searchParams.setTags(a);			
 
 			PhotosInterface photosInterface=flickr.getPhotosInterface();
 			PhotoList photoList = photosInterface.search(searchParams,perPage,pageNum);
 			
 			if(photoList!=null){
-
 				for(int i=0;i<photoList.size();i++){
-					Log.e(TAG, "photo");
 					Photo photo=(Photo)photoList.get(i);
 					urlArray.add(photo.getLargeUrl());
 				}
@@ -131,41 +135,16 @@ public class ItemPicActivity extends Activity implements View.OnTouchListener{
 			}
 			Log.e(TAG, "getPhotosInterface() photoList.size = "+photoList.size());
 		} catch (ParserConfigurationException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}  catch (SAXException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (FlickrException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		return urlArray;
-	}
-	
-	private ArrayList <String> getImageURLsFromGoogle(String searchText, String pic_source){
-		String response = HttpCall.execute("https://ajax.googleapis.com/ajax/services/search/images?v=1.0&as_sitesearch=" + pic_source + "&q="+searchText);
-		ArrayList <String> result = new ArrayList<String>();
-		JSONObject root	= null;
-		JSONObject responseData = null;
-		JSONArray resultArray = null;
-		try {
-			root = new JSONObject(response);
-			responseData = root.getJSONObject("responseData");
-			resultArray = responseData.getJSONArray("results");
-			
-			for (int i=0; i < resultArray.length(); i++){
-				result.add(resultArray.getJSONObject(i).getString("url"));
-			}
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return result;
 	}
 
 	@Override
@@ -198,39 +177,31 @@ public class ItemPicActivity extends Activity implements View.OnTouchListener{
 		return true;
 	}
 	
-	private void turnNaviOn(int index){
-		ImageView iv1 = (ImageView)findViewById(R.id.nav_1);
-		ImageView iv2 = (ImageView)findViewById(R.id.nav_2);
-		ImageView iv3 = (ImageView)findViewById(R.id.nav_3);
-		ImageView iv4 = (ImageView)findViewById(R.id.nav_4);
-		switch(index){
-		case 0:			
-			iv1.setBackgroundColor(Color.RED);
-			iv2.setBackgroundColor(Color.TRANSPARENT);
-			iv3.setBackgroundColor(Color.TRANSPARENT);
-			iv4.setBackgroundColor(Color.TRANSPARENT);
-			break;
-		case 1:
-			iv2.setBackgroundColor(Color.RED);
-			iv1.setBackgroundColor(Color.TRANSPARENT);
-			iv3.setBackgroundColor(Color.TRANSPARENT);
-			iv4.setBackgroundColor(Color.TRANSPARENT);
-			break;
-		case 2:
-			iv3.setBackgroundColor(Color.RED);
-			iv1.setBackgroundColor(Color.TRANSPARENT);
-			iv2.setBackgroundColor(Color.TRANSPARENT);
-			iv4.setBackgroundColor(Color.TRANSPARENT);
-			break;
-		case 3:
-			iv4.setBackgroundColor(Color.RED);
-			iv1.setBackgroundColor(Color.TRANSPARENT);
-			iv2.setBackgroundColor(Color.TRANSPARENT);
-			iv3.setBackgroundColor(Color.TRANSPARENT);
-			break;
-		default:
-			break;
-				
+	//Init Image navi view	
+	private void initNav(){
+		
+		ImageView ivRedCircle = new ImageView(this);
+		ivRedCircle.setImageResource(R.drawable.nav_sel);
+		
+		LinearLayout li = (LinearLayout)findViewById(R.id.nav_linear_layout);
+		li.removeAllViews();
+		li.addView(ivRedCircle, 0);
+
+		for(int i = 1; i < m_ImageUrlArr.size(); i++ ){
+			ImageView ivGreenCircle = new ImageView(this);
+			ivGreenCircle.setImageResource(R.drawable.nav);
+			li.addView(ivGreenCircle, i);			
 		}
+	}
+	
+	//Change Image navi view	
+	private void turnNaviOn(int index){
+		LinearLayout li = (LinearLayout)findViewById(R.id.nav_linear_layout);
+		
+		ImageView iv = (ImageView)li.getChildAt(index);
+		ImageView ivPre = (ImageView)li.getChildAt(s_iPreIndex);
+		iv.setImageResource(R.drawable.nav_sel);
+		ivPre.setImageResource(R.drawable.nav);
+		s_iPreIndex = index;
 	}
 }
