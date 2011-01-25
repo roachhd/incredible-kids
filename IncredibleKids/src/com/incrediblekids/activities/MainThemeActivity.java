@@ -284,6 +284,16 @@ public class MainThemeActivity extends BaseGameActivity{
 		return m_Scene;
 	}
 	
+	@Override
+	public void onBackPressed() {
+		if (m_Scene.hasChildScene()){
+			m_Scene.clearChildScene();
+			registTouchArea();
+		}else{
+			super.onBackPressed();
+		}
+	}
+	
 	private void registTouchArea(){
 		m_Scene.registerTouchArea(m_AnimalAnimSprite);
 		m_Scene.registerTouchArea(m_ToyAnimSprite);

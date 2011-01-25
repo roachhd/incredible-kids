@@ -535,7 +535,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 		};
 		m_Scene.getLayer(BASE_LAYER).addEntity(m_ShowPicSprite);
 		
-		this.m_BackSprite = new Sprite(CAMERA_WIDTH - m_BackTextureRegion.getWidth() - m_BackTextureRegion.getWidth()/2,
+		this.m_BackSprite = new Sprite(CAMERA_WIDTH - m_BackTextureRegion.getWidth(),
 				CAMERA_HEIGHT - m_BackTextureRegion.getHeight(), this.m_BackTextureRegion){
 			
 			@Override
