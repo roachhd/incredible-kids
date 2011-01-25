@@ -20,6 +20,8 @@ public class WordSprite extends Sprite {
 	private PointSprite m_Point;
 	private Texture m_PointTexture;
 	private TextureRegion m_PointTextureRegion;
+	
+	private float m_fPointMarginY;
 
 	public WordSprite(float pX, float pY, TextureRegion pTextureRegion, String mId, Context mContext) {
 		super(pX, pY, pTextureRegion);
@@ -30,9 +32,9 @@ public class WordSprite extends Sprite {
 
 	private void init() {
 		Log.d(TAG, "init()");
-		m_PointTexture = new Texture(16, 16, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		m_PointTextureRegion = TextureRegionFactory.createFromResource(m_PointTexture, m_Context, R.drawable.dot_16, 0, 0);
-		m_Point = new PointSprite(0, 0, m_PointTextureRegion);
+		m_PointTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		m_PointTextureRegion = TextureRegionFactory.createFromResource(m_PointTexture, m_Context, R.drawable.point, 0, 0);
+		m_Point = new PointSprite(0, 0, m_PointTextureRegion, m_Context);
 	}
 
 	public String get_Id() {
@@ -61,5 +63,11 @@ public class WordSprite extends Sprite {
 	
 	public WordSprite getParentSprite() {
 		return this;
+	}
+	
+	public float getPointMarginY() {
+		m_fPointMarginY = (getHeightScaled() - m_Point.getHeight()) / 2;
+		Log.d(TAG, "getPointMarginY() :" + m_fPointMarginY);
+		return m_fPointMarginY;
 	}
 }

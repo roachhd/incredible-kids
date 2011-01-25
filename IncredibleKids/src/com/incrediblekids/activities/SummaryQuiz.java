@@ -71,9 +71,9 @@ public class SummaryQuiz extends BaseGameActivity {
 	public static float WORD_MARGIN_HEIGHT;
 	public static float WORD_POINT_GAP;
 	
-	public static float THEME_ITEM_SCALE;
-	public static float THEME_ITEM_SCALE_X;
-	public static float WORD_ITEM_SCALE;
+//	public static float THEME_ITEM_SCALE;
+//	public static float THEME_ITEM_SCALE_X;
+//	public static float WORD_ITEM_SCALE;
 	
 	// ===========================================================
 	// Fields
@@ -112,55 +112,10 @@ public class SummaryQuiz extends BaseGameActivity {
 	
 	private Scene m_Scene;
 	
-	//Line
-//	private QuizLine[] m_QuizLine;
-	
 	private HashMap<Integer, Integer> m_RandomHashMap;
 	
 	private ResourceClass m_Res;
 	private Vector<Item> m_ItemVector;
-	
-	private ImageLineView mView;
-	
-	private float m_fLineStartX;
-	private float m_fLineStartY;
-	private float m_fLineLastX;
-	private float m_fLineLastY;
-	
-	private class ImageLineView extends View {
-
-		public ImageLineView(Context context) {
-			super(context);
-		}
-		
-		@Override
-		protected void onDraw(Canvas canvas) {
-			Paint Pnt = new Paint();
-			Pnt.setAntiAlias(true);
-			
-			Bitmap point = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.red_dot);
-			
-			Pnt.setShader(new BitmapShader(point, TileMode.MIRROR, TileMode.REPEAT));
-			Pnt.setStrokeWidth(5);
-			canvas.drawLine(m_fLineStartX, m_fLineStartY, m_fLineLastX, m_fLineLastY, Pnt);
-		}
-		
-		@Override
-		public boolean onTouchEvent(MotionEvent event) {
-			Log.d(TAG, "onTouchEvent()");
-			if(event.getAction() == MotionEvent.ACTION_MOVE) {
-				Log.d(TAG, "ACTION_UP");
-				m_fLineLastX = event.getX();
-				m_fLineLastY = event.getY();
-				invalidate();
-			}
-			else if(event.getAction() == MotionEvent.ACTION_UP) {
-				
-			}
-			return false;
-		}
-		
-	}
 	
 	@Override
 	public Engine onLoadEngine() {
@@ -172,17 +127,13 @@ public class SummaryQuiz extends BaseGameActivity {
 		return new Engine(new EngineOptions(true, ScreenOrientation.LANDSCAPE, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), 
 				m_Camera).setNeedsMusic(true).setNeedsSound(true));
 	}
-	
-	
 
 	@Override
 	protected void onCreate(Bundle pSavedInstanceState) {
-		mView = new ImageLineView(this);
+//		mView = new ImageLineView(this);
 		super.onCreate(pSavedInstanceState);
-		addContentView(mView, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+//		addContentView(mView, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 	}
-
-
 
 	private void init() {
 		Log.d(TAG, "init()");
@@ -243,28 +194,13 @@ public class SummaryQuiz extends BaseGameActivity {
 			int value = m_RandomHashMap.get(key);
 			
 			m_ItemTextures[key] = new Texture(512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-			m_ItemTextureRegion[key] = TextureRegionFactory.createFromResource(m_ItemTextures[key], this, m_ItemVector.get(value).iItemImgId, 0, 0);
+			m_ItemTextureRegion[key] = TextureRegionFactory.createFromResource(m_ItemTextures[key], this, m_ItemVector.get(value).iSmallItemImgId, 0, 0);
 			this.mEngine.getTextureManager().loadTexture(m_ItemTextures[key]);
 			
-			m_WordItemTextures[key] = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-			m_WordItemTextureRegion[key] = TextureRegionFactory.createFromResource(m_WordItemTextures[key], this, m_ItemVector.get(value).iWordImgId, 0, 0);
+			m_WordItemTextures[key] = new Texture(512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+			m_WordItemTextureRegion[key] = TextureRegionFactory.createFromResource(m_WordItemTextures[key], this, m_ItemVector.get(value).iSmallWordImgId, 0, 0);
 			this.mEngine.getTextureManager().loadTexture(m_WordItemTextures[key]);
 		}
-		
-		/**
-		Iterator<Integer> ii = m_RandomHashMap.keySet().iterator();
-		while(ii.hasNext()) {
-			Integer key = ii.next();
-			int value = m_RandomHashMap.get(key);
-			m_ItemTextures[key] = new Texture(512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-			m_ItemTextureRegion[key] = TextureRegionFactory.createFromAsset(this.m_ItemTextures[key], this, m_tempString.get(value) + ".png", 0, 0);
-			this.mEngine.getTextureManager().loadTexture(m_ItemTextures[key]);
-			
-			m_PointTextures[key] = new Texture(16, 16, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-			m_PointTextureRegion[key] = TextureRegionFactory.createFromResource(this.m_PointTextures[key], this, R.drawable.dot_16, 0, 0);
-			this.mEngine.getTextureManager().loadTexture(m_PointTextures[key]);
-		}
-		**/
 		
 		//Load pass texture
 		m_PassTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -277,6 +213,7 @@ public class SummaryQuiz extends BaseGameActivity {
 		this.mEngine.getTextureManager().loadTexture(m_FailTexture);
 		
 		// getScale;
+		/*
 		m_ThemeItemSizeInfo.setRealItemPixel(m_ItemTextureRegion[0].getHeight());
 		THEME_ITEM_SCALE = m_ThemeItemSizeInfo.getMeasuredItemScale();
 		Log.d(TAG, "THEME_ITEM_SCALE: " + THEME_ITEM_SCALE);
@@ -284,6 +221,7 @@ public class SummaryQuiz extends BaseGameActivity {
 		m_WordItemSizeInfo.setRealItemPixel(m_WordItemTextureRegion[0].getHeight());
 		WORD_ITEM_SCALE = m_WordItemSizeInfo.getMeasuredItemScale();
 		Log.d(TAG, "WORD_ITEM_SCALE: " + THEME_ITEM_SCALE);
+		*/
 		
 		makeItems();
 	}
@@ -298,7 +236,7 @@ public class SummaryQuiz extends BaseGameActivity {
 		rnd = new Random(System.currentTimeMillis());
 		
 		while(true) {
-			tempNum = Math.abs(rnd.nextInt(4) + 1);
+			tempNum = Math.abs(rnd.nextInt(6) + 1);
 			if(!m_RandomHashMap.containsValue(tempNum)) {
 				m_RandomHashMap.put(count, tempNum);
 				count++;
@@ -329,23 +267,26 @@ public class SummaryQuiz extends BaseGameActivity {
 		
 		float themePosition = THEME_GAP_HEIGHT;
 		float wordPosition	= WORD_GAP_HEIGHT + WORD_MARGIN_HEIGHT;
-		float maxWidth = 0;
 		int index;
 		int count = 0;
 		
 		ArrayList<Integer> tempList = new ArrayList<Integer>(3);
 		Random rnd;
 		
+		// getPoint Scale
+		
 		for(int i = 0; i < THEME_ITEM_COUNT; i++) {
 			
 			Log.d(TAG, "before x : " + m_Items[i].getX());
-			m_Items[i].setPosition(ItemSizeInfo.getDP_X(THEME_GAP_WIDTH) * ItemSizeInfo.DENSITY, themePosition);
+			m_Items[i].setPosition(/*ItemSizeInfo.getDP_X*/(THEME_GAP_WIDTH)/* * ItemSizeInfo.DENSITY*/, themePosition);
+//			m_Items[i].setPosition(0, themePosition);
 			m_Items[i].getPoint().setPosition(m_Items[i].getX() + m_Items[i].getWidthScaled() - THEME_POINT_GAP / ItemSizeInfo.DENSITY,
-					m_Items[i].getY() + m_Items[i].getHeightScaled()/2);
+					m_Items[i].getY() + m_Items[i].getPointMarginY()/* + m_Items[i].getHeightScaled()/2*/);
 			
 			themePosition = themePosition + THEME_ITEM_HEIGHT + THEME_GAP_HEIGHT;
 		}
-		
+//		
+		/*
 		// calculator maxWidth
 		for(int i = 0; i < WORD_ITEM_COUNT; i++) {
 			float width = m_WordItems[i].getWidthScaled();
@@ -353,6 +294,7 @@ public class SummaryQuiz extends BaseGameActivity {
 				maxWidth = width;
 		}
 		Log.d(TAG, "maxWidth: " + maxWidth);
+		*/
 		
 		rnd = new Random(System.currentTimeMillis());
 		
@@ -364,6 +306,9 @@ public class SummaryQuiz extends BaseGameActivity {
 				
 				m_WordItems[index].setPosition(CAMERA_WIDTH - m_WordItems[index].getWidthScaled(), wordPosition);
 				Log.d(TAG, "widthScale : " + m_WordItems[index].getWidthScaled());
+				
+				m_WordItems[index].getPoint().setPosition(CAMERA_WIDTH - m_WordItems[index].getWidth() - WORD_GAP_WIDTH/ItemSizeInfo.DENSITY, 
+						m_Items[index].getY() + m_Items[index].getPointMarginY());
 
 				wordPosition = wordPosition + WORD_ITEM_HEIGHT + WORD_GAP_HEIGHT;
 				count++;
@@ -379,8 +324,10 @@ public class SummaryQuiz extends BaseGameActivity {
 		
 		m_Scene.getTopLayer().addEntity(m_BackgroundSprite);
 		for(int i = 0; i < THEME_ITEM_COUNT; i++) {
-			m_Items[i].setScaleCenter(0, 0);
-			m_Items[i].setScale(THEME_ITEM_SCALE * ItemSizeInfo.DP_SCALE_X, THEME_ITEM_SCALE);
+//			m_Items[i].setScaleCenter(0, 0);
+//			m_Items[i].setScale(THEME_ITEM_SCALE * ItemSizeInfo.DP_SCALE_X, THEME_ITEM_SCALE);
+			
+			addContentView(m_Items[i].getPoint().getImageLine(), new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 			
 			m_Scene.getTopLayer().addEntity(m_Items[i].getLine());
 			m_Scene.getTopLayer().addEntity(m_Items[i]);
@@ -389,12 +336,11 @@ public class SummaryQuiz extends BaseGameActivity {
 		}
 		
 		for(int i = 0; i < WORD_ITEM_COUNT; i++) {
-			m_WordItems[i].setScaleCenter(0, 0);
-			m_WordItems[i].setScale(WORD_ITEM_SCALE * ItemSizeInfo.DP_SCALE_X, WORD_ITEM_SCALE);
+//			m_WordItems[i].setScaleCenter(0, 0);
+//			m_WordItems[i].setScale(WORD_ITEM_SCALE * ItemSizeInfo.DP_SCALE_X, WORD_ITEM_SCALE);
 			
 			m_Scene.getTopLayer().addEntity(m_WordItems[i]);
 			m_Scene.getTopLayer().addEntity(m_WordItems[i].getPoint());
-			m_Scene.registerTouchArea(m_WordItems[i].getPoint());
 		}
 		
 		m_Scene.setTouchAreaBindingEnabled(true);
@@ -412,26 +358,40 @@ public class SummaryQuiz extends BaseGameActivity {
 			m_WordItems[key] 	= new WordSprite(0, 0, m_WordItemTextureRegion[key], m_ItemVector.get(value).strWordCharId, getApplicationContext());
 			
 			final ThemeSprite item = m_Items[key];
+			item.getLine().setVisible(false);
 			
 			m_Items[key].getPoint().setOnAreaTouchListener(new ITouchArea() {
 				
 				@Override
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
+					Log.d(TAG, "onAreaTouched()");
 					if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_UP) {
 						Log.d(TAG, "ACTION_UP");
-						// Test
-						item.getLine().setVisible(false);
+						for(int i = 0; i < WORD_ITEM_COUNT; i++) {
+							if(item.getLine().collidesWithAnObject(m_WordItems[i].getPoint())) {
+//								item.getLine().drawLine(getX() + getWidth()/2, getY() + getHeight()/2, m_WordText[i].getX(), m_WordText[i].getY() + m_WordText[i].getHeight()/2);
+								item.getPoint().setCollide(true);
+								Log.d(TAG, "collides");
+								pSceneTouchEvent.getMotionEvent().setLocation(m_WordItems[i].getPoint().getX() + m_WordItems[i].getPoint().getWidth()/2, m_WordItems[i].getPoint().getY() + m_WordItems[i].getPoint().getHeight()/2);
+								break;
+							}
+							else {
+								item.getPoint().setCollide(false);
+							}
+						}
+						item.getPoint().getImageLine().onTouchEvent(pSceneTouchEvent.getMotionEvent());
 					}
 					else {
+						item.getLine().setPosition(item.getPoint().getX() + item.getPoint().getWidth()/2, item.getPoint().getY() + item.getPoint().getHeight()/2,
+								pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
+						/*
 						m_fLineStartX = item.getPoint().getX() + item.getPoint().getWidth()/2;
 						m_fLineStartY = item.getPoint().getY() + item.getPoint().getHeight()/2;
-						/*
 						item.getLine().setPosition(item.getPoint().getX() + item.getPoint().getWidth()/2, item.getPoint().getY() + item.getPoint().getHeight()/2,
 								pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
 								*/
-						
+						item.getPoint().getImageLine().onTouchEvent(pSceneTouchEvent.getMotionEvent());
 					}
-					mView.onTouchEvent(pSceneTouchEvent.getMotionEvent());
 					return true;
 				}
 				
@@ -462,6 +422,7 @@ public class SummaryQuiz extends BaseGameActivity {
 		m_BackgroundSprite = new Sprite(0, 0, m_BackgroundTextureRegion); 
 	}
 	
+	/*
 	@Deprecated
 	private void makeItemsTemp() {
 		Log.d(TAG, "makeItems()");
@@ -487,21 +448,6 @@ public class SummaryQuiz extends BaseGameActivity {
 //		themePosition = 0;
 		wordPosition = 0;
 		
-//		Log.d(TAG, "m_WordItem.SCALE :" + WORD_ITEM_SCALE);
-		
-//		Log.d(TAG, "leftPosition : " + leftPosition);
-//		Log.d(TAG, "position: " + position);
-//		Log.d(TAG, "rightPosition: " + rightItemPosition);
-//		Log.d(TAG, "themePosition: "+ themePosition);
-//		Log.d(TAG, "wordPosition: "+ wordPosition);
-		
-		/**
-		for(int i = 0; i < THEME_ITEM_COUNT; i++) {
-			m_QuizLine[i] = new QuizLine(0,0,0,0,5f);
-			m_QuizLine[i].setColor(0.0f,0.0f,0.0f);
-		}
-		**/
-		
 		Iterator<Integer> ii = m_RandomHashMap.keySet().iterator();
 		while(ii.hasNext()) {
 			Integer key = ii.next();
@@ -516,7 +462,6 @@ public class SummaryQuiz extends BaseGameActivity {
 						Log.d(TAG, "getString: " + this.get_Id());
 						for(int i = 0; i < WORD_ITEM_COUNT; i++) {
 							// collide with Text
-							/** temp
 							if(getLine().collidesWithAnObject(m_WordText[i])) {
 								getLine().drawLine(getX() + getWidth()/2, getY() + getHeight()/2, m_WordText[i].getX(), m_WordText[i].getY() + m_WordText[i].getHeight()/2);
 								m_WordText[i].getScaleY();
@@ -532,7 +477,6 @@ public class SummaryQuiz extends BaseGameActivity {
 								}
 								break;
 							}
-							**/
 						}
 						if(!flag) {
 							getLine().setPosition(0, 0, 0, 0);
@@ -540,31 +484,9 @@ public class SummaryQuiz extends BaseGameActivity {
 							getLine().setCollide(false);
 						}
 						// TODO: 
-						/** temp
 						updateResultScreen();
-						**/
-						/*
-						for(int i = 0; i < WORD_ITEM_COUNT; i++) {
-							Log.d(TAG, "i : " + i);
-							if(getLine().collidesWithAnObject(m_WordItems[i])) {
-								Log.d(TAG, "i = " + i + ", break");
-								getLine().setPosition(getX() + getWidth()/2, getY() + getHeight()/2, 
-										m_WordItems[i].getX() + m_WordItems[i].getWidth()/2, m_WordItems[i].getY() + m_WordItems[i].getHeight()/2);
-								flag = true;
-								break;
-							}
-							else {
-//								getLine().setPosition(0, 0, 0, 0);
-							}
-						}
-						if(!flag) {
-							getLine().setPosition(0, 0, 0, 0);
-						}
-							
-					*/
 					}
 					else {	// Drawing Line
-//						getLine().setPosition(getX() + getWidth()/2, getY() + getHeight()/2, pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
 						getLine().setPosition(getWidthScaled(), getHeightScaled()/2, pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
 						getLine().setCollideState(QuizLine.FAIL);
 						getLine().setCollide(false);
@@ -574,23 +496,10 @@ public class SummaryQuiz extends BaseGameActivity {
 				}
 			};
 			
-//			setPointLayout(m_Items[count], count);
-			
-			/** temp
-			m_WordItems[count] = new WordSprite(rightItemPosition, wordPosition, m_WordItemTextureRegion[count], m_tempString.get(count)) {
-				@Override
-				public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-					return true;
-				}
-			};
-			**/
-			
 			count++;
 			themePosition = themePosition + THEME_ITEM_HEIGHT + THEME_GAP_HEIGHT;
 			wordPosition = wordPosition + WORD_ITEM_HEIGHT + WORD_GAP_HEIGHT;
 		}
-		
-//		relocationWordText();
 		
 		m_PassSprite = new Sprite(CAMERA_WIDTH / 2- (m_PassTexture.getWidth() / 2),
 				CAMERA_HEIGHT / 2 - (this.m_PassTexture.getHeight()/2), this.m_PassTextureRegion);		
@@ -599,51 +508,8 @@ public class SummaryQuiz extends BaseGameActivity {
 				CAMERA_HEIGHT / 2 - (this.m_FailTexture.getHeight()/2), this.m_FailTextureRegion);		
 		
 		m_BackgroundSprite = new Sprite(0, 0, m_BackgroundTextureRegion); 
-		
-		/** to be deleted
-		for(int i = 0; i < WORD_ITEM_COUNT; i++) {
-			
-			m_Items[i] = new ThemeSprite(leftPosition, themePosition, m_ItemTextureRegion[i], m_tempString.get(i), m_QuizLine[i]) {
-				@Override
-				public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-					if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_UP) {
-						Log.d(TAG, "ACTION_UP");
-						
-						for(int i = 0; i < m_WordItems.length; i++) {
-							if(getLine().collidesWithAnObject(m_WordItems[i])) {
-								Log.d(TAG, "collides");
-								getLine().setPosition(getX() + getWidth()/2, getY() + getHeight()/2, 
-										m_WordItems[i].getX() + m_WordItems[i].getWidth()/2, m_WordItems[i].getY() + m_WordItems[i].getHeight()/2);
-							}
-							else {
-								Log.d(TAG, "clear");
-								getLine().setPosition(0, 0, 0, 0);
-
-							}
-						}
-					}
-					else {
-						getLine().setPosition(getX() + getWidth()/2, getY() + getHeight()/2, 
-								pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
-					}
-					return true;
-				}
-			};
-			
-			
-			m_WordItems[i] = new WordSprite(rightItemPosition, wordPosition, m_WordItemTextureRegion[i], m_tempString.get(i)) {
-				@Override
-				public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-					return true;
-				}
-			};
-			wordPosition = wordPosition + WORD_ITEM_HEIGHT + WORD_GAP_HEIGHT;
-			Log.d(TAG, "themePositionAfter: "+ themePosition);
-			Log.d(TAG, "wordPositionAfter: "+ wordPosition);
-		}
-		**/
-		
 	}
+	*/
 	
 
 	@Deprecated
