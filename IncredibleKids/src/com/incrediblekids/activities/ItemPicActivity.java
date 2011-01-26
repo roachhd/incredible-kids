@@ -4,12 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.xml.sax.SAXException;
-
 import com.aetrion.flickr.Flickr;
 import com.aetrion.flickr.FlickrException;
 import com.aetrion.flickr.REST;
@@ -18,15 +13,12 @@ import com.aetrion.flickr.photos.Photo;
 import com.aetrion.flickr.photos.PhotoList;
 import com.aetrion.flickr.photos.PhotosInterface;
 import com.aetrion.flickr.photos.SearchParameters;
-import com.incrediblekids.network.HttpCall;
 import com.incrediblekids.util.Const;
 import com.incrediblekids.util.ImageManager;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -54,14 +46,14 @@ public class ItemPicActivity extends Activity implements View.OnTouchListener{
 	private Bitmap m_aBitmap[] = null;
 	private ArrayList <String> m_ImageUrlArr = null;
 	
-	private static int s_iPreIndex = 0;
+	private static int s_iPreIndex;
 
 	@Override  
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.e(TAG, "onCreate");
 		Intent intent = getIntent();
-		 
+		s_iPreIndex = 0;
 		setContentView(R.layout.item_pic_layout);
 		
 		//Check whether network connection is available or not.
