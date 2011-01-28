@@ -6,8 +6,6 @@ import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.opengl.texture.region.TextureRegion;
 import org.anddev.andengine.opengl.vertex.RectangleVertexBuffer;
 
-import com.incrediblekids.activities.R;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,9 +13,12 @@ import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Shader.TileMode;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.incrediblekids.activities.R;
 
 public class PointSprite extends Sprite {
 	
@@ -26,6 +27,9 @@ public class PointSprite extends Sprite {
 	private ImageLineView m_ImageLine;
 	private int m_iCollide;
 	private boolean m_bIsCollide;
+	
+	public static final int SUCCESS = 1;
+	public static final int FAIL = 0;
 	
 	public PointSprite(float pX, float pY, float pWidth, float pHeight, TextureRegion pTextureRegion, RectangleVertexBuffer pRectangleVertexBuffer) {
 		super(pX, pY, pWidth, pHeight, pTextureRegion, pRectangleVertexBuffer);
@@ -41,7 +45,7 @@ public class PointSprite extends Sprite {
 	
 	public PointSprite(float pX, float pY, TextureRegion pTextureRegion, Context pContext) {
 		super(pX, pY, pTextureRegion);
-		initView(pContext);
+		init(pContext);
 	}
 
 	public PointSprite(float pX, float pY, float pWidth, float pHeight, TextureRegion pTextureRegion) {
@@ -52,9 +56,11 @@ public class PointSprite extends Sprite {
 		m_Listener = l;
 	}
 	
-	public void initView(Context _context) {
+	public void init(Context _context) {
 		Log.d(TAG, "initView()");
 		m_ImageLine = new ImageLineView(_context);
+		m_iCollide = FAIL;
+		m_bIsCollide = false;
 	}
 	
 	public ImageLineView getImageLine() {
@@ -90,28 +96,36 @@ public class PointSprite extends Sprite {
 		private float m_fLineLastX;
 		private float m_fLineLastY;
 		private boolean m_bFlag = false;
+		private Handler m_Handler;
+		private Paint m_Pnt;
 		
 		public ImageLineView(Context context) {
 			super(context);
+			m_Handler = new Handler();
+			m_Pnt = new Paint();
+			Bitmap point = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.red_dot);
+			m_Pnt.setShader(new BitmapShader(point, TileMode.MIRROR, TileMode.REPEAT));
+			m_Pnt.setAntiAlias(true);
+			m_Pnt.setStrokeWidth(5);
 		}
 		
 		@Override
-		protected void onDraw(Canvas canvas) {
-			Log.d(TAG, "onDraw()");
-			Paint Pnt = new Paint();
-			Pnt.setAntiAlias(true);
-			
-			Bitmap point = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.red_dot);
-			
-			Pnt.setShader(new BitmapShader(point, TileMode.MIRROR, TileMode.REPEAT));
-			Pnt.setStrokeWidth(5);
-			
-			canvas.drawLine(m_fLineStartX, m_fLineStartY, m_fLineLastX, m_fLineLastY, Pnt);
+		protected void onDraw(final Canvas canvas) {
+//			Log.d(TAG, "onDraw()");
+			if(!isCollide()) {
+			}
+			else {
+				Log.d(TAG, "m_fLineStartX: " + m_fLineStartX);
+				Log.d(TAG, "m_fLineStartY: " + m_fLineStartY);
+				Log.d(TAG, "m_fLineLastX: " + m_fLineLastX);
+				Log.d(TAG, "m_fLineLastY: " + m_fLineLastY);
+			}
+			canvas.drawLine(m_fLineStartX, m_fLineStartY, m_fLineLastX, m_fLineLastY, m_Pnt);
 		}
 		
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
-			Log.d(TAG, "onTouchEvent()");
+//			Log.d(TAG, "onTouchEvent()");
 			if(event.getAction() == MotionEvent.ACTION_MOVE) {
 				m_fLineLastX = event.getX();
 				m_fLineLastY = event.getY();
@@ -128,6 +142,8 @@ public class PointSprite extends Sprite {
 				if(isCollide()) {
 					m_fLineLastX = event.getX();
 					m_fLineLastY = event.getY();
+					// Draw slowly
+//					drawLine(m_fLineStartX, m_fLineStartY, m_fLineLastX, m_fLineLastY);
 				}
 				else {
 					m_fLineLastX = m_fLineStartX;
@@ -139,6 +155,28 @@ public class PointSprite extends Sprite {
 			}
 			return false;
 		}
+		
+		private void drawLine(final float pX1, final float pY1, final float pX2, final float pY2) {
+			float baseWidth = (pX2 - pX1);
+			float altitude = (pY2 - pY1);
+			final float slope = altitude / baseWidth;
+			new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					m_Handler.post(new Runnable() {
+						@Override
+						public void run() {
+							for(float i = pX1; i < pX2; i = i + 0.02f) {
+								Log.d(TAG, "run()");
+//								canvas.drawLine(pX1, pY1, i, pY1 + (i - pX1) * slope, m_Pnt);
+								invalidate();
+							}
+						}
+					});
+				}
+			}).start();
+		}	
 	}
 	
 	
