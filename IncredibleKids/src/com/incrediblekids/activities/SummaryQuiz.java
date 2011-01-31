@@ -139,9 +139,8 @@ public class SummaryQuiz extends BaseGameActivity {
 
 	@Override
 	protected void onCreate(Bundle pSavedInstanceState) {
-//		mView = new ImageLineView(this);
 		super.onCreate(pSavedInstanceState);
-//		addContentView(mView, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+		Log.d(TAG, "onCreate()");
 	}
 
 	private void init() {
@@ -285,10 +284,9 @@ public class SummaryQuiz extends BaseGameActivity {
 		//Make scene
 		m_Scene = new Scene(1);
 		
+		layoutItemPosition();
 		//Add all the entities
 		updateScene();
-		
-		layoutItemPosition();
 		
 		return m_Scene;
 	}
@@ -320,11 +318,11 @@ public class SummaryQuiz extends BaseGameActivity {
 						for(int i = 0; i < WORD_ITEM_COUNT; i++) {
 							if(item.getLine().collidesWithAnObject(m_WordItems[i].getPoint())) {
 //								item.getLine().drawLine(getX() + getWidth()/2, getY() + getHeight()/2, m_WordText[i].getX(), m_WordText[i].getY() + m_WordText[i].getHeight()/2);
-								Log.d(TAG, "collides");
+								Log.d(TAG, "collides, i :" + i);
+								Log.d(TAG, "ID: " + item.get_Id());
+								Log.d(TAG, "wordID: " + m_WordItems[i].get_Id());
 								item.getPoint().setCollide(true);
 								if(item.get_Id().equals(m_WordItems[i].get_Id())) {
-									Log.d(TAG, "ID: " + item.get_Id());
-									Log.d(TAG, "wordID: " + m_WordItems[i].get_Id());
 									item.getPoint().setCollideState(PointSprite.SUCCESS);
 								}
 								pSceneTouchEvent.getMotionEvent().setLocation(m_WordItems[i].getPoint().getX() + m_WordItems[i].getPoint().getWidth()/2, m_WordItems[i].getPoint().getY() + m_WordItems[i].getPoint().getHeight()/2);
@@ -336,11 +334,12 @@ public class SummaryQuiz extends BaseGameActivity {
 							}
 						}
 						item.getPoint().getImageLine().onTouchEvent(pSceneTouchEvent.getMotionEvent());
-					}
-					else {
+					}	
+					else {	// Action Move
 						item.getLine().setPosition(item.getPoint().getX() + item.getPoint().getWidth()/2, item.getPoint().getY() + item.getPoint().getHeight()/2,
 								pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
 						item.getPoint().getImageLine().onTouchEvent(pSceneTouchEvent.getMotionEvent());
+						item.getPoint().setCollide(false);
 						item.getPoint().setCollideState(PointSprite.FAIL);
 					}
 					
@@ -419,7 +418,7 @@ public class SummaryQuiz extends BaseGameActivity {
 			
 			themePosition = themePosition + THEME_ITEM_HEIGHT + THEME_GAP_HEIGHT;
 		}
-//		
+		
 		rnd = new Random(System.currentTimeMillis());
 		
 		while(true) {
@@ -429,11 +428,11 @@ public class SummaryQuiz extends BaseGameActivity {
 				tempList.add(index);
 				
 				m_WordItems[index].setPosition(CAMERA_WIDTH - m_WordItems[index].getWidthScaled(), wordPosition);
-				Log.d(TAG, "widthScale : " + m_WordItems[index].getWidthScaled());
+				Log.d(TAG, "index : " + index);
 				Log.d(TAG, "WordString : " + m_WordItems[index].get_Id());
 				
 				m_WordItems[index].getPoint().setPosition(CAMERA_WIDTH - m_WordItems[index].getWidth() - WORD_GAP_WIDTH/ItemSizeInfo.DENSITY, 
-						m_Items[index].getY() + m_Items[index].getPointMarginY());
+						m_WordItems[index].getY() + m_WordItems[index].getPointMarginY());
 
 				wordPosition = wordPosition + WORD_ITEM_HEIGHT + WORD_GAP_HEIGHT;
 				count++;
@@ -578,6 +577,7 @@ public class SummaryQuiz extends BaseGameActivity {
 	}
 
 	private void updateResultScreen() {
+		Log.d(TAG, "updateResultScreen()");
 		boolean isCollide = true;
 		int collideState = 1;
 		
@@ -589,6 +589,7 @@ public class SummaryQuiz extends BaseGameActivity {
 		}
 		
 		if(isCollide) {	// Collided with All Items
+			Log.d(TAG, "isCollide :" + isCollide);
 			if(collideState == PointSprite.SUCCESS) {
 				drawResult(m_PassSprite);
 			}
