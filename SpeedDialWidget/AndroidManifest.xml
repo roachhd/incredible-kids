@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.wooram.sd"
+      android:versionCode="1"
+      android:versionName="1.0">
+    <application android:icon="@drawable/icon" android:label="@string/app_name">
+        <activity android:name=".SDConfigurationActivity">
+        	<intent-filter>
+        		<action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+        	</intent-filter>
+        </activity>
+        <receiver android:name=".SpeedDialWidgetProvider">
+        	<intent-filter>
+            	<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.wooram.CALL1" />
+                <action android:name="com.wooram.CALL2" />
+            </intent-filter>
+        	<meta-data android:name="android.appwidget.provider"
+        		android:resource="@xml/sd_widget_provider" />            
+        </receiver>
+    </application>
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+</manifest> 
