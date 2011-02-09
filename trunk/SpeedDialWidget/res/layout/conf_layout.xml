@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+    <LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    >
+	<TextView
+	android:id="@+id/tv_pic01"  
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content" 
+    android:layout_weight="1"
+    android:text="empty"
+    />
+    <Button
+	android:id="@+id/btn_pic01"  
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content" 
+    android:text="주소 설정"
+    android:layout_weight="1"
+    />
+    </LinearLayout>
+    <LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    >
+	<TextView
+	android:id="@+id/tv_pic02"  
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content" 
+    android:layout_weight="1"
+    android:text="empty"
+    />
+    <Button
+	android:id="@+id/btn_pic02"  
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content" 
+    android:text="주소 설정"
+    android:layout_weight="1"
+    />
+    </LinearLayout>
+    <LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    >
+	<TextView
+	android:id="@+id/tv_pic03"  
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content" 
+    android:layout_weight="1"
+    android:text="empty"
+    />
+    <Button
+	android:id="@+id/btn_pic03"  
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content" 
+    android:text="주소 설정"
+    android:layout_weight="1"
+    />
+    </LinearLayout>
+    <Button
+	android:id="@+id/btn_finish"  
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content" 
+    android:text="확인"
+    />
+    
+</LinearLayout>
