@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<dimen name="name_width">112dip</dimen>
+<dimen name="name_height">56dip</dimen>
+<dimen name="name_size">16dip</dimen>
+
+<dimen name="top_margin">47dip</dimen>
+<dimen name="name_top_margin">14dip</dimen>
+
+<dimen name="middle_width">8dip</dimen>
+<dimen name="middle_height">8dip</dimen>
+
+</resources>

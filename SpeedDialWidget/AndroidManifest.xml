@@ -14,6 +14,11 @@
             	<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.wooram.CALL1" />
                 <action android:name="com.wooram.CALL2" />
+                <action android:name="com.wooram.CALL3" />
+                <action android:name="com.wooram.CALL4" />
+                <action android:name="com.wooram.CALL5" />
+                <action android:name="com.wooram.CALL6" />
+                
             </intent-filter>
         	<meta-data android:name="android.appwidget.provider"
         		android:resource="@xml/sd_widget_provider" />            

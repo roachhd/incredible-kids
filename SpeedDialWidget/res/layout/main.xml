@@ -1,71 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@drawable/widget_bg"
+    android:layout_width="240dip"
+    android:layout_height="300dip"
+    android:background="@drawable/speeddial"
     >
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <ImageView
+    android:id="@+id/widget_conf"
+    android:src="@drawable/setting_img"
+    android:layout_width="25dip"
+    android:layout_height="25dip"
+    android:layout_marginLeft="200dip"
+    android:layout_marginTop="16dip"
+    android:clickable="true"
+    />
+    <LinearLayout
     android:orientation="horizontal"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
+    android:layout_marginTop="@dimen/top_margin"
     >
-	<Button
+	<TextView
 	android:id="@+id/button01"  
-    android:layout_width="wrap_content" 
-    android:layout_height="wrap_content" 
-    android:layout_weight="1"
+    android:layout_width="@dimen/name_width" 
+    android:layout_height="@dimen/name_height"
+    android:layout_weight="1"    
     android:text="empty"
+    android:clickable="true"
+    android:textColor="#000000"
+    android:layout_marginTop="@dimen/name_top_margin"
+    android:gravity="center"
+    android:textSize="@dimen/name_size"
+    android:textStyle="bold"
+    android:singleLine="true"
+    android:ellipsize="end"
     />
-    <Button
+    <TextView
+    android:layout_width="@dimen/middle_width" 
+    android:layout_height="@dimen/middle_width"
+    />
+    <TextView
 	android:id="@+id/button02"  
-    android:layout_width="wrap_content" 
-    android:layout_height="wrap_content" 
+    android:layout_width="@dimen/name_width" 
+    android:layout_height="@dimen/name_height" 
     android:text="empty"
     android:layout_weight="1"
+    android:clickable="true"
+    android:textColor="#000000"
+    android:layout_marginTop="@dimen/name_top_margin"
+    android:gravity="center"
+    android:textSize="@dimen/name_size"
+    android:textStyle="bold"
+    android:singleLine="true"
+    android:ellipsize="end"
     />
     </LinearLayout>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
     android:orientation="horizontal"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
     >
-	<Button
+	<TextView
 	android:id="@+id/button03"  
-    android:layout_width="wrap_content" 
-    android:layout_height="wrap_content" 
+    android:layout_width="@dimen/name_width" 
+    android:layout_height="@dimen/name_height" 
     android:text="empty"
     android:layout_weight="1"
+    android:clickable="true"
+    android:textColor="#000000"
+    android:layout_marginTop="@dimen/name_top_margin"
+    android:gravity="center"
+    android:textSize="@dimen/name_size"
+    android:textStyle="bold"
+    android:singleLine="true"
+    android:ellipsize="end"
     />
-    <Button
+    <TextView
+    android:layout_width="@dimen/middle_width" 
+    android:layout_height="@dimen/middle_width"
+    />
+    <TextView
 	android:id="@+id/button04"  
-    android:layout_width="wrap_content" 
-    android:layout_height="wrap_content" 
+    android:layout_width="@dimen/name_width" 
+    android:layout_height="@dimen/name_height" 
     android:text="hello4"
     android:layout_weight="1"
+    android:clickable="true"
+    android:textColor="#000000"
+    android:layout_marginTop="@dimen/name_top_margin"
+    android:gravity="center"
+    android:textSize="@dimen/name_size"
+    android:textStyle="bold"
+    android:singleLine="true"
+    android:ellipsize="end"
     />
     </LinearLayout>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout 
     android:orientation="horizontal"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
     >
-	<Button
+	<TextView
 	android:id="@+id/button05"  
-    android:layout_width="wrap_content" 
-    android:layout_height="wrap_content" 
+    android:layout_width="@dimen/name_width" 
+    android:layout_height="@dimen/name_height" 
     android:text="hello5"
     android:layout_weight="1"
+    android:clickable="true"
+    android:textColor="#000000"
+    android:layout_marginTop="@dimen/name_top_margin"
+    android:gravity="center"
+    android:textSize="@dimen/name_size"
+    android:textStyle="bold"
+    android:singleLine="true"
+    android:ellipsize="end"
     />
-    <Button
+    <TextView
+    android:layout_width="@dimen/middle_width" 
+    android:layout_height="@dimen/middle_width"
+    />
+    <TextView
 	android:id="@+id/button06"  
-    android:layout_width="wrap_content" 
-    android:layout_height="wrap_content" 
+    android:layout_width="@dimen/name_width" 
+    android:layout_height="@dimen/name_height" 
     android:text="hello6"
     android:layout_weight="1"
+    android:clickable="true"
+    android:textColor="#000000"
+    android:layout_marginTop="@dimen/name_top_margin"
+    android:gravity="center"
+    android:textSize="@dimen/name_size"
+    android:textStyle="bold"
+    android:singleLine="true"
+    android:ellipsize="end"
     />
     </LinearLayout>
     
@@ -74,6 +144,7 @@
     android:layout_width="fill_parent" 
     android:layout_height="wrap_content" 
     android:text="설정"
+    android:visibility="gone"
     />
     
 </LinearLayout>

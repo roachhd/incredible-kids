@@ -67,9 +67,72 @@
     android:layout_weight="1"
     />
     </LinearLayout>
+    <LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    >
+	<TextView
+	android:id="@+id/tv_pic04"  
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content" 
+    android:layout_weight="1"
+    android:text="empty"
+    />
+    <Button
+	android:id="@+id/btn_pic04"  
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content" 
+    android:text="주소 설정"
+    android:layout_weight="1"
+    />
+    </LinearLayout>
+    <LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    >
+	<TextView
+	android:id="@+id/tv_pic05"  
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content" 
+    android:layout_weight="1"
+    android:text="empty"
+    />
+    <Button
+	android:id="@+id/btn_pic05"  
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content" 
+    android:text="주소 설정"
+    android:layout_weight="1"
+    />
+    </LinearLayout>
+    <LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    >
+	<TextView
+	android:id="@+id/tv_pic06"  
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content" 
+    android:layout_weight="1"
+    android:text="empty"
+    />
+    <Button
+	android:id="@+id/btn_pic06"  
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content" 
+    android:text="주소 설정"
+    android:layout_weight="1"
+    />
+    </LinearLayout>
     <Button
 	android:id="@+id/btn_finish"  
-    android:layout_width="wrap_content" 
+    android:layout_width="fill_parent" 
     android:layout_height="wrap_content" 
     android:text="확인"
     />
