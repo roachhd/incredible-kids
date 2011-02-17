@@ -2,7 +2,6 @@ package com.incrediblekids.activities;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 import com.aetrion.flickr.Flickr;

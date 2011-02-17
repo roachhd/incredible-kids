@@ -28,6 +28,7 @@ import org.anddev.andengine.entity.shape.modifier.ScaleModifier;
 import org.anddev.andengine.entity.shape.modifier.SequenceShapeModifier;
 import org.anddev.andengine.entity.shape.modifier.ease.EaseElasticOut;
 import org.anddev.andengine.entity.shape.modifier.ease.EaseExponentialOut;
+import org.anddev.andengine.entity.shape.modifier.ease.EaseLinear;
 import org.anddev.andengine.entity.sprite.AnimatedSprite;
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.entity.util.FPSLogger;
@@ -169,6 +170,8 @@ public class ThemeItemActivity extends BaseGameActivity{
 	private Vector<Item> m_ItemVector;
 	
 	ArrayList<Point> m_RandomPoint;
+	
+	private boolean m_bFirstTouch = true;
 
 
 	@Override
@@ -291,19 +294,6 @@ public class ThemeItemActivity extends BaseGameActivity{
 		return area;
 	}
 
-/*	private int getRandomX(int area){
-		int totalAreaWidth = CAMERA_WIDTH- 3*m_BoxTextureRegion.getWidth();
-		int result = randomX.nextInt(totalAreaWidth/3);
-		Log.e(TAG, "random x:" + result);
-		return result + m_BoxTextureRegion.getWidth() + area;
-	}
-
-	private int getRandomY(int area){
-		int result = randomY.nextInt(CAMERA_HEIGHT * 2 / 3 - m_BoxTextureRegion.getHeight());	
-		Log.e(TAG, "random y:" + result + " m_BoxTextureRegion.getHeight():"+ m_BoxTextureRegion.getHeight());
-		return result;
-	}*/
-
 	@Override
 	protected void onPause(){
 		Log.e(TAG, "onPause()");
@@ -412,6 +402,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 				m_Item = null;
 				m_arrBoxSprite = null;
 				m_arrAlphabetSprite = null;
+				m_bFirstTouch = true;
 
 				ThemeItemActivity.this.updateScene();
 			}        	
@@ -458,8 +449,8 @@ public class ThemeItemActivity extends BaseGameActivity{
 		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
 		
 		this.m_DarkenSprite = new Sprite(0,0,this.m_DarkenTextureRegion);
-
-		this.m_SoundSprite = new AnimatedSprite(m_SoundTextureRegion.getWidth()/4, m_SoundTextureRegion.getHeight()/2, this.m_SoundTextureRegion){
+		
+		this.m_SoundSprite = new AnimatedSprite(m_SoundTextureRegion.getTileWidth()/4, m_SoundTextureRegion.getHeight()/4, this.m_SoundTextureRegion){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
@@ -491,8 +482,8 @@ public class ThemeItemActivity extends BaseGameActivity{
 				CAMERA_HEIGHT/2 - (this.m_FailTextureRegion.getHeight()/2),
 				this.m_FailTextureRegion);
 
-		this.m_Help = new Sprite(CAMERA_WIDTH - m_HelpTextureRegion.getWidth() - m_HelpTextureRegion.getWidth()/2,
-				m_HelpTextureRegion.getHeight()/2, this.m_HelpTextureRegion){
+		this.m_Help = new Sprite(CAMERA_WIDTH - m_HelpTextureRegion.getWidth() - m_HelpTextureRegion.getWidth()/4,
+				m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion){
 
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
@@ -573,8 +564,8 @@ public class ThemeItemActivity extends BaseGameActivity{
 		
 		m_Scene.getLayer(BASE_LAYER).addEntity(m_Help);
 
-		this.m_ShowPicSprite = new Sprite(CAMERA_WIDTH - m_ShowPicTextureRegion.getWidth() - m_ShowPicTextureRegion.getWidth()/2,
-				m_ShowPicTextureRegion.getHeight() / 2 * 3, this.m_ShowPicTextureRegion){
+		this.m_ShowPicSprite = new Sprite(CAMERA_WIDTH - m_ShowPicTextureRegion.getWidth() - m_ShowPicTextureRegion.getWidth()/4,
+				m_Help.getHeight() + m_Help.getY() + m_ShowPicTextureRegion.getHeight()/4 , this.m_ShowPicTextureRegion){
 			Intent intent = null;
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
@@ -635,8 +626,15 @@ public class ThemeItemActivity extends BaseGameActivity{
 				,CAMERA_HEIGHT/8, this.m_ItemTextureRegion){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN && m_ItemSound!=null && m_bSoundOn == true)
+				
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN && m_ItemSound!=null && m_bSoundOn == true && m_bFirstTouch == false)
 					m_ItemSound.play();
+				
+				if (pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN && m_bFirstTouch == true){
+					drawAlphabet(pSceneTouchEvent);
+					m_bFirstTouch = false;
+				}
+				
 				return true;
 			}
 		};
@@ -668,7 +666,9 @@ public class ThemeItemActivity extends BaseGameActivity{
 		}
 
 		for(int j=0; j < m_strAlphabet.length(); j++){
-			m_arrAlphabetSprite[j] = new AlphabetSprite(m_RandomPoint.get(j).x,m_RandomPoint.get(j).y,
+			/*m_arrAlphabetSprite[j] = new AlphabetSprite(m_RandomPoint.get(j).x,m_RandomPoint.get(j).y,
+					this.m_arrAlphabetTexture[j], j, m_strAlphabet.charAt(j)) */
+			m_arrAlphabetSprite[j] = new AlphabetSprite(0,0,
 					this.m_arrAlphabetTexture[j], j, m_strAlphabet.charAt(j)) {
 				@Override
 				public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
@@ -772,8 +772,6 @@ public class ThemeItemActivity extends BaseGameActivity{
 				}			
 			};	
 
-			m_Scene.getLayer(ENTITIES_LAYER).addEntity(m_arrAlphabetSprite[j]);
-
 		}
 
 		for (int k = m_strAlphabet.length(); k > 0; k--){
@@ -809,6 +807,15 @@ public class ThemeItemActivity extends BaseGameActivity{
 				}
 			}
 		});
+	}
+	
+	private void drawAlphabet(final TouchEvent touchEvent){
+		for(int j=0; j < m_strAlphabet.length(); j++){
+			m_arrAlphabetSprite[j].addShapeModifier(new ParallelShapeModifier(
+					new MoveModifier(1,touchEvent.getX(), m_RandomPoint.get(j).x, touchEvent.getY(), m_RandomPoint.get(j).y,EaseLinear.getInstance()),
+					new RotationModifier(1, 0, 360)));
+			m_Scene.getLayer(ENTITIES_LAYER).addEntity(m_arrAlphabetSprite[j]);
+		}
 	}
 
 	private void drawResult(Sprite sprite){
@@ -903,23 +910,22 @@ public class ThemeItemActivity extends BaseGameActivity{
 	private void shakeAndResetSprite(Sprite sprite){
 		SequenceShapeModifier modifier = new SequenceShapeModifier(
 				new RotationModifier(0.1f, 0, 15),
-				new RotationModifier(0.1f, 0, -15),
-				new RotationModifier(0.1f, 0, 10),
-				new RotationModifier(0.1f, 0, -10),
-				new RotationModifier(0.1f, 0, 5),
-				new RotationModifier(0.1f, 0, -5),
-				new RotationModifier(0.1f, 0, 0),
-				new ParallelShapeModifier(
+				new RotationModifier(0.1f, 15, -15),
+				new RotationModifier(0.1f, -15, 10),
+				new RotationModifier(0.1f, 10, -10),
+				new RotationModifier(0.1f, -10, 5),
+				new RotationModifier(0.1f, 5, -5),
+				new RotationModifier(0.1f, -5, 0)
+/*				new ParallelShapeModifier(
 						new ScaleModifier(1, 1f, 1.5f),
 						new RotationModifier(1, 0, 360)
 				),
 				new ParallelShapeModifier(
 						new ScaleModifier(1, 1.5f, 1f),
 						new RotationModifier(1, 360, 0)
-				)							
+				)	*/						
 		);
 		modifier.setModifierListener(new IModifierListener<IShape>(){
-
 			@Override
 			public void onModifierFinished(IModifier<IShape> pModifier,
 					IShape pItem) {
