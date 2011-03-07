@@ -74,57 +74,57 @@ public class ResourceClass {
 	public int getAlphabetResourceId(char alphabet){
 		switch(alphabet){
 		case 'a':
-			return R.drawable.a1;
+			return R.drawable.alphabet_a;
 		case 'b':
-			return R.drawable.b1;
+			return R.drawable.alphabet_b;
 		case 'c':
-			return R.drawable.c1;
+			return R.drawable.alphabet_c;
 		case 'd':
-			return R.drawable.d1;
+			return R.drawable.alphabet_d;
 		case 'e':
-			return R.drawable.e1;
+			return R.drawable.alphabet_e;
 		case 'f':
-			return R.drawable.f1;
+			return R.drawable.alphabet_f;
 		case 'g':
-			return R.drawable.g1;
+			return R.drawable.alphabet_g;
 		case 'h':
-			return R.drawable.h1;
+			return R.drawable.alphabet_h;
 		case 'i':
-			return R.drawable.i1;
+			return R.drawable.alphabet_i;
 		case 'j':
-			return R.drawable.j1;
+			return R.drawable.alphabet_j;
 		case 'k':
-			return R.drawable.k1;
+			return R.drawable.alphabet_k;
 		case 'l':
-			return R.drawable.l1;
+			return R.drawable.alphabet_l;
 		case 'm':
-			return R.drawable.m1;
+			return R.drawable.alphabet_m;
 		case 'n':
-			return R.drawable.n1;
+			return R.drawable.alphabet_n;
 		case 'o':
-			return R.drawable.o1;
+			return R.drawable.alphabet_o;
 		case 'p':
-			return R.drawable.p1;
+			return R.drawable.alphabet_p;
 		case 'q':
-			return R.drawable.q1;
+			return R.drawable.alphabet_q;
 		case 'r':
-			return R.drawable.r1;
+			return R.drawable.alphabet_r;
 		case 's':
-			return R.drawable.s1;
+			return R.drawable.alphabet_s;
 		case 't':
-			return R.drawable.t1;
+			return R.drawable.alphabet_t;
 		case 'u':
-			return R.drawable.u1;
+			return R.drawable.alphabet_u;
 		case 'v':
-			return R.drawable.v1;
+			return R.drawable.alphabet_v;
 		case 'w':
-			return R.drawable.w1;
+			return R.drawable.alphabet_w;
 		case 'x':
-			return R.drawable.x1;
+			return R.drawable.alphabet_x;
 		case 'y':
-			return R.drawable.y1;
+			return R.drawable.alphabet_y;
 		case 'z':
-			return R.drawable.z1;
+			return R.drawable.alphabet_z;
 		}
 		return 0;
 	}

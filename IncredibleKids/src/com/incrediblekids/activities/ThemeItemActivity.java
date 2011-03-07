@@ -43,7 +43,6 @@ import org.anddev.andengine.ui.activity.BaseGameActivity;
 import org.anddev.andengine.util.Debug;
 import org.anddev.andengine.util.modifier.IModifier;
 import org.anddev.andengine.util.modifier.IModifier.IModifierListener;
-
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Handler;
@@ -52,8 +51,9 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
-
+import android.widget.Toast;
 import com.incrediblekids.activities.ResourceClass.Item;
+import com.incrediblekids.network.NetworkConnInfo;
 import com.incrediblekids.util.AlphabetSprite;
 import com.incrediblekids.util.Const;
 
@@ -73,8 +73,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	public final static int BASE_LAYER = 0;		//Base layer for non-changable sprite
 	public final static int ENTITIES_LAYER = 1;	//entiti layer for changable sprite
 
-	public final static int SOUND_ON = 1;
-	public final static int SOUND_OFF = 0;
+	public final static int SOUND_ON = 0;
+	public final static int SOUND_OFF = 1;
 	
 	public final static int ITEM_IMG_FIRST = 0;
 	public final static int ITEM_IMG_SECOND = 1;
@@ -142,11 +142,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private TiledTextureRegion m_SoundTextureRegion;
 	private AnimatedSprite m_SoundSprite;
 	private Boolean m_bSoundOn;
-
-	//Back button
-	private Texture m_BackTexture;
-	private TextureRegion m_BackTextureRegion;
-	private Sprite m_BackSprite;
 	
 	//Darken bg
 	private Texture m_DarkenTexture;
@@ -238,7 +233,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		//Load Background
 		this.m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal, 0, 0);
+		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
 
 		//Darken BG
 		m_DarkenTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -251,14 +246,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		//Load Help
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.help , 0, 0);
+		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.btn_hint , 0, 0);
 
 		//Load Show pic
 		this.m_ShowPicTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_ShowPicTextureRegion = TextureRegionFactory.createFromResource(this.m_ShowPicTexture, this, R.drawable.show_pic, 0, 0);
-
-		this.m_BackTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_BackTextureRegion = TextureRegionFactory.createFromResource(this.m_BackTexture, this, R.drawable.arrow_back, 0, 0);
+		this.m_ShowPicTextureRegion = TextureRegionFactory.createFromResource(this.m_ShowPicTexture, this, R.drawable.btn_showpic, 0, 0);
 
 		//Retry popup texture
 		this.m_RetryTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
@@ -271,7 +263,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		//Load sound on/off
 		this.m_SoundTexture = new Texture(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_SoundTextureRegion = TextureRegionFactory.createTiledFromResource(m_SoundTexture, this, R.drawable.sound_on_off, 0, 0, 2, 1);
+		this.m_SoundTextureRegion = TextureRegionFactory.createTiledFromResource(m_SoundTexture, this, R.drawable.btn_sound, 0, 0, 2, 1);
 
 		//Load pass texture
 		this.m_PassTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -437,7 +429,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryOkTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryCancelTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_SoundTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_BackTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_DarkenTexture);
 	}
 
@@ -581,6 +572,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				Log.e(TAG, "onAreaTouched");
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+					if (!NetworkConnInfo.IsWifiAvailable(ThemeItemActivity.this) && !NetworkConnInfo.Is3GAvailable(ThemeItemActivity.this))
+					{
+						Toast.makeText(ThemeItemActivity.this, "네크워크에 연결할 수 없습니다.", Toast.LENGTH_LONG).show();
+						return true;
+					}
 					intent = new Intent(ThemeItemActivity.this, ItemPicActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 					intent.putExtra(Const.ITEM_NAME, m_strAlphabet);
@@ -591,18 +587,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		};
 		m_Scene.getLayer(BASE_LAYER).addEntity(m_ShowPicSprite);
 
-		this.m_BackSprite = new Sprite(CAMERA_WIDTH - m_BackTextureRegion.getWidth(),
-				CAMERA_HEIGHT - m_BackTextureRegion.getHeight(), this.m_BackTextureRegion){
-
-			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-					ThemeItemActivity.this.finish();
-				}
-				return true;
-			}
-		};
-		m_Scene.getLayer(BASE_LAYER).addEntity(m_BackSprite);
 	}
 
 	//Update scene with new entities.
@@ -618,7 +602,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		m_Scene.registerTouchArea(m_Help);
 		m_Scene.registerTouchArea(m_ShowPicSprite);
 		m_Scene.registerTouchArea(m_SoundSprite);
-		m_Scene.registerTouchArea(m_BackSprite);
 
 		//Load Sound
 		try {
@@ -661,7 +644,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		int divWidth = CAMERA_WIDTH/length;
 		for(int i=0; i < length; i++){
 			m_arrBoxSprite[i] = new AlphabetSprite(divWidth * i + (divWidth-m_BoxTextureRegion.getWidth())/2,
-					CAMERA_HEIGHT-m_BoxTextureRegion.getHeight()- CAMERA_HEIGHT/10, this.m_BoxTextureRegion, i, m_strAlphabet.charAt(i));
+					CAMERA_HEIGHT-m_BoxTextureRegion.getHeight(), this.m_BoxTextureRegion, i, m_strAlphabet.charAt(i));
 			Log.e(TAG, "CAMERA_HEIGHT:"+CAMERA_HEIGHT+" m_BoxTexture.getWidth()"+m_BoxTexture.getWidth()+" CAMERA_HEIGHT/10:"+CAMERA_HEIGHT/10);
 			m_Scene.getLayer(ENTITIES_LAYER).addEntity(m_arrBoxSprite[i]);
 		}
@@ -858,11 +841,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	@Override
 	public void onLoadComplete() {
 
-	}
-
-	@Override
-	public void onBackPressed() {
-		//do nothing
 	}
 
 	private boolean isAllBoxesFilled(AlphabetSprite [] sprites){

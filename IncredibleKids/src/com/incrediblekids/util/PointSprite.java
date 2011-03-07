@@ -103,7 +103,7 @@ public class PointSprite extends Sprite {
 			super(context);
 			m_Handler = new Handler();
 			m_Pnt = new Paint();
-			Bitmap point = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.red_dot);
+			Bitmap point = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.a1);
 			m_Pnt.setShader(new BitmapShader(point, TileMode.MIRROR, TileMode.REPEAT));
 			m_Pnt.setAntiAlias(true);
 			m_Pnt.setStrokeWidth(5);
