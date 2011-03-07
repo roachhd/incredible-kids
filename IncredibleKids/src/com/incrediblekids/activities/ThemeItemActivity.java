@@ -30,6 +30,7 @@ import org.anddev.andengine.entity.shape.modifier.ease.EaseElasticOut;
 import org.anddev.andengine.entity.shape.modifier.ease.EaseExponentialOut;
 import org.anddev.andengine.entity.shape.modifier.ease.EaseLinear;
 import org.anddev.andengine.entity.sprite.AnimatedSprite;
+import org.anddev.andengine.entity.sprite.AnimatedSprite.IAnimationListener;
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.entity.util.FPSLogger;
 import org.anddev.andengine.input.touch.TouchEvent;
@@ -49,6 +50,8 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 
 import com.incrediblekids.activities.ResourceClass.Item;
 import com.incrediblekids.util.AlphabetSprite;
@@ -58,7 +61,7 @@ import com.incrediblekids.util.Const;
  * @author Nicolas Gramlich
  * @since 15:13:46 - 15.06.2010
  */
-public class ThemeItemActivity extends BaseGameActivity{
+public class ThemeItemActivity extends BaseGameActivity implements AnimationListener{
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -72,6 +75,9 @@ public class ThemeItemActivity extends BaseGameActivity{
 
 	public final static int SOUND_ON = 1;
 	public final static int SOUND_OFF = 0;
+	
+	public final static int ITEM_IMG_FIRST = 0;
+	public final static int ITEM_IMG_SECOND = 1;
 
 	public final static int MENU_RESET = 0;
 	public final static int MENU_QUIT = MENU_RESET + 1;
@@ -113,9 +119,9 @@ public class ThemeItemActivity extends BaseGameActivity{
 	private AlphabetSprite m_CurrentTouchedAlphabetSprite;
 
 	//Theme item Sprite
-	private Sprite m_Item;
 	private Texture  m_ItemTexture;
-	private TextureRegion m_ItemTextureRegion;
+	private AnimatedSprite m_Item;	
+	private TiledTextureRegion m_ItemTextureRegion;
 	private int m_iCurrentItemNum;
 
 	//Help Button Sprite
@@ -232,7 +238,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 
 		//Load Background
 		this.m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.background_1, 0, 0);
+		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal, 0, 0);
 
 		//Darken BG
 		m_DarkenTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -241,7 +247,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 		//Load Box
 		this.m_BoxTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_BoxTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_BoxTexture, this, R.drawable.box, 0, 0, 1, 1);
-		this.m_ItemTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_ItemTexture = new Texture(1024, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
 		//Load Help
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -264,7 +270,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 		this.m_RetryCancelTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryCancelTexture, this, R.drawable.retry_no_btn,0,0);
 
 		//Load sound on/off
-		this.m_SoundTexture = new Texture(128, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_SoundTexture = new Texture(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_SoundTextureRegion = TextureRegionFactory.createTiledFromResource(m_SoundTexture, this, R.drawable.sound_on_off, 0, 0, 2, 1);
 
 		//Load pass texture
@@ -489,6 +495,10 @@ public class ThemeItemActivity extends BaseGameActivity{
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				Log.e(TAG, "onAreaTouched");
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+					
+					if (m_bFirstTouch == true)
+						return true;
+					
 					//play sound
 					if (m_bSoundOn == true)
 						m_HelpSound.play();
@@ -621,8 +631,10 @@ public class ThemeItemActivity extends BaseGameActivity{
 		Log.e(TAG, "updateScene()");
 
 		//Add ThemeItem Sprite to Scene
-		this.m_ItemTextureRegion = TextureRegionFactory.createFromResource(this.m_ItemTexture, this, m_ItemVector.get(m_iCurrentItemNum).iItemImgId, 0, 0);
-		this.m_Item = new Sprite(CAMERA_WIDTH/2 - m_ItemTextureRegion.getWidth()/2
+		this.m_ItemTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_ItemTexture, this, m_ItemVector.get(m_iCurrentItemNum).iItemImgId, 0, 0, 2, 1);
+		this.m_ItemTextureRegion.setCurrentTileIndex(ITEM_IMG_FIRST);
+		Log.e("WOORAM", "m_ItemTextureRegion.getWidth():"+m_ItemTextureRegion.getWidth());
+		this.m_Item = new AnimatedSprite((CAMERA_WIDTH - m_ItemTextureRegion.getWidth()/2)/2
 				,CAMERA_HEIGHT/8, this.m_ItemTextureRegion){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
@@ -640,6 +652,7 @@ public class ThemeItemActivity extends BaseGameActivity{
 		};
 
 		m_Item.setScale(1.3f);
+		
 		m_Scene.getLayer(ENTITIES_LAYER).addEntity(m_Item);
 
 		//Load Box Sprite to scene.
@@ -907,8 +920,23 @@ public class ThemeItemActivity extends BaseGameActivity{
 	}
 
 	//Shake sprite and reset to next stage
-	private void shakeAndResetSprite(Sprite sprite){
-		SequenceShapeModifier modifier = new SequenceShapeModifier(
+	private void shakeAndResetSprite(AnimatedSprite sprite){
+		sprite.animate(new long[] { 400,400 }, 3, new IAnimationListener(){
+
+			@Override
+			public void onAnimationEnd(AnimatedSprite pAnimatedSprite) {
+				// TODO Auto-generated method stub
+				m_ItemSound.play();	
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				resetScreen();
+			}			
+		});
+/*		SequenceShapeModifier modifier = new SequenceShapeModifier(
 				new RotationModifier(0.1f, 0, 15),
 				new RotationModifier(0.1f, 15, -15),
 				new RotationModifier(0.1f, -15, 10),
@@ -916,14 +944,14 @@ public class ThemeItemActivity extends BaseGameActivity{
 				new RotationModifier(0.1f, -10, 5),
 				new RotationModifier(0.1f, 5, -5),
 				new RotationModifier(0.1f, -5, 0)
-/*				new ParallelShapeModifier(
+				new ParallelShapeModifier(
 						new ScaleModifier(1, 1f, 1.5f),
 						new RotationModifier(1, 0, 360)
 				),
 				new ParallelShapeModifier(
 						new ScaleModifier(1, 1.5f, 1f),
 						new RotationModifier(1, 360, 0)
-				)	*/						
+				)							
 		);
 		modifier.setModifierListener(new IModifierListener<IShape>(){
 			@Override
@@ -939,6 +967,24 @@ public class ThemeItemActivity extends BaseGameActivity{
 				resetScreen();
 			}			
 		});		
-		sprite.addShapeModifier(modifier);
+		sprite.addShapeModifier(modifier);*/
+	}
+
+	@Override
+	public void onAnimationEnd(Animation animation) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAnimationRepeat(Animation animation) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAnimationStart(Animation animation) {
+		// TODO Auto-generated method stub
+		
 	}
 }

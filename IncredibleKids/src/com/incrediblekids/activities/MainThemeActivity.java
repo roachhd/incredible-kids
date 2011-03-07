@@ -120,7 +120,7 @@ public class MainThemeActivity extends BaseGameActivity{
 		try {
 			this.m_Music = MusicFactory.createMusicFromAsset(this.mEngine.getMusicManager(), this, "theme_bgm.mp3");
 			this.m_Music.setLooping(true);
-			this.m_Music.setVolume(0.7f);
+			this.m_Music.setVolume(1f);
 			this.m_Music.play();
 		} catch (final IOException e) {
 			Debug.e("Error", e);
