@@ -807,10 +807,13 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	
 	private void drawAlphabet(final TouchEvent touchEvent){
 		for(int j=0; j < m_strAlphabet.length(); j++){
+			m_arrAlphabetSprite[j].setPosition(touchEvent.getX(), touchEvent.getY());
 			m_arrAlphabetSprite[j].addShapeModifier(new ParallelShapeModifier(
 					new MoveModifier(1,touchEvent.getX(), m_RandomPoint.get(j).x, touchEvent.getY(), m_RandomPoint.get(j).y,EaseLinear.getInstance()),
 					new RotationModifier(1, 0, 360)));
-			m_Scene.getLayer(ENTITIES_LAYER).addEntity(m_arrAlphabetSprite[j]);
+		}
+		for(int l=0; l < m_strAlphabet.length(); l++){
+			m_Scene.getLayer(ENTITIES_LAYER).addEntity(m_arrAlphabetSprite[l]);
 		}
 	}
 
