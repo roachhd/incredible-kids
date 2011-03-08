@@ -28,7 +28,7 @@
 				  android:screenOrientation="landscape">
 	    </activity>
 	    <activity android:name="PreviewWords"
-	    		  android:theme="@android:style/Theme.NoTitleBar"
+	    		  android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
 	    		  android:screenOrientation="landscape"/>
 	    <activity android:name=".ItemPicActivity"
 	    		  android:theme="@android:style/Theme.NoTitleBar"

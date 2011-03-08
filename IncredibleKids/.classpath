@@ -4,6 +4,6 @@
 	<classpathentry kind="lib" path="lib/andengine.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="lib" path="D:/Android/workspace/IncredibleKids/lib/flickrapi-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/flickrapi-1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
