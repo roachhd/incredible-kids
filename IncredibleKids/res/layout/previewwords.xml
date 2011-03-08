@@ -16,7 +16,7 @@
 	    	android:layout_alignParentLeft="true"
 	    	android:layout_centerVertical="true"
 	    	android:layout_marginLeft="10dip"
-	    	android:src="@drawable/left_arrow"
+	    	android:src="@drawable/btn_left"
 	    	android:clickable="true"
 	    />
 	    <ImageSwitcher
@@ -41,7 +41,7 @@
 	    	android:layout_alignParentRight="true"
 	    	android:layout_centerVertical="true"
 	    	android:layout_marginRight="10dip"
-	    	android:src="@drawable/right_arrow"
+	    	android:src="@drawable/btn_right"
 	    	android:clickable="true"
 	    />	    
 	   <com.incrediblekids.util.PreviewGallery
