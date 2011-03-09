@@ -1,5 +1,7 @@
 package com.incrediblekids.activities;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
 import android.app.Activity;
@@ -42,10 +44,10 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 	private Vector<Item> m_ItemVector;
 	private Vector<Bitmap> m_vLeftImg, m_vRightImg;
 	private Bitmap m_bitSoundBtnLeft, m_bitSoundBtnRight;
+	private Timer t = new Timer(false);
 	
 	private int m_iSelectedItem=0;
 	private float m_fPosX=0;
-	private boolean m_bSound=true;
 	
 	private static int[] IMAGE_SIZE={198, 169, 128, 96, 64};
 	
@@ -112,8 +114,8 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 		m_pgPreviewImgGallery.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			public void onItemSelected(AdapterView<?> arg0, View arg1,	int arg2, long arg3) {
 				Log.d(TAG, "onItemSelected()");
-				m_ivQuizImg.setImageBitmap(m_vLeftImg.get(arg2));
 				m_iSelectedItem = arg2;
+				m_ivQuizImg.setImageBitmap(m_vLeftImg.get(m_iSelectedItem));
 				m_ivWordImg.setVisibility(View.GONE);
 				m_iaPrevewImgAdapter.notifyDataSetChanged();
 			}
@@ -121,7 +123,6 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 		});
 		
 		/* Center(Quiz) Image Setting */
-		m_ivQuizImg.setAnimation(AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left));
 		m_ivQuizImg.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -135,8 +136,12 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 						if(m_iSelectedItem != m_pgPreviewImgGallery.getCount()-1)
 							m_pgPreviewImgGallery.setSelection(m_iSelectedItem+1);
 					} else { // Click
-						m_ivQuizImg.setImageBitmap(m_vRightImg.get(m_iSelectedItem));
-						m_ivWordImg.setVisibility(View.VISIBLE);
+						if(!m_ivWordImg.isShown()) {
+							m_ivQuizImg.setImageBitmap(m_vRightImg.get(m_iSelectedItem));
+							m_ivWordImg.setAnimation(AnimationUtils.loadAnimation(PreviewWords.this, android.R.anim.fade_in));
+							m_ivWordImg.setVisibility(View.VISIBLE);
+							t.schedule(new WordImgAnimation(), 1000);
+						}
 					}
 				}
 				return true;
@@ -160,14 +165,19 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 		});
 		
 		/* Sound Button Setting */
+		if(res.getSound()) {
+			m_ivSoundBtn.setImageBitmap(m_bitSoundBtnLeft);
+		} else {
+			m_ivSoundBtn.setImageBitmap(m_bitSoundBtnRight);
+		}
 		m_ivSoundBtn.setImageBitmap(m_bitSoundBtnLeft);
 		m_ivSoundBtn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {	
-				if(m_bSound) {
-					m_bSound = false;
+			public void onClick(View v) {
+				if(res.getSound()) {
+					res.setSound(false);
 					m_ivSoundBtn.setImageBitmap(m_bitSoundBtnRight);
 				} else {
-					m_bSound = true;
+					res.setSound(true);
 					m_ivSoundBtn.setImageBitmap(m_bitSoundBtnLeft);
 				}
 			}
@@ -188,6 +198,9 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 		});
 	}
 	
+	public void hideWordImg() {
+		m_ivWordImg.setVisibility(View.GONE);
+	}
 	public View makeView() {
 		ImageView i = new ImageView(this);
 		i.setBackgroundColor(0x00000000);
@@ -256,6 +269,22 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			}
 			imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
 			return imageView;
+		}
+	}
+	
+	class WordImgAnimation extends TimerTask {
+		WordImgAnimation () {}
+
+		public void run() {
+			runOnUiThread(new Runnable() {
+				public void run() {
+					if(m_ivWordImg.isShown()) {
+						m_ivWordImg.setAnimation(AnimationUtils.loadAnimation(PreviewWords.this, android.R.anim.fade_out));
+						m_ivWordImg.setVisibility(View.GONE);
+						m_ivQuizImg.setImageBitmap(m_vLeftImg.get(m_iSelectedItem));
+					}
+				}
+			});
 		}
 	}
 }

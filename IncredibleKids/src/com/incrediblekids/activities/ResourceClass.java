@@ -8,6 +8,7 @@ import android.util.Log;
 
 public class ResourceClass {
 	private final String TAG="PreviewWords";
+	private boolean bSound = true;
 	public static ResourceClass m_ResourceClass;
 	
 	public Vector<Item> vItems = new Vector<Item>();
@@ -50,24 +51,6 @@ public class ResourceClass {
 			vItems.add(new Item("frog", R.drawable.img_frog, R.drawable.img_frog_s, R.drawable.word_frog, R.drawable.word_cat_s));
 		} else if (_theme.equals(Const.THEME_TOY)) {
 			vItems.add(new Item("bird", R.drawable.img_bird, R.drawable.img_bird_s, R.drawable.word_bird, R.drawable.word_bird_s));
-			vItems.add(new Item("lion", R.drawable.img_lion, R.drawable.img_lion_s, R.drawable.word_lion, R.drawable.word_lion_s));
-			vItems.add(new Item("mouse", R.drawable.img_mouse, R.drawable.img_mouse_s, R.drawable.word_mouse, R.drawable.word_mouse_s));
-			vItems.add(new Item("monkey", R.drawable.img_monkey, R.drawable.img_monkey_s, R.drawable.word_monkey, R.drawable.word_monkey_s));			
-			vItems.add(new Item("cat", R.drawable.img_cat, R.drawable.img_cat_s, R.drawable.word_cat, R.drawable.word_cat_s));
-			vItems.add(new Item("bird", R.drawable.img_bird, R.drawable.img_bird_s, R.drawable.word_bird, R.drawable.word_bird_s));
-			vItems.add(new Item("lion", R.drawable.img_lion, R.drawable.img_lion_s, R.drawable.word_lion, R.drawable.word_lion_s));
-			vItems.add(new Item("dog", R.drawable.img_dog, R.drawable.img_dog_s, R.drawable.word_dog, R.drawable.word_dog_s));
-			vItems.add(new Item("bear", R.drawable.img_bear, R.drawable.img_bear_s, R.drawable.word_bear, R.drawable.word_bear_s));
-			vItems.add(new Item("mouse", R.drawable.img_mouse, R.drawable.img_mouse_s, R.drawable.word_mouse, R.drawable.word_mouse_s));
-			vItems.add(new Item("monkey", R.drawable.img_monkey, R.drawable.img_monkey_s, R.drawable.word_monkey, R.drawable.word_monkey_s));			
-			vItems.add(new Item("cat", R.drawable.img_cat, R.drawable.img_cat_s, R.drawable.word_cat, R.drawable.word_cat_s));
-			vItems.add(new Item("bird", R.drawable.img_bird, R.drawable.img_bird_s, R.drawable.word_bird, R.drawable.word_bird_s));
-			vItems.add(new Item("lion", R.drawable.img_lion, R.drawable.img_lion_s, R.drawable.word_lion, R.drawable.word_lion_s));
-			vItems.add(new Item("dog", R.drawable.img_dog, R.drawable.img_dog_s, R.drawable.word_dog, R.drawable.word_dog_s));
-			vItems.add(new Item("bear", R.drawable.img_bear, R.drawable.img_bear_s, R.drawable.word_bear, R.drawable.word_bear_s));
-			vItems.add(new Item("mouse", R.drawable.img_mouse, R.drawable.img_mouse_s, R.drawable.word_mouse, R.drawable.word_mouse_s));
-			vItems.add(new Item("monkey", R.drawable.img_monkey, R.drawable.img_monkey_s, R.drawable.word_monkey, R.drawable.word_monkey_s));			
-			vItems.add(new Item("cat", R.drawable.img_cat, R.drawable.img_cat_s, R.drawable.word_cat, R.drawable.word_cat_s));
 		}
 	}
 	
@@ -127,5 +110,12 @@ public class ResourceClass {
 			return R.drawable.alphabet_z;
 		}
 		return 0;
+	}
+	
+	public void setSound(boolean _status) {
+		bSound = _status;
+	}
+	public boolean getSound() {
+		return bSound;
 	}
 }
