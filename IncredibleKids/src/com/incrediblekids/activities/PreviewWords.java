@@ -4,11 +4,9 @@ import java.util.Vector;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,41 +19,42 @@ import android.view.ViewGroup.OnHierarchyChangeListener;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
 import android.widget.Gallery;
-import android.widget.ImageButton;
 import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.incrediblekids.activities.ResourceClass.Item;
+import com.incrediblekids.network.NetworkConnInfo;
+import com.incrediblekids.util.Const;
 import com.incrediblekids.util.PreviewGallery;
 
 public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 	private final String TAG="PreviewWords";
 	
 	private ImageAdapter m_iaPrevewImgAdapter;
-	private ImageView m_ibLeftBtn, m_ibRightBtn;
-	private ImageView m_ivWordImg;
-	private ImageView m_ivQuizImg;
-	private ButtonView m_bvSoundBtn;
-	private FrameLayout m_flSoundBtnLayout;
+	private ImageView m_ivLeftBtn, m_ivRightBtn;
+	private ImageView m_ivWordImg, m_ivQuizImg;
+	private ImageView m_ivSoundBtn, m_ivPicViewBtn;
 	private PreviewGallery m_pgPreviewImgGallery;
 	private Vector<Item> m_ItemVector;
 	private Vector<Bitmap> m_vLeftImg, m_vRightImg;
+	private Bitmap m_bitSoundBtnLeft, m_bitSoundBtnRight;
+	
 	private int m_iSelectedItem=0;
 	private float m_fPosX=0;
 	private boolean m_bSound=true;
 	
 	private static int[] IMAGE_SIZE={198, 169, 128, 96, 64};
-	//int mSelectedPosition = -1;
 	
 	public ResourceClass res;
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		/* Get Resrouce from ResourceClass */ 
 		res = ResourceClass.getInstance();
 		m_ItemVector = res.getvItems();
 		
@@ -68,7 +67,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 		LinearLayout linear2 = (LinearLayout)inflater.inflate(R.layout.previewwords, null);
 		linear.addView(linear2);
 		
-		/* Set View */
+		/* Set Content View */
 		setContentView(linear);
 		
 		/* Get Thumbnail Image Resource */
@@ -81,14 +80,23 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			m_vRightImg.add(Bitmap.createBitmap(bit, 380, 0, 380, 256));
 		}
 		
+		/* Get Sound Button Image Resource */
+		BitmapDrawable bd = (BitmapDrawable)getResources().getDrawable(R.drawable.btn_sound);
+		Bitmap bit = bd.getBitmap();
+		m_bitSoundBtnLeft = Bitmap.createBitmap(bit, 0, 0, 64, 63);
+		m_bitSoundBtnRight = Bitmap.createBitmap(bit, 64, 0, 64, 63);
+		
 		/* Assign from Resource */
 		m_ivQuizImg = (ImageView) findViewById(R.id.preview_center_image);
 		m_ivWordImg = (ImageView) findViewById(R.id.preview_word_image);
-		m_ibLeftBtn = (ImageView) findViewById(R.id.preview_leftbtn);
-		m_ibRightBtn = (ImageView) findViewById(R.id.preview_rightbtn);
+		m_ivLeftBtn = (ImageView) findViewById(R.id.preview_leftbtn);
+		m_ivRightBtn = (ImageView) findViewById(R.id.preview_rightbtn);
+		m_ivSoundBtn = (ImageView) findViewById(R.id.preview_soundbtn);
+		m_ivPicViewBtn = (ImageView) findViewById(R.id.preview_picviewbtn);
 		
 		m_iaPrevewImgAdapter = new ImageAdapter(this);
 		
+		/* Preview Gallery Setting */
 		m_pgPreviewImgGallery = (PreviewGallery) findViewById(R.id.preview_gallery);
 		m_pgPreviewImgGallery.setAdapter(m_iaPrevewImgAdapter);
 		m_pgPreviewImgGallery.setCallbackDuringFling(true);
@@ -101,22 +109,6 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			}
 		});
 		
-		m_bvSoundBtn = new ButtonView(getApplicationContext());
-		m_bvSoundBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (m_bSound)
-					m_bSound = false;
-				else
-					m_bSound = true;
-				m_flSoundBtnLayout.invalidate();
-			}
-		});
-		
-		m_flSoundBtnLayout = (FrameLayout) findViewById(R.id.preview_framelayout);
-		m_flSoundBtnLayout.addView(m_bvSoundBtn, 74, 74);
-		
-		/* Register Listener */
 		m_pgPreviewImgGallery.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			public void onItemSelected(AdapterView<?> arg0, View arg1,	int arg2, long arg3) {
 				Log.d(TAG, "onItemSelected()");
@@ -128,9 +120,8 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			public void onNothingSelected(AdapterView<?> arg0) {Log.d(TAG, "onNothingSelected()");}
 		});
 		
+		/* Center(Quiz) Image Setting */
 		m_ivQuizImg.setAnimation(AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left));
-		//m_ivQuizImg.setAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_out));
-		//m_ivQuizImg.setFactory(this);
 		m_ivQuizImg.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -144,6 +135,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 						if(m_iSelectedItem != m_pgPreviewImgGallery.getCount()-1)
 							m_pgPreviewImgGallery.setSelection(m_iSelectedItem+1);
 					} else { // Click
+						m_ivQuizImg.setImageBitmap(m_vRightImg.get(m_iSelectedItem));
 						m_ivWordImg.setVisibility(View.VISIBLE);
 					}
 				}
@@ -151,43 +143,51 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			}
 		});
 		
-		m_ibLeftBtn.setOnClickListener(new View.OnClickListener() {
+		/* Left Button Setting */
+		m_ivLeftBtn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if(m_iSelectedItem != 0)
 					m_pgPreviewImgGallery.setSelection(m_iSelectedItem-1);
 			}
 		});
 		
-		m_ibRightBtn.setOnClickListener(new View.OnClickListener() {
+		/* Right Button Setting */
+		m_ivRightBtn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				
 				if(m_iSelectedItem != m_pgPreviewImgGallery.getCount()-1)
 					m_pgPreviewImgGallery.setSelection(m_iSelectedItem+1);
 			}
-		});	
-	}
-
-	protected class ButtonView extends View {
-		public ButtonView(Context context) {
-			super(context);
-		}
+		});
 		
-		public void onDraw(Canvas canvas) {
-			Paint pnt = new Paint();
-			//canvas.drawColor(Color.WHITE);
-			
-			Log.d(TAG, "onDraw()");
-			BitmapDrawable bd = (BitmapDrawable)getResources().getDrawable(R.drawable.btn_sound);
-			Bitmap bit = bd.getBitmap();
-			pnt.setAntiAlias(true);
-			
-			if (m_bSound)
-				canvas.drawBitmap(bit, new Rect(64, 0, 128, 63), new Rect(10, 10, 74, 74), pnt);
-			else
-				canvas.drawBitmap(bit, new Rect(0, 0, 64, 63), new Rect(10, 10, 74, 74), pnt);
-		}
+		/* Sound Button Setting */
+		m_ivSoundBtn.setImageBitmap(m_bitSoundBtnLeft);
+		m_ivSoundBtn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {	
+				if(m_bSound) {
+					m_bSound = false;
+					m_ivSoundBtn.setImageBitmap(m_bitSoundBtnRight);
+				} else {
+					m_bSound = true;
+					m_ivSoundBtn.setImageBitmap(m_bitSoundBtnLeft);
+				}
+			}
+		});
+		
+		/* Picture View Button Setting */
+		m_ivPicViewBtn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				if (!NetworkConnInfo.IsWifiAvailable(PreviewWords.this) && !NetworkConnInfo.Is3GAvailable(PreviewWords.this))
+				{
+					Toast.makeText(PreviewWords.this, "네크워크에 연결할 수 없습니다.", Toast.LENGTH_LONG).show();
+				}
+				Intent intent = new Intent(PreviewWords.this, ItemPicActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+				intent.putExtra(Const.ITEM_NAME, m_ItemVector.get(m_iSelectedItem).strWordCharId);
+				startActivity(intent);
+			}
+		});
 	}
-
+	
 	public View makeView() {
 		ImageView i = new ImageView(this);
 		i.setBackgroundColor(0x00000000);
@@ -253,12 +253,8 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			}else{
 				Log.d(TAG, "getView else");
 				imageView.setLayoutParams(new Gallery.LayoutParams(IMAGE_SIZE[0], IMAGE_SIZE[0]/2));
-
 			}
-
 			imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-
-
 			return imageView;
 		}
 	}
