@@ -204,7 +204,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		try {
 			this.m_DropToBoxSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "drop_to_box.ogg");//m_strAlphabet+".mp3");
-			this.m_DropToBoxSound.setVolume(1.0f);
+			this.m_DropToBoxSound.setVolume(0.7f);
 
 			this.m_HelpSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "help_drop.ogg");//m_strAlphabet+".mp3");
 			this.m_HelpSound.setVolume(1.0f);
@@ -249,9 +249,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.btn_hint , 0, 0);
 
 		//Load Show pic
-		this.m_ShowPicTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+/*		this.m_ShowPicTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_ShowPicTextureRegion = TextureRegionFactory.createFromResource(this.m_ShowPicTexture, this, R.drawable.btn_showpic, 0, 0);
-
+*/
 		//Retry popup texture
 		this.m_RetryTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
 		this.m_RetryOkTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
@@ -422,7 +422,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private void loadBaseTexture(){
 		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_HelpTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_ShowPicTexture);
+/*		this.mEngine.getTextureManager().loadTexture(this.m_ShowPicTexture);*/
 		this.mEngine.getTextureManager().loadTexture(this.m_PassTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_FailTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryTexture);
@@ -559,13 +559,13 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				return true;
 			}
 		};
-		m_Help.addShapeModifier(new LoopShapeModifier(-1,
+/*		m_Help.addShapeModifier(new LoopShapeModifier(-1,
 				new SequenceShapeModifier(new RotationModifier(0.2f, 0, 5),
-				new RotationModifier(0.2f, 0, -5))));
+				new RotationModifier(0.2f, 0, -5))));*/
 		
 		m_Scene.getLayer(BASE_LAYER).addEntity(m_Help);
 
-		this.m_ShowPicSprite = new Sprite(CAMERA_WIDTH - m_ShowPicTextureRegion.getWidth() - m_ShowPicTextureRegion.getWidth()/4,
+/*		this.m_ShowPicSprite = new Sprite(CAMERA_WIDTH - m_ShowPicTextureRegion.getWidth() - m_ShowPicTextureRegion.getWidth()/4,
 				m_Help.getHeight() + m_Help.getY() + m_ShowPicTextureRegion.getHeight()/4 , this.m_ShowPicTextureRegion){
 			Intent intent = null;
 			@Override
@@ -585,7 +585,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				return true;
 			}
 		};
-		m_Scene.getLayer(BASE_LAYER).addEntity(m_ShowPicSprite);
+		m_Scene.getLayer(BASE_LAYER).addEntity(m_ShowPicSprite);*/
 
 	}
 
@@ -600,7 +600,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		//re regist touch area for help and pause btn
 		m_Scene.registerTouchArea(m_Help);
-		m_Scene.registerTouchArea(m_ShowPicSprite);
+/*		m_Scene.registerTouchArea(m_ShowPicSprite);*/
 		m_Scene.registerTouchArea(m_SoundSprite);
 
 		//Load Sound
