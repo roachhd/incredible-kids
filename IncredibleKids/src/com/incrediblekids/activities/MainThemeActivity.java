@@ -270,7 +270,7 @@ public class MainThemeActivity extends BaseGameActivity{
 					res.setTheme(Const.THEME_ANIMAL);
 					/*m_Scene.clearTouchAreas();
 					m_Scene.setChildScene(m_GameModeScene, false, true, true);	*/
-					Intent intent = new Intent(MainThemeActivity.this, SummaryQuiz.class);
+					Intent intent = new Intent(MainThemeActivity.this, MatchQuiz.class);
 					startActivity(intent);
 				}
 				return true;

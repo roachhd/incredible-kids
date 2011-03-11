@@ -34,7 +34,9 @@
 	    		  android:theme="@android:style/Theme.NoTitleBar"
 	    		  android:screenOrientation="landscape"
 	    		  android:configChanges="orientation|keyboardHidden"/>
-	    		  
+	    <activity android:name="MatchQuiz"
+				  android:screenOrientation="landscape" />
+				  
 </application>
     <uses-sdk android:minSdkVersion="7" />
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
