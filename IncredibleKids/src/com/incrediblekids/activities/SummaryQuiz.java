@@ -43,7 +43,6 @@ import com.incrediblekids.util.WordSprite;
 public class SummaryQuiz extends BaseGameActivity {
 	//	TODO: O,X 타이밍
 	//	TODO: Hint, Sound on
-	//	TODO: 선 그리기
 	
 	
 	// ===========================================================
