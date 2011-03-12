@@ -685,6 +685,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 								}
 							}
 							m_CurrentTouchedAlphabetSprite = null;
+							this.setCurrentTileIndex(0);
 							return true;		
 						}	
 
