@@ -81,7 +81,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	public final static int MENU_RESET = 0;
 	public final static int MENU_QUIT = MENU_RESET + 1;
-	public final static String TAG = "TouchDragExample";
+	public final static String TAG = "ThemeItemActivity";
 	public final static char EMPTY_ALPHABET = '0';
 
 	// ===========================================================
