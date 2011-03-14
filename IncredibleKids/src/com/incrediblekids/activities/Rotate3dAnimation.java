@@ -71,7 +71,6 @@ public class Rotate3dAnimation extends Animation {
     protected void applyTransformation(float interpolatedTime, Transformation t) {
         final float fromDegrees = mFromDegrees;
         float degrees = fromDegrees + ((mToDegrees - fromDegrees) * interpolatedTime);
-        Log.d(TAG, "degrees: " + degrees);
 
         final float centerX = mCenterX;
         final float centerY = mCenterY;

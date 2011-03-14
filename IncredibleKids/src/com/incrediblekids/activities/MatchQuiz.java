@@ -111,10 +111,12 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			Log.d(TAG, "value : " + value);
 			
 			if((flag % 2) == 0) {
-				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iItemImgId);
+//				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iItemImgId);
+				m_ItemImages[value].setImageResource(R.drawable.card_front);
 			}
 			else {
-				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iWordImgId);
+//				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iWordImgId);
+				m_ItemImages[value].setImageResource(R.drawable.card_word);
 				vectorNum++;
 			}
 			flag++;
@@ -253,6 +255,17 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 
             m_ClickedViewGroup.startAnimation(rotation);
         }
+    }
+    
+    /**
+     * @author TickerBomb
+     * This class is responsible for managing clickable images and Matching result
+     * 참고 : View에 아이디 부여 가능하다.
+     */
+    private class MatchManager {
+    	private boolean isClickable;
+    	private int clickedImagesCnt;
+    	
     }
 	
 	@Override
