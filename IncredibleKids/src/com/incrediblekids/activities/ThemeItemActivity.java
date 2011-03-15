@@ -134,6 +134,12 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private Texture  m_ShowPicTexture;
 	private TextureRegion m_ShowPicTextureRegion;
 
+	
+	//Skip Button Sprite
+	private Sprite m_SkipSprite;
+	private Texture  m_SkipTexture;
+	private TextureRegion m_SkipTextureRegion;
+	
 	//Pause
 	private Scene m_Scene;
 
@@ -260,10 +266,14 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.m_RetryTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryTexture, this, R.drawable.retry_popup_bg,0,0);
 		this.m_RetryOkTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryOkTexture, this, R.drawable.retry_ok_btn,0,0);
 		this.m_RetryCancelTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryCancelTexture, this, R.drawable.retry_no_btn,0,0);
-
+		
 		//Load sound on/off
 		this.m_SoundTexture = new Texture(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_SoundTextureRegion = TextureRegionFactory.createTiledFromResource(m_SoundTexture, this, R.drawable.btn_sound, 0, 0, 2, 1);
+		
+		//Skip 		
+		this.m_SkipTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_SkipTextureRegion = TextureRegionFactory.createFromResource(m_SkipTexture, this, R.drawable.show_pic, 0, 0);
 
 		//Load pass texture
 		this.m_PassTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -430,6 +440,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryCancelTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_SoundTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_DarkenTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_SkipTexture);
 	}
 
 	//Load changeable texture
@@ -468,6 +479,29 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		this.m_SoundTextureRegion.setCurrentTileIndex(SOUND_ON);
 		this.m_Scene.getLayer(BASE_LAYER).addEntity(m_SoundSprite);
+		
+		this.m_SkipSprite = new Sprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
+				m_SkipTextureRegion.getHeight()/4, this.m_SkipTextureRegion){
+			@Override
+			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+					
+					if (m_iCurrentItemNum < m_ItemVector.size()-1){
+						m_iCurrentItemNum++;
+						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
+					}else{
+						m_iCurrentItemNum = 0;
+						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
+					}
+					m_Scene.clearTouchAreas();			
+					resetScreen();
+					return true;
+				}
+				return false;
+				
+			}
+		};
+		m_Scene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);
 
 		this.m_PassSprite = new Sprite(
 				CAMERA_WIDTH/2-(this.m_PassTextureRegion.getWidth()/2),
@@ -478,9 +512,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				CAMERA_WIDTH/2-(this.m_FailTextureRegion.getWidth()/2),
 				CAMERA_HEIGHT/2 - (this.m_FailTextureRegion.getHeight()/2),
 				this.m_FailTextureRegion);
-
-		this.m_Help = new Sprite(CAMERA_WIDTH - m_HelpTextureRegion.getWidth() - m_HelpTextureRegion.getWidth()/4,
-				m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion){
+/*CAMERA_WIDTH - m_HelpTextureRegion.getWidth() - m_HelpTextureRegion.getWidth()/4,
+		m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion
+*/		this.m_Help = new Sprite(m_HelpTextureRegion.getWidth()/4, m_SoundSprite.getY() + m_SoundSprite.getHeight() + m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion){
 
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
@@ -602,7 +636,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		m_Scene.registerTouchArea(m_Help);
 /*		m_Scene.registerTouchArea(m_ShowPicSprite);*/
 		m_Scene.registerTouchArea(m_SoundSprite);
-
+		m_Scene.registerTouchArea(m_SkipSprite);
 		//Load Sound
 		try {
 			this.m_ItemSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, m_strAlphabet+".mp3");
@@ -642,6 +676,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		int length = m_strAlphabet.length();
 		m_arrBoxSprite = new AlphabetSprite[m_strAlphabet.length()];
 		int divWidth = CAMERA_WIDTH/length;
+		
 		for(int i=0; i < length; i++){
 			m_arrBoxSprite[i] = new AlphabetSprite(divWidth * i + (divWidth-m_BoxTextureRegion.getWidth())/2,
 					CAMERA_HEIGHT-m_BoxTextureRegion.getHeight(), this.m_BoxTextureRegion, i, m_strAlphabet.charAt(i));
