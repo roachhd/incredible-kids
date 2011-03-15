@@ -10,6 +10,8 @@ import java.util.Random;
 import java.util.Vector;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -36,9 +38,15 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private ViewGroup[] m_Containers;
 	private HashMap<Integer, Integer> m_RandomHashMap;
 	
+	private Bitmap 		m_bitSoundBtnLeft, m_bitSoundBtnRight;
+	
+	/* 개별 이미지 */
 	private ViewGroup	m_ClickedViewGroup;
 	private ImageView	m_ClickedQuestion;
 	private ImageView	m_ClickedItemImage;
+	private ImageView	m_SoundBtnImage;
+	
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +64,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_ItemImages 		= new ImageView[MAX_COUNT];
 		m_Questions			= new ImageView[MAX_COUNT];
 		m_Containers 		= new ViewGroup[MAX_COUNT];
+		
 		m_Res 				= ResourceClass.getInstance();
 		m_ItemVector 		= m_Res.getvItems();
 		
@@ -77,6 +86,17 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			questionValue   = questionValue + 3;
 			viewGroupValue  = viewGroupValue + 3;
 		}
+		
+		/* Get Sound Button Image Resource */
+		BitmapDrawable bd 	= (BitmapDrawable)getResources().getDrawable(R.drawable.btn_sound);
+		Bitmap bit 			= bd.getBitmap();
+		Log.d(TAG, "bit.getWidtd(): " + bit.getWidth());
+		Log.d(TAG, "bit.getHeight(): " + bit.getHeight());
+		m_bitSoundBtnLeft 	= Bitmap.createBitmap(bit, 0, 0, bit.getWidth()/2, bit.getHeight());
+		m_bitSoundBtnRight 	= Bitmap.createBitmap(bit, bit.getWidth()/2, 0, bit.getWidth()/2, bit.getHeight());
+		
+		m_SoundBtnImage 	= (ImageView)findViewById(R.id.ivSound);
+		m_SoundBtnImage.setImageBitmap(m_bitSoundBtnLeft);
 		
 		makeRandomHashMap();
 	}
