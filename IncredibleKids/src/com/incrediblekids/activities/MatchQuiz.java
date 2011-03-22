@@ -4,6 +4,7 @@
  */
 package com.incrediblekids.activities;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
@@ -40,11 +41,13 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	
 	private Bitmap 		m_bitSoundBtnLeft, m_bitSoundBtnRight;
 	
-	/* °³º° ÀÌ¹ÌÁö */
+	/* âˆâ‰¥âˆ«âˆ Â¿ÃƒÏ€ÃƒÂ¡Ë† */
 	private ViewGroup	m_ClickedViewGroup;
 	private ImageView	m_ClickedQuestion;
 	private ImageView	m_ClickedItemImage;
 	private ImageView	m_SoundBtnImage;
+	
+	private MatchManager m_MatchManager;
 	
 	
 
@@ -64,6 +67,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_ItemImages 		= new ImageView[MAX_COUNT];
 		m_Questions			= new ImageView[MAX_COUNT];
 		m_Containers 		= new ViewGroup[MAX_COUNT];
+		m_MatchManager		= new MatchManager();
 		
 		m_Res 				= ResourceClass.getInstance();
 		m_ItemVector 		= m_Res.getvItems();
@@ -73,13 +77,13 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		int viewGroupValue	= R.id.flContainer1;
 		
 		for(int i = 0; i < MAX_COUNT; i++) {
-			m_ItemImages[i]	= (ImageView)findViewById(firstItemValue); // Æí¹ı -_-;
+			m_ItemImages[i]	= (ImageView)findViewById(firstItemValue); // âˆ†ÃŒÏ€Ë -_-;
 			m_ItemImages[i].setOnClickListener(this);
 			
 			m_Questions[i]	= (ImageView)findViewById(questionValue);
 			m_Questions[i].setOnClickListener(this);
 			
-			m_Containers[i]	= (ViewGroup)findViewById(viewGroupValue); // Æí¹ı -_-;
+			m_Containers[i]	= (ViewGroup)findViewById(viewGroupValue); // âˆ†ÃŒÏ€Ë -_-;
 			m_Containers[i].setPersistentDrawingCache(ViewGroup.PERSISTENT_ANIMATION_CACHE);
 			
 			firstItemValue  = firstItemValue + 3;
@@ -102,7 +106,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	}
 	
 	/**
-	 * N ÃÊ ÈÄ ¸ğµç ÀÌ¹ÌÁö¸¦ Question ÀÌ¹ÌÁö·Î ¹Ù²Û´Ù.
+	 * N âˆšÂ  Â»Æ’ âˆï£¿ÂµÃ Â¿ÃƒÏ€ÃƒÂ¡Ë†âˆÂ¶ Question Â¿ÃƒÏ€ÃƒÂ¡Ë†âˆ‘Å’ Ï€Å¸â‰¤â‚¬Â¥Å¸.
 	 */
 	private void toggleImages() {
         Handler mHandler = new Handler();
@@ -118,7 +122,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	}
 	
 	/**
-	 * ItemImage¿Í WordImage¸¦ ¼¯´Â´Ù.
+	 * ItemImageÃ¸Ã• WordImageâˆÂ¶ ÂºÃ˜Â¥Â¬Â¥Å¸.
 	 */
 	private void setItems() {
 		Log.d(TAG, "setItems()");
@@ -133,10 +137,12 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			if((flag % 2) == 0) {
 //				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iItemImgId);
 				m_ItemImages[value].setImageResource(R.drawable.card_front);
+				m_MatchManager.addItem(m_ItemVector.get(vectorNum).iItemImgId, m_ItemVector.get(vectorNum).strWordCharId);
 			}
 			else {
 //				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iWordImgId);
 				m_ItemImages[value].setImageResource(R.drawable.card_word);
+				m_MatchManager.addItem(m_ItemVector.get(vectorNum).iWordImgId, m_ItemVector.get(vectorNum).strWordCharId);
 				vectorNum++;
 			}
 			flag++;
@@ -146,8 +152,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	}
 	
 	/**
-	 * Random HashMap »ı¼º <br />
-	 * ItemÀ» ¹èÄ¡ÇÒ ¶§ »ç¿ëµÈ´Ù.
+	 * Random HashMap ÂªËÂºâˆ« <br />
+	 * ItemÂ¿Âª Ï€Ã‹Æ’Â°Â«â€œ âˆ‚ÃŸ ÂªÃÃ¸ÃÂµÂ»Â¥Å¸.
 	 */
 	private void makeRandomHashMap() {
 		Log.d(TAG, "makeRandomHashMap()");
@@ -280,12 +286,104 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     /**
      * @author TickerBomb
      * This class is responsible for managing clickable images and Matching result
-     * Âü°í : View¿¡ ¾ÆÀÌµğ ºÎ¿© °¡´ÉÇÏ´Ù.
+     * Â¬Â¸âˆÃŒ : ViewÃ¸Â° Ã¦âˆ†Â¿ÃƒÂµï£¿ âˆ«Å’Ã¸Â© âˆÂ°Â¥â€¦Â«Å“Â¥Å¸.
      */
     private class MatchManager {
     	private boolean isClickable;
-    	private int clickedImagesCnt;
+    	private boolean isSolo;
+    	private int m_PreClickedItemId;
+    	private HashMap<Integer, String> m_PreClickedItem;
+    	private HashMap<Integer, String> m_Items;
+    	private HashMap<Integer, String> m_MatchedItems;
     	
+    	public MatchManager() {
+    		m_Items 			= new HashMap<Integer, String>(MAX_COUNT);
+    		m_MatchedItems 		= new HashMap<Integer, String>(MAX_COUNT);
+    		m_PreClickedItem 	= new HashMap<Integer, String>();
+    		isClickable			= false;
+    		isSolo				= true;
+    		
+    		/*
+    		for(int i = 0; i < items.length; i++) {
+    			m_Items.add(items[i]) ;
+    		}
+    		
+    		for(int i = 0; i < question.length; i++) {
+    			m_Items.add(question[i]) ;
+    		}
+    		*/
+    	}
+    	
+    	public void clickedItem(int targetId) {
+//    		setEnableClickItems(true);
+    		if(isSolo) {
+    			m_PreClickedItem.put(targetId, m_Items.get(targetId));
+    			m_PreClickedItemId = targetId;
+    			isSolo = false;
+    		}
+    		else {
+    			if(isMatched(targetId)) {
+    				//TODO :setting Clickable
+    				moveItemsToMatched(targetId);
+    				playSound(true);
+    			}
+    			else {
+    				//TODO :setting Clickable
+    				togglePreviousItem();
+    				playSound(false);
+    			}
+    			m_PreClickedItem.clear();
+    			isSolo = true;
+    		}
+    	}
+
+		private void togglePreviousItem() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		private void moveItemsToMatched(int targetId) {
+			Log.d(TAG, "moveItemsToMatched()");
+			// Add MatchedItem
+			m_MatchedItems.put(targetId, m_Items.get(targetId));
+			m_MatchedItems.put(m_PreClickedItemId, m_Items.get(m_PreClickedItemId));
+			// Remove MatcheItem
+			m_Items.remove(targetId);
+			m_Items.remove(m_PreClickedItemId);
+		}
+
+		private boolean isMatched(int targetId) {
+			Log.d(TAG, "isMatched()");
+			if(m_PreClickedItem.equals(m_Items.get(targetId))) {
+				return true;
+			}
+			else {
+				return false;
+			}
+    	}
+    	
+    	private void playSound(boolean b) {
+			// TODO Auto-generated method stub
+		}
+    	
+    	public void addItem(int key, String value) {
+    		m_Items.put(key, value);
+    	}
+
+		/**
+		 * @param enable true: user can click items, false: can't click items
+		 */
+    	public void setEnableClickItems(boolean enable) {
+    		Log.d(TAG, "setEnableClickItems()");
+    		Iterator<Integer> itr = m_Items.keySet().iterator();
+    		ImageView iv;
+    		int imageViewId;
+    		while(itr.hasNext()) {
+    			imageViewId = (Integer)itr.next();
+    			iv = (ImageView)findViewById(imageViewId);
+    			iv.setClickable(enable);
+    		}
+    	}
     }
 	
 	@Override
