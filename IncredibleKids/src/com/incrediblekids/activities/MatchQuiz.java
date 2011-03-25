@@ -4,7 +4,6 @@
  */
 package com.incrediblekids.activities;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
@@ -12,6 +11,7 @@ import java.util.Vector;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,6 +20,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
@@ -41,15 +43,17 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	
 	private Bitmap 		m_bitSoundBtnLeft, m_bitSoundBtnRight;
 	
-	/* ∞≥∫∞ ¿ÃπÃ¡ˆ */
+	/* �왿돟�モ닞 쩔횄�횄징� */
 	private ViewGroup	m_ClickedViewGroup;
 	private ImageView	m_ClickedQuestion;
 	private ImageView	m_ClickedItemImage;
 	private ImageView	m_SoundBtnImage;
 	
+	private ImageView			m_TimeFrameImage;
+	private AnimationDrawable 	m_TimeFrameAnimation;
+	private Animation			m_TimeFlowAnimation;
+	
 	private MatchManager m_MatchManager;
-	
-	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +63,13 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		init();
 		toggleImages();
 		setItems();
+		setTimeAnimation();
+		
+		//Test
+		m_TimeFrameImage.startAnimation(m_TimeFlowAnimation);
 	}
 	
+
 	private void init() {
 		Log.d(TAG, "init()");
 		
@@ -77,13 +86,13 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		int viewGroupValue	= R.id.flContainer1;
 		
 		for(int i = 0; i < MAX_COUNT; i++) {
-			m_ItemImages[i]	= (ImageView)findViewById(firstItemValue); // ∆Ìπ˝ -_-;
+			m_ItemImages[i]	= (ImageView)findViewById(firstItemValue); // �녍뚌��-_-;
 			m_ItemImages[i].setOnClickListener(this);
 			
 			m_Questions[i]	= (ImageView)findViewById(questionValue);
 			m_Questions[i].setOnClickListener(this);
 			
-			m_Containers[i]	= (ViewGroup)findViewById(viewGroupValue); // ∆Ìπ˝ -_-;
+			m_Containers[i]	= (ViewGroup)findViewById(viewGroupValue); // �녍뚌��-_-;
 			m_Containers[i].setPersistentDrawingCache(ViewGroup.PERSISTENT_ANIMATION_CACHE);
 			
 			firstItemValue  = firstItemValue + 3;
@@ -102,11 +111,15 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_SoundBtnImage 	= (ImageView)findViewById(R.id.ivSound);
 		m_SoundBtnImage.setImageBitmap(m_bitSoundBtnLeft);
 		
+		/* */
+		m_TimeFrameImage 	= (ImageView)findViewById(R.id.ivTimeFrame);
+		m_TimeFrameImage.setBackgroundResource(R.drawable.frame_transition);
+		
 		makeRandomHashMap();
 	}
 	
 	/**
-	 * N √  »ƒ ∏µÁ ¿ÃπÃ¡ˆ∏¶ Question ¿ÃπÃ¡ˆ∑Œ πŸ≤€¥Ÿ.
+	 * N �슿�쨩� �륅？쨉횁 쩔횄�횄징��뤒�Question 쩔횄�횄징��뫥��타�ㅲ궗짜타.
 	 */
 	private void toggleImages() {
         Handler mHandler = new Handler();
@@ -122,7 +135,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	}
 	
 	/**
-	 * ItemImageøÕ WordImage∏¶ ºØ¥¬¥Ÿ.
+	 * ItemImage첩횛 WordImage�뤒�쨘횠짜짭짜타.
 	 */
 	private void setItems() {
 		Log.d(TAG, "setItems()");
@@ -151,9 +164,34 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		Log.d(TAG, "vectorNum: " + vectorNum);
 	}
 	
+	/* Set TimeAnimation */
+	private void setTimeAnimation() {
+		// TODO Auto-generated method stub
+		m_TimeFrameAnimation = (AnimationDrawable)m_TimeFrameImage.getBackground();
+		
+		m_TimeFlowAnimation  = AnimationUtils.loadAnimation(this, R.anim.interpolator);
+		m_TimeFlowAnimation.setAnimationListener(new AnimationListener() {
+			
+			@Override
+			public void onAnimationStart(Animation animation) {
+				m_TimeFrameAnimation.start();
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				// TODO Auto-generated method stub
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				m_TimeFrameAnimation.stop();
+			}
+		});
+	}
+	
 	/**
-	 * Random HashMap ª˝º∫ <br />
-	 * Item¿ª πËƒ°«“ ∂ß ªÁøÎµ»¥Ÿ.
+	 * Random HashMap 짧�쨘��<br />
+	 * Item쩔짧 �횏�째짬���궱�짧횁첩횓쨉쨩짜타.
 	 */
 	private void makeRandomHashMap() {
 		Log.d(TAG, "makeRandomHashMap()");
@@ -286,7 +324,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     /**
      * @author TickerBomb
      * This class is responsible for managing clickable images and Matching result
-     * ¬¸∞Ì : Viewø° æ∆¿Ãµ ∫Œø© ∞°¥…«œ¥Ÿ.
+     * 짭쨍�왗�: View첩째 챈�녌올꺜듸？ �ヅ뮼맞��왖걔β�짬흹짜타.
      */
     private class MatchManager {
     	private boolean isClickable;
