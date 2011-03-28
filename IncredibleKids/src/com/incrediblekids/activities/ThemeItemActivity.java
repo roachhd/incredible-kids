@@ -273,7 +273,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		
 		//Skip 		
 		this.m_SkipTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_SkipTextureRegion = TextureRegionFactory.createFromResource(m_SkipTexture, this, R.drawable.show_pic, 0, 0);
+		this.m_SkipTextureRegion = TextureRegionFactory.createFromResource(m_SkipTexture, this, R.drawable.btn_skip, 0, 0);
 
 		//Load pass texture
 		this.m_PassTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);

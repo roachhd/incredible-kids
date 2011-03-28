@@ -68,6 +68,11 @@ public class MainThemeActivity extends BaseGameActivity{
 	private Texture m_BGTexture;
 	private TextureRegion m_BGTextureRegion;
 	private Sprite m_BGSprite;
+	
+	//Darken bg
+	private Texture m_DarkenTexture;
+	private TextureRegion m_DarkenTextureRegion;
+	private Sprite m_DarkenSprite;
 
 	//Game mode select popup (study or play game)
 	private CameraScene m_GameModeScene;
@@ -139,13 +144,14 @@ public class MainThemeActivity extends BaseGameActivity{
 
 		final Sprite gameModeBGSprite = new Sprite(x , y, this.m_GameModeTextureRegion);
 
-		final Sprite modeStudySprite = new Sprite(x + offset, y , this.m_GameSelTextureRegion){
+		final Sprite modeStudySprite = new Sprite(x + offset, y + height/2, this.m_GameSelTextureRegion){
 
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				Log.e(TAG, "onAreaTouched");
 				Intent intent;
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+					removeDarkenBG();
 					m_Scene.clearChildScene();
 					intent = new Intent(MainThemeActivity.this, PreviewWords.class);
 					startActivity(intent);
@@ -154,12 +160,13 @@ public class MainThemeActivity extends BaseGameActivity{
 			}						
 		};
 
-		final Sprite modeGameSprite = new Sprite(x + offset + m_GameModeTextureRegion.getWidth()/2, y , this.m_GameSelTextureRegion){
+		final Sprite modeGameSprite = new Sprite(x + offset + m_GameModeTextureRegion.getWidth()/2, y  + height/2, this.m_GameSelTextureRegion){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				Log.e(TAG, "onAreaTouched");
 				Intent intent;
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+					removeDarkenBG();
 					m_Scene.clearChildScene();
 					intent = new Intent(MainThemeActivity.this, ThemeItemActivity.class);
 					startActivity(intent);
@@ -199,11 +206,14 @@ public class MainThemeActivity extends BaseGameActivity{
 				loadingScene.unregisterUpdateHandler(pTimerHandler);
 				
 				myLoadResources();
-				
+												
 				//Make retry scene
 				m_GameModeScene = new CameraScene(1, m_Camera);
 				composeGameModeScene();
 				m_GameModeScene.setBackgroundEnabled(false);
+				
+				//Darken Spirte
+				m_DarkenSprite = new Sprite(0,0,m_DarkenTextureRegion);
 				
 				m_BGSprite = new Sprite(0,0,m_BGTextureRegion);
 				m_Scene.setBackground(new SpriteBackground(m_BGSprite));//new ColorBackground(0.09804f, 0.6274f, 0.8784f));
@@ -212,6 +222,7 @@ public class MainThemeActivity extends BaseGameActivity{
 					@Override
 					public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 						if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+							darkenBG();
 							res.setTheme(Const.THEME_ANIMAL);
 							m_Scene.clearTouchAreas();
 							m_Scene.setChildScene(m_GameModeScene, false, true, true);					
@@ -224,6 +235,7 @@ public class MainThemeActivity extends BaseGameActivity{
 					@Override
 					public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 						if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+							darkenBG();
 							res.setTheme(Const.THEME_ANIMAL);
 							m_Scene.clearTouchAreas();
 							m_Scene.setChildScene(m_GameModeScene, false, true, true);	
@@ -306,14 +318,19 @@ public class MainThemeActivity extends BaseGameActivity{
 
 		//Load Box
 		this.m_BGTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_BGTextureRegion = TextureRegionFactory.createFromResource(this.m_BGTexture, this, R.drawable.theme_bg, 0, 0);
+		this.m_BGTextureRegion = TextureRegionFactory.createFromResource(this.m_BGTexture, this, R.drawable.bg_playgame, 0, 0);
 
+		//Darken BG
+		m_DarkenTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		m_DarkenTextureRegion = TextureRegionFactory.createFromResource(this.m_DarkenTexture, this, R.drawable.darken_bg, 0, 0);
+		
 		//Game mode sel popup
 		this.m_GameModeTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
-		this.m_GameModeTextureRegion = TextureRegionFactory.createFromResource(this.m_GameModeTexture, this, R.drawable.type_sel_popup,0,0);
+		this.m_GameModeTextureRegion = TextureRegionFactory.createFromResource(this.m_GameModeTexture, this, R.drawable.popup_game_mode,0,0);
 		this.m_GameSelTexture = new Texture(256, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_GameSelTextureRegion = TextureRegionFactory.createFromResource(this.m_GameSelTexture, this, R.drawable.type_sel_touch_area,0,0);
 
+		this.mEngine.getTextureManager().loadTexture(this.m_DarkenTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_AnimalTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_ToyTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_NumberTexture);
@@ -326,6 +343,7 @@ public class MainThemeActivity extends BaseGameActivity{
 	@Override
 	public void onBackPressed() {
 		if (m_Scene.hasChildScene()){
+			removeDarkenBG();
 			m_Scene.clearChildScene();
 			registTouchArea();
 		}else{
@@ -350,5 +368,19 @@ public class MainThemeActivity extends BaseGameActivity{
 		Display display = getWindowManager().getDefaultDisplay();
 		int height = display.getHeight();
 		return height;
+	}
+	
+	//Reset Screen - Remove all the m_DarkenSprite from scene.
+	private void removeDarkenBG(){
+		Log.e(TAG, "removeDarkenBG()");
+		mEngine.runOnUpdateThread(new Runnable() {
+			@Override
+			public void run() {
+					m_Scene.getTopLayer().removeEntity(m_DarkenSprite);		
+			}        	
+		});
+	}
+	private void darkenBG(){
+		m_Scene.getTopLayer().addEntity(m_DarkenSprite);	
 	}
 }
