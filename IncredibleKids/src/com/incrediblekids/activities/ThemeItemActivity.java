@@ -675,13 +675,18 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		//Load Box Sprite to scene.
 		int length = m_strAlphabet.length();
 		m_arrBoxSprite = new AlphabetSprite[m_strAlphabet.length()];
-		int divWidth = CAMERA_WIDTH/length;
+		//int divWidth = CAMERA_WIDTH/length;
 		
-		for(int i=0; i < length; i++){
-			m_arrBoxSprite[i] = new AlphabetSprite(divWidth * i + (divWidth-m_BoxTextureRegion.getWidth())/2,
+		int space = m_BoxTextureRegion.getWidth()/40;
+		int boxWidth = m_BoxTextureRegion.getWidth();
+		int w = boxWidth * length + space*(length-1);
+		int x = (CAMERA_WIDTH - w)/2;
+		for(int i=0; i < length; i++){			
+			m_arrBoxSprite[i] = new AlphabetSprite(x,//divWidth * i + (divWidth-m_BoxTextureRegion.getWidth())/2,
 					CAMERA_HEIGHT-m_BoxTextureRegion.getHeight(), this.m_BoxTextureRegion, i, m_strAlphabet.charAt(i));
 			Log.e(TAG, "CAMERA_HEIGHT:"+CAMERA_HEIGHT+" m_BoxTexture.getWidth()"+m_BoxTexture.getWidth()+" CAMERA_HEIGHT/10:"+CAMERA_HEIGHT/10);
 			m_Scene.getLayer(ENTITIES_LAYER).addEntity(m_arrBoxSprite[i]);
+			x = x + space + boxWidth;
 		}
 
 		//Load Alphabet Sprite to scene
