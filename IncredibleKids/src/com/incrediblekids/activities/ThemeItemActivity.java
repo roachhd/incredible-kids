@@ -69,7 +69,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	public int CAMERA_WIDTH;
 	public int CAMERA_HEIGHT;
 
-	public final static int CENTER_OFFSET = 50;		//OFFSET for collision detect: larger is less sensitive
+	public final static int CENTER_OFFSET = 70;	//OFFSET for collision detect: larger is less sensitive
 	public final static int BASE_LAYER = 0;		//Base layer for non-changable sprite
 	public final static int ENTITIES_LAYER = 1;	//entiti layer for changable sprite
 
@@ -144,9 +144,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private Scene m_Scene;
 
 	//Sound on/off
-	private Texture m_SoundTexture;
+/*	private Texture m_SoundTexture;
 	private TiledTextureRegion m_SoundTextureRegion;
-	private AnimatedSprite m_SoundSprite;
+	private AnimatedSprite m_SoundSprite;*/
 	private Boolean m_bSoundOn;
 	
 	//Darken bg
@@ -268,8 +268,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.m_RetryCancelTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryCancelTexture, this, R.drawable.retry_no_btn,0,0);
 		
 		//Load sound on/off
-		this.m_SoundTexture = new Texture(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_SoundTextureRegion = TextureRegionFactory.createTiledFromResource(m_SoundTexture, this, R.drawable.btn_sound, 0, 0, 2, 1);
+/*		this.m_SoundTexture = new Texture(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_SoundTextureRegion = TextureRegionFactory.createTiledFromResource(m_SoundTexture, this, R.drawable.btn_sound, 0, 0, 2, 1);*/
 		
 		//Skip 		
 		this.m_SkipTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -438,7 +438,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryOkTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryCancelTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_SoundTexture);
+//		this.mEngine.getTextureManager().loadTexture(this.m_SoundTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_DarkenTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_SkipTexture);
 	}
@@ -458,7 +458,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		
 		this.m_DarkenSprite = new Sprite(0,0,this.m_DarkenTextureRegion);
 		
-		this.m_SoundSprite = new AnimatedSprite(m_SoundTextureRegion.getTileWidth()/4, m_SoundTextureRegion.getHeight()/4, this.m_SoundTextureRegion){
+/*		this.m_SoundSprite = new AnimatedSprite(m_SoundTextureRegion.getTileWidth()/4, m_SoundTextureRegion.getHeight()/4, this.m_SoundTextureRegion){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
@@ -478,7 +478,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		};
 
 		this.m_SoundTextureRegion.setCurrentTileIndex(SOUND_ON);
-		this.m_Scene.getLayer(BASE_LAYER).addEntity(m_SoundSprite);
+		this.m_Scene.getLayer(BASE_LAYER).addEntity(m_SoundSprite);*/
 		
 		this.m_SkipSprite = new Sprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
 				m_SkipTextureRegion.getHeight()/4, this.m_SkipTextureRegion){
@@ -514,7 +514,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				this.m_FailTextureRegion);
 /*CAMERA_WIDTH - m_HelpTextureRegion.getWidth() - m_HelpTextureRegion.getWidth()/4,
 		m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion
-*/		this.m_Help = new Sprite(m_HelpTextureRegion.getWidth()/4, m_SoundSprite.getY() + m_SoundSprite.getHeight() + m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion){
+*/		this.m_Help = new Sprite(m_HelpTextureRegion.getWidth()/4, m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion){
 
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
@@ -635,7 +635,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		//re regist touch area for help and pause btn
 		m_Scene.registerTouchArea(m_Help);
 /*		m_Scene.registerTouchArea(m_ShowPicSprite);*/
-		m_Scene.registerTouchArea(m_SoundSprite);
+//		m_Scene.registerTouchArea(m_SoundSprite);
 		m_Scene.registerTouchArea(m_SkipSprite);
 		//Load Sound
 		try {
@@ -677,10 +677,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		m_arrBoxSprite = new AlphabetSprite[m_strAlphabet.length()];
 		//int divWidth = CAMERA_WIDTH/length;
 		
-		int space = m_BoxTextureRegion.getWidth()/40;
+		int space = m_BoxTextureRegion.getWidth()/(length * length);
 		int boxWidth = m_BoxTextureRegion.getWidth();
 		int w = boxWidth * length + space*(length-1);
 		int x = (CAMERA_WIDTH - w)/2;
+		
 		for(int i=0; i < length; i++){			
 			m_arrBoxSprite[i] = new AlphabetSprite(x,//divWidth * i + (divWidth-m_BoxTextureRegion.getWidth())/2,
 					CAMERA_HEIGHT-m_BoxTextureRegion.getHeight(), this.m_BoxTextureRegion, i, m_strAlphabet.charAt(i));
