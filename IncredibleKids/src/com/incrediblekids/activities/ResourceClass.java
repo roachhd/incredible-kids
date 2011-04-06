@@ -76,6 +76,18 @@ public class ResourceClass {
 			vItems.add(new Item("plane", R.drawable.img_plane, R.drawable.img_monkey_s, R.drawable.word_mouse, R.drawable.word_monkey_s));
 			vItems.add(new Item("clock", R.drawable.img_clock, R.drawable.img_monkey_s, R.drawable.word_mouse, R.drawable.word_monkey_s));
 			vItems.add(new Item("train", R.drawable.img_train, R.drawable.img_monkey_s, R.drawable.word_mouse, R.drawable.word_monkey_s));
+			vItems.add(new Item("moon", R.drawable.img_moon, R.drawable.img_monkey_s, R.drawable.word_mouse, R.drawable.word_monkey_s));
+			vItems.add(new Item("ring", R.drawable.img_ring, R.drawable.img_monkey_s, R.drawable.word_mouse, R.drawable.word_monkey_s));
+			vItems.add(new Item("spoon", R.drawable.img_spoon, R.drawable.img_monkey_s, R.drawable.word_mouse, R.drawable.word_monkey_s));
+			vItems.add(new Item("pencil", R.drawable.img_pencil, R.drawable.img_monkey_s, R.drawable.word_mouse, R.drawable.word_monkey_s));
+			vItems.add(new Item("chair", R.drawable.img_chair, R.drawable.img_monkey_s, R.drawable.word_mouse, R.drawable.word_monkey_s));
+			vItems.add(new Item("eraser", R.drawable.img_eraser, R.drawable.img_monkey_s, R.drawable.word_mouse, R.drawable.word_monkey_s));
+			vItems.add(new Item("house", R.drawable.img_house, R.drawable.img_monkey_s, R.drawable.word_mouse, R.drawable.word_monkey_s));
+			vItems.add(new Item("book", R.drawable.img_book, R.drawable.img_monkey_s, R.drawable.word_mouse, R.drawable.word_monkey_s));
+			vItems.add(new Item("table", R.drawable.img_table, R.drawable.img_monkey_s, R.drawable.word_mouse, R.drawable.word_monkey_s));
+			vItems.add(new Item("bed", R.drawable.img_bed, R.drawable.img_monkey_s, R.drawable.word_mouse, R.drawable.word_monkey_s));
+			vItems.add(new Item("fork", R.drawable.img_fork, R.drawable.img_monkey_s, R.drawable.word_mouse, R.drawable.word_monkey_s));
+			vItems.add(new Item("sun", R.drawable.img_sun, R.drawable.img_monkey_s, R.drawable.word_mouse, R.drawable.word_monkey_s));
 		}
 	}
 	
