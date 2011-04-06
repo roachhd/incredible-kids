@@ -236,7 +236,7 @@ public class MainThemeActivity extends BaseGameActivity{
 					public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 						if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
 							darkenBG();
-							res.setTheme(Const.THEME_ANIMAL);
+							res.setTheme(Const.THEME_TOY);
 							m_Scene.clearTouchAreas();
 							m_Scene.setChildScene(m_GameModeScene, false, true, true);	
 						}
@@ -325,9 +325,9 @@ public class MainThemeActivity extends BaseGameActivity{
 		m_DarkenTextureRegion = TextureRegionFactory.createFromResource(this.m_DarkenTexture, this, R.drawable.darken_bg, 0, 0);
 		
 		//Game mode sel popup
-		this.m_GameModeTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
+		this.m_GameModeTexture = new Texture(1024, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
 		this.m_GameModeTextureRegion = TextureRegionFactory.createFromResource(this.m_GameModeTexture, this, R.drawable.popup_game_mode,0,0);
-		this.m_GameSelTexture = new Texture(256, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_GameSelTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_GameSelTextureRegion = TextureRegionFactory.createFromResource(this.m_GameSelTexture, this, R.drawable.type_sel_touch_area,0,0);
 
 		this.mEngine.getTextureManager().loadTexture(this.m_DarkenTexture);

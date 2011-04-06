@@ -639,7 +639,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		m_Scene.registerTouchArea(m_SkipSprite);
 		//Load Sound
 		try {
-			this.m_ItemSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, m_strAlphabet+".mp3");
+			this.m_ItemSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "bird.mp3");//m_strAlphabet+".mp3");
 			this.m_ItemSound.setVolume(1.0f);
 		} catch (final IOException e) {
 			Debug.e("Error", e);
