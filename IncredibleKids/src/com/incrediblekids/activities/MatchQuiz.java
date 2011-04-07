@@ -15,6 +15,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +32,6 @@ import com.incrediblekids.activities.ResourceClass.Item;
 public class MatchQuiz extends Activity implements View.OnClickListener {
 	
 	private final String TAG = "MatchQuiz";
-	
 	private final int MAX_COUNT = 8;
 	
 	private ResourceClass m_Res;
@@ -56,7 +56,27 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	
 	/* MatchManger */
 	private MatchManager m_MatchManager;
+	
+	
+	/**
+	 * using for animation end callback.
+	 */
+	private Handler m_Handler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch(msg.what) {
+			case ANIMATION_ENDED:
+				clickEnable(true);
+				break;
+			}
+		}
+	};
 
+	public static final int ANIMATION_ENDED = 10;
+	public static final int ITEM_DEFAULT = 0;
+	public static final int ITEM_MATCHED = 1;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -67,11 +87,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		toggleImages();
 		setItems();
 	}
-	
-	
-	
-	
-	
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -79,8 +94,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		Log.d(TAG, "onWidowFocusChanged()");
 		setTimeAnimation();
 		
-		//Test
-		m_TimeFrameImage.startAnimation(m_TimeFlowAnimation);
 	}
 
 	private void init() {
@@ -101,6 +114,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		for(int i = 0; i < MAX_COUNT; i++) {
 			m_ItemImages[i]	= (ImageView)findViewById(firstItemValue); // �녍뚌��-_-;
 			m_ItemImages[i].setOnClickListener(this);
+			m_ItemImages[i].setTag(ITEM_DEFAULT);
 			
 			m_Questions[i]	= (ImageView)findViewById(questionValue);
 			m_Questions[i].setOnClickListener(this);
@@ -147,9 +161,12 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				for(int i = 0; i < MAX_COUNT; i++) {
 					m_ItemImages[i].setVisibility(View.GONE);
 					m_Questions[i].setVisibility(View.VISIBLE);
+					
 				}
+				//Test
+				m_TimeFrameImage.startAnimation(m_TimeFlowAnimation);
 			}
-        }, 1000);
+        }, 5000);
 	}
 	
 	/**
@@ -269,11 +286,20 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
      * true : click enable 
      * flase: click disable
      */
-    private void clickEnable(boolean isEnable) {
-		// TODO Auto-generated method stub
+    public void clickEnable(boolean isEnable) {
 		
-    	for(int i = 0; i < MAX_COUNT; i++) {
-    		m_Questions[i].setClickable(isEnable);
+    	if(isEnable) {	// change to clickable
+    		for(int i = 0; i < MAX_COUNT; i++) {
+    			m_Questions[i].setClickable(isEnable);
+    			if(m_ItemImages[i].getTag() == (Integer)ITEM_DEFAULT)
+    				m_ItemImages[i].setClickable(isEnable);
+    		}
+    	}
+    	else {			// change to clickdisable
+    		for(int i = 0; i < MAX_COUNT; i++) {
+    			m_Questions[i].setClickable(isEnable);
+    			m_ItemImages[i].setClickable(isEnable);
+    		}
     	}
 	}
 
@@ -297,7 +323,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
         // Create a new 3D rotation with the supplied parameter
         // The animation listener is used to trigger the next animation
         final Rotate3dAnimation rotation = new Rotate3dAnimation(start, end, centerX, centerY, 310.0f, true);
-        rotation.setDuration(500);
+        rotation.setDuration(300);
         rotation.setFillAfter(true);
         rotation.setInterpolator(new AccelerateInterpolator());
         rotation.setAnimationListener(new DisplayNextView(position));
@@ -360,9 +386,28 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
                 rotation = new Rotate3dAnimation(270, 360, centerX, centerY, 310.0f, false);
             }
 
-            rotation.setDuration(500);
+            rotation.setDuration(300);
             rotation.setFillAfter(true);
             rotation.setInterpolator(new DecelerateInterpolator());
+            
+            rotation.setAnimationListener(new AnimationListener() {
+				
+				@Override
+				public void onAnimationStart(Animation paramAnimation) {
+					
+				}
+				
+				@Override
+				public void onAnimationRepeat(Animation paramAnimation) {
+					
+				}
+				
+				@Override
+				public void onAnimationEnd(Animation paramAnimation) {
+					Log.d(TAG, "Rotation End()");
+					m_Handler.sendEmptyMessage(ANIMATION_ENDED);
+				}
+			});
 
             m_ClickedViewGroup.startAnimation(rotation);
         }
@@ -370,13 +415,11 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     
     /**
      * @author TickerBomb
-     * This class is responsible for managing clickable images and Matching results.
+     * This class is responsible for matching results.
      */
     private class MatchManager {
-    	private boolean isClickable;
     	private boolean isSolo;
     	private int m_PreClickedItemId;
-    	private MatchManager matchManager;
     	
     	private HashMap<Integer, String> m_Items;
     	private HashMap<Integer, String> m_MatchedItems;
@@ -386,7 +429,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     		m_Items 			= new HashMap<Integer, String>(MAX_COUNT);
     		m_MatchedItems 		= new HashMap<Integer, String>(MAX_COUNT);
     		m_PreClickedItem 	= new HashMap<Integer, String>();
-    		isClickable			= true;
     		isSolo				= true;
     		
     		/*
@@ -409,10 +451,11 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     	}
     	**/
     	
-    	public boolean isClickable() {
-    		return isClickable;
-    	}
-    	
+    	/**
+    	 * @param targetId
+    	 * if there isn't clicked item then set isSolo or !isSolo
+    	 * and do check whether clicked items is matched or mismatched.
+    	 */
     	public void clickedItem(int targetId) {
 //    		setEnableClickItems(true);
     		if(isSolo) {
@@ -422,13 +465,13 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     		}
     		else {
     			if(isMatched(targetId)) {
-    				//TODO :setting Clickable
+    				clickDisable(m_PreClickedItemId, targetId);
     				moveItemsToMatched(targetId);
     				playSound(true);
+    				checkAllMatched();
     			}
     			else {
-    				//TODO :setting Clickable
-    				togglePreviousItem();
+    				togglePreviousItem(targetId);
     				playSound(false);
     			}
     			m_PreClickedItem.clear();
@@ -436,9 +479,29 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     		}
     	}
 
-		private void togglePreviousItem() {
+		private void checkAllMatched() {
 			// TODO Auto-generated method stub
+		}
+
+		/**
+		 * @param preClickedItemId
+		 * @param targetId
+		 * set view's tag to ITEM_MATCHED.
+		 * if tag's value is ITEM_MATCHED which can't get click event.
+		 */
+		private void clickDisable(int preClickedItemId, int targetId) {
+			View item1;
+			View item2;
 			
+			item1 = findViewById(preClickedItemId);
+			item2 = findViewById(targetId);
+			
+			item1.setTag(ITEM_MATCHED);
+			item2.setTag(ITEM_MATCHED);
+		}
+
+		private void togglePreviousItem(int targetId) {
+			//TODO
 		}
 
 		private void moveItemsToMatched(int targetId) {
@@ -451,6 +514,11 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			m_Items.remove(m_PreClickedItemId);
 		}
 
+		/**
+		 * @param targetId	ViewID
+		 * @return true  : matched
+		 * 		   false : dismatched
+		 */
 		private boolean isMatched(int targetId) {
 			Log.d(TAG, "isMatched()");
 			if(m_PreClickedItem.equals(m_Items.get(targetId))) {
