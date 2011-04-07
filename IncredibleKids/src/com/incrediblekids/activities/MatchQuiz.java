@@ -23,6 +23,7 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 
 import com.incrediblekids.activities.ResourceClass.Item;
@@ -41,34 +42,46 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private ViewGroup[] m_Containers;
 	private HashMap<Integer, Integer> m_RandomHashMap;
 	
-	private Bitmap 		m_bitSoundBtnLeft, m_bitSoundBtnRight;
-	
 	/* �왿돟�モ닞 쩔횄�횄징� */
 	private ViewGroup	m_ClickedViewGroup;
 	private ImageView	m_ClickedQuestion;
 	private ImageView	m_ClickedItemImage;
-	private ImageView	m_SoundBtnImage;
+//	private ImageView	m_SoundBtnImage;
 	
+	/* FrameImage & Interpolator Animation */
 	private ImageView			m_TimeFrameImage;
+	private ImageView			m_TimeFrameImageEnd;
 	private AnimationDrawable 	m_TimeFrameAnimation;
 	private Animation			m_TimeFlowAnimation;
 	
+	/* MatchManger */
 	private MatchManager m_MatchManager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.d(TAG, "onCreate()");
 		
 		setContentView(R.layout.match_quiz);
 		init();
 		toggleImages();
 		setItems();
+	}
+	
+	
+	
+	
+	
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		Log.d(TAG, "onWidowFocusChanged()");
 		setTimeAnimation();
 		
 		//Test
 		m_TimeFrameImage.startAnimation(m_TimeFlowAnimation);
 	}
-	
 
 	private void init() {
 		Log.d(TAG, "init()");
@@ -105,15 +118,20 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		Bitmap bit 			= bd.getBitmap();
 		Log.d(TAG, "bit.getWidtd(): " + bit.getWidth());
 		Log.d(TAG, "bit.getHeight(): " + bit.getHeight());
+		
+		/* deleted
 		m_bitSoundBtnLeft 	= Bitmap.createBitmap(bit, 0, 0, bit.getWidth()/2, bit.getHeight());
 		m_bitSoundBtnRight 	= Bitmap.createBitmap(bit, bit.getWidth()/2, 0, bit.getWidth()/2, bit.getHeight());
 		
 		m_SoundBtnImage 	= (ImageView)findViewById(R.id.ivSound);
 		m_SoundBtnImage.setImageBitmap(m_bitSoundBtnLeft);
+		*/
 		
 		/* */
 		m_TimeFrameImage 	= (ImageView)findViewById(R.id.ivTimeFrame);
 		m_TimeFrameImage.setBackgroundResource(R.drawable.frame_transition);
+		
+		m_TimeFrameImageEnd	= (ImageView)findViewById(R.id.ivTimeFrameEnd);
 		
 		makeRandomHashMap();
 	}
@@ -135,7 +153,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	}
 	
 	/**
-	 * ItemImage첩횛 WordImage�뤒�쨘횠짜짭짜타.
+	 * Set ItemImages & WordImages randomly.
+	 * add to MatchManager's items
 	 */
 	private void setItems() {
 		Log.d(TAG, "setItems()");
@@ -150,14 +169,13 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			if((flag % 2) == 0) {
 //				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iItemImgId);
 				m_ItemImages[value].setImageResource(R.drawable.card_front);
-				m_MatchManager.addItem(m_ItemVector.get(vectorNum).iItemImgId, m_ItemVector.get(vectorNum).strWordCharId);
 			}
 			else {
 //				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iWordImgId);
 				m_ItemImages[value].setImageResource(R.drawable.card_word);
-				m_MatchManager.addItem(m_ItemVector.get(vectorNum).iWordImgId, m_ItemVector.get(vectorNum).strWordCharId);
 				vectorNum++;
 			}
+			m_MatchManager.addItem(m_ItemImages[value].getId(), m_ItemVector.get(vectorNum).strWordCharId);
 			flag++;
 		}
 		Log.d(TAG, "flag: " + flag);
@@ -166,10 +184,19 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	
 	/* Set TimeAnimation */
 	private void setTimeAnimation() {
-		// TODO Auto-generated method stub
-		m_TimeFrameAnimation = (AnimationDrawable)m_TimeFrameImage.getBackground();
+		View targetParent;
+		float fromXDelta;
+		float toXDelta;
 		
-		m_TimeFlowAnimation  = AnimationUtils.loadAnimation(this, R.anim.interpolator);
+		targetParent = (View) m_TimeFrameImage.getParent();
+		fromXDelta 	 = m_TimeFrameImage.getLeft();
+		toXDelta 	 = targetParent.getWidth() - m_TimeFrameImage.getWidth();
+		
+		m_TimeFrameAnimation = (AnimationDrawable)m_TimeFrameImage.getBackground();
+		m_TimeFlowAnimation  = new TranslateAnimation(fromXDelta, toXDelta, 0.0f, 0.0f);
+		
+		m_TimeFlowAnimation.setDuration(10000);
+		m_TimeFlowAnimation.setInterpolator(AnimationUtils.loadInterpolator(this, android.R.anim.accelerate_decelerate_interpolator));
 		m_TimeFlowAnimation.setAnimationListener(new AnimationListener() {
 			
 			@Override
@@ -179,12 +206,13 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			
 			@Override
 			public void onAnimationRepeat(Animation animation) {
-				// TODO Auto-generated method stub
 			}
 			
 			@Override
 			public void onAnimationEnd(Animation animation) {
 				m_TimeFrameAnimation.stop();
+				m_TimeFrameImage.setVisibility(View.INVISIBLE);
+				m_TimeFrameImageEnd.setVisibility(View.VISIBLE);
 			}
 		});
 	}
@@ -232,10 +260,29 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_ClickedItemImage 	= (ImageView) m_ClickedViewGroup.getChildAt(0);
 		m_ClickedQuestion 	= (ImageView) m_ClickedViewGroup.getChildAt(1);
 		
+		clickEnable(false);
         applyRotation(flag, 0, 90);
 	}
 	
     /**
+     * @param isEnable
+     * true : click enable 
+     * flase: click disable
+     */
+    private void clickEnable(boolean isEnable) {
+		// TODO Auto-generated method stub
+		
+    	for(int i = 0; i < MAX_COUNT; i++) {
+    		m_Questions[i].setClickable(isEnable);
+    	}
+	}
+
+
+
+
+
+
+	/**
      * Setup a new 3D rotation on the container view.
      *
      * @param position the item that was clicked to show a picture, or -1 to show the list
@@ -323,22 +370,23 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     
     /**
      * @author TickerBomb
-     * This class is responsible for managing clickable images and Matching result
-     * 짭쨍�왗�: View첩째 챈�녌올꺜듸？ �ヅ뮼맞��왖걔β�짬흹짜타.
+     * This class is responsible for managing clickable images and Matching results.
      */
     private class MatchManager {
     	private boolean isClickable;
     	private boolean isSolo;
     	private int m_PreClickedItemId;
-    	private HashMap<Integer, String> m_PreClickedItem;
+    	private MatchManager matchManager;
+    	
     	private HashMap<Integer, String> m_Items;
     	private HashMap<Integer, String> m_MatchedItems;
+    	private HashMap<Integer, String> m_PreClickedItem;
     	
-    	public MatchManager() {
+    	private MatchManager() {
     		m_Items 			= new HashMap<Integer, String>(MAX_COUNT);
     		m_MatchedItems 		= new HashMap<Integer, String>(MAX_COUNT);
     		m_PreClickedItem 	= new HashMap<Integer, String>();
-    		isClickable			= false;
+    		isClickable			= true;
     		isSolo				= true;
     		
     		/*
@@ -350,6 +398,19 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     			m_Items.add(question[i]) ;
     		}
     		*/
+    	}
+    	
+    	/** deleted
+    	public synchronized MatchManager getInstance() {
+    		if(matchManager == null) {
+    			matchManager = new MatchManager();
+    		}
+    		return matchManager;
+    	}
+    	**/
+    	
+    	public boolean isClickable() {
+    		return isClickable;
     	}
     	
     	public void clickedItem(int targetId) {
@@ -407,26 +468,10 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     	public void addItem(int key, String value) {
     		m_Items.put(key, value);
     	}
-
-		/**
-		 * @param enable true: user can click items, false: can't click items
-		 */
-    	public void setEnableClickItems(boolean enable) {
-    		Log.d(TAG, "setEnableClickItems()");
-    		Iterator<Integer> itr = m_Items.keySet().iterator();
-    		ImageView iv;
-    		int imageViewId;
-    		while(itr.hasNext()) {
-    			imageViewId = (Integer)itr.next();
-    			iv = (ImageView)findViewById(imageViewId);
-    			iv.setClickable(enable);
-    		}
-    	}
     }
 	
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 	}
 	
