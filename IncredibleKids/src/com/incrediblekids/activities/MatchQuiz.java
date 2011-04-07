@@ -193,6 +193,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				vectorNum++;
 			}
 			m_MatchManager.addItem(m_ItemImages[value].getId(), m_ItemVector.get(vectorNum).strWordCharId);
+			Log.d(TAG, "key: " +  m_ItemImages[value].getId());
+			Log.d(TAG, "String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 			flag++;
 		}
 		Log.d(TAG, "flag: " + flag);
@@ -279,6 +281,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		
 		clickEnable(false);
         applyRotation(flag, 0, 90);
+        m_MatchManager.clickedItem(v.getId());
 	}
 	
     /**
@@ -347,7 +350,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
         }
 
         public void onAnimationEnd(Animation animation) {
-        	Log.d(TAG, "onAnimationEnd()");
         	m_ClickedViewGroup.post(new SwapViews(mPosition));
         }
 
@@ -404,7 +406,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				
 				@Override
 				public void onAnimationEnd(Animation paramAnimation) {
-					Log.d(TAG, "Rotation End()");
 					m_Handler.sendEmptyMessage(ANIMATION_ENDED);
 				}
 			});
@@ -457,6 +458,9 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     	 * and do check whether clicked items is matched or mismatched.
     	 */
     	public void clickedItem(int targetId) {
+    		Log.d(TAG, "clickedItem() isSolo : " + isSolo);
+    		Log.d(TAG, "clickedItem key: " + targetId);
+    		Log.d(TAG, "value: " + m_Items.get(targetId));
 //    		setEnableClickItems(true);
     		if(isSolo) {
     			m_PreClickedItem.put(targetId, m_Items.get(targetId));
@@ -490,6 +494,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		 * if tag's value is ITEM_MATCHED which can't get click event.
 		 */
 		private void clickDisable(int preClickedItemId, int targetId) {
+			Log.d(TAG, "clickDisable()");
 			View item1;
 			View item2;
 			
