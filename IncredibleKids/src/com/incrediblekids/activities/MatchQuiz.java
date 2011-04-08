@@ -110,7 +110,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private void analysisMatchResult() {
 		Log.d(TAG, "analysisMatchResult()");
 		if(m_MatchManager.isTouchedSameView()) {
-			m_MatchManager.setSolo(false);
+			m_MatchManager.setSolo(true);
 			m_MatchManager.setTouchedSameView(false);
 			return;
 		}
@@ -615,6 +615,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		public void setTouchedSameView(boolean isTouchedSameView) {
 			Log.d(TAG, "touchedSameView()");
 			this.isTouchedSameView = isTouchedSameView;
+			clearPreClikedItemInfo();
 		}
 		
 		public boolean isTouchedSameView() {
