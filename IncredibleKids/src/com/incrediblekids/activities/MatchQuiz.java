@@ -82,6 +82,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate()");
 		
+		
 		setContentView(R.layout.match_quiz);
 		init();
 		toggleImages();
@@ -91,9 +92,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
-		Log.d(TAG, "onWidowFocusChanged()");
 		setTimeAnimation();
-		
 	}
 
 	private void init() {
@@ -186,19 +185,19 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			if((flag % 2) == 0) {
 //				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iItemImgId);
 				m_ItemImages[value].setImageResource(R.drawable.card_front);
+				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
 			}
 			else {
 //				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iWordImgId);
 				m_ItemImages[value].setImageResource(R.drawable.card_word);
+				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
 				vectorNum++;
 			}
-			m_MatchManager.addItem(m_ItemImages[value].getId(), m_ItemVector.get(vectorNum).strWordCharId);
-			Log.d(TAG, "key: " +  m_ItemImages[value].getId());
+			Log.d(TAG, "key: " +  getParentId(m_ItemImages[value].getId()));
 			Log.d(TAG, "String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 			flag++;
 		}
 		Log.d(TAG, "flag: " + flag);
-		Log.d(TAG, "vectorNum: " + vectorNum);
 	}
 	
 	/* Set TimeAnimation */
@@ -252,6 +251,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		while(true) {
 			tempNum = Math.abs(rnd.nextInt(MAX_COUNT));
 			if(!m_RandomHashMap.containsValue(tempNum)) {
+				Log.d(TAG, "tempNum:" + tempNum);
 				m_RandomHashMap.put(key, tempNum);
 				key++;
 			}
@@ -281,13 +281,22 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		
 		clickEnable(false);
         applyRotation(flag, 0, 90);
-        m_MatchManager.clickedItem(v.getId());
+        
+        m_MatchManager.clickedItem(getParentId(v.getId()));
+        
+        if(m_MatchManager.isMatched()) {
+        	Log.d(TAG, "Matched!!");
+        	clickDisable(m_MatchManager.getPreClickedId(), getParentId(v.getId()));
+        }
+        else {
+        	toggleClickedItems(m_MatchManager.getPreClickedId(), getParentId(v.getId()));
+        }
 	}
 	
     /**
      * @param isEnable
      * true : click enable 
-     * flase: click disable
+     * false: click disable
      */
     public void clickEnable(boolean isEnable) {
 		
@@ -306,9 +315,37 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     	}
 	}
 
-
-
-
+    /**
+     * @param preClickedItemId parentViewId
+     * @param targetId parentViewId
+     * set view's tag to ITEM_MATCHED.
+     * if tag's value is ITEM_MATCHED which can't get click event.
+     */
+    private void clickDisable(int preClickedItemId, int targetId) {
+    	Log.d(TAG, "clickDisable()");
+    	View item1;
+    	View item2;
+    	
+    	item1 = ((ViewGroup) findViewById(preClickedItemId)).getChildAt(0);
+    	item2 = ((ViewGroup) findViewById(targetId)).getChildAt(0);
+    	
+    	item1.setTag(ITEM_MATCHED);
+    	item2.setTag(ITEM_MATCHED);
+    }
+    
+    /**
+     * @param preClickedItemId parentViewId
+     * @param targetId parentViewId
+     * It toggles clicked items only if it dosen't match.
+     */
+    private void toggleClickedItems(int preClickedItemId, int targetId) {
+    	Log.d(TAG, "toggleClickedItems()");
+    	// TODO:
+    }
+    
+    private int getParentId(int targetId) {
+    	return ((View) findViewById(targetId).getParent()).getId();
+    }
 
 
 	/**
@@ -372,7 +409,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
             final float centerX = m_ClickedViewGroup.getWidth() / 2.0f;
             final float centerY = m_ClickedViewGroup.getHeight() / 2.0f;
             Rotate3dAnimation rotation;
-            Log.d(TAG, "mPosition : " + mPosition);
+//            Log.d(TAG, "mPosition : " + mPosition);
             
             if (mPosition > -1) {
                 m_ClickedQuestion.setVisibility(View.GONE);
@@ -407,6 +444,10 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				@Override
 				public void onAnimationEnd(Animation paramAnimation) {
 					m_Handler.sendEmptyMessage(ANIMATION_ENDED);
+					clickEnable(true);
+					if(m_MatchManager.isAllMatched()) {
+						// TODO:
+					}
 				}
 			});
 
@@ -419,10 +460,13 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
      * This class is responsible for matching results.
      */
     private class MatchManager {
+    	private final int MAX = 8;
     	private boolean isSolo;
-    	private int m_PreClickedItemId;
+    	private boolean isMatched;
+    	private boolean isAllMatched;
+    	private int m_PreClickedItemId;	// parentViewId
     	
-    	private HashMap<Integer, String> m_Items;
+    	private HashMap<Integer, String> m_Items;	// key: parentViewId, value: child String Value
     	private HashMap<Integer, String> m_MatchedItems;
     	private HashMap<Integer, String> m_PreClickedItem;
     	
@@ -431,26 +475,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     		m_MatchedItems 		= new HashMap<Integer, String>(MAX_COUNT);
     		m_PreClickedItem 	= new HashMap<Integer, String>();
     		isSolo				= true;
-    		
-    		/*
-    		for(int i = 0; i < items.length; i++) {
-    			m_Items.add(items[i]) ;
-    		}
-    		
-    		for(int i = 0; i < question.length; i++) {
-    			m_Items.add(question[i]) ;
-    		}
-    		*/
+    		m_PreClickedItemId	= 0;
     	}
-    	
-    	/** deleted
-    	public synchronized MatchManager getInstance() {
-    		if(matchManager == null) {
-    			matchManager = new MatchManager();
-    		}
-    		return matchManager;
-    	}
-    	**/
     	
     	/**
     	 * @param targetId
@@ -461,7 +487,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     		Log.d(TAG, "clickedItem() isSolo : " + isSolo);
     		Log.d(TAG, "clickedItem key: " + targetId);
     		Log.d(TAG, "value: " + m_Items.get(targetId));
-//    		setEnableClickItems(true);
+    		
     		if(isSolo) {
     			m_PreClickedItem.put(targetId, m_Items.get(targetId));
     			m_PreClickedItemId = targetId;
@@ -469,46 +495,27 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     		}
     		else {
     			if(isMatched(targetId)) {
-    				clickDisable(m_PreClickedItemId, targetId);
     				moveItemsToMatched(targetId);
     				playSound(true);
     				checkAllMatched();
     			}
     			else {
-    				togglePreviousItem(targetId);
     				playSound(false);
     			}
     			m_PreClickedItem.clear();
+    			m_PreClickedItemId = 0;
     			isSolo = true;
     		}
     	}
+    	
 
 		private void checkAllMatched() {
-			// TODO Auto-generated method stub
+			if(m_MatchedItems.size() == MAX)
+				isAllMatched = true;
+			else
+				isAllMatched = false;
 		}
-
-		/**
-		 * @param preClickedItemId
-		 * @param targetId
-		 * set view's tag to ITEM_MATCHED.
-		 * if tag's value is ITEM_MATCHED which can't get click event.
-		 */
-		private void clickDisable(int preClickedItemId, int targetId) {
-			Log.d(TAG, "clickDisable()");
-			View item1;
-			View item2;
-			
-			item1 = findViewById(preClickedItemId);
-			item2 = findViewById(targetId);
-			
-			item1.setTag(ITEM_MATCHED);
-			item2.setTag(ITEM_MATCHED);
-		}
-
-		private void togglePreviousItem(int targetId) {
-			//TODO
-		}
-
+		
 		private void moveItemsToMatched(int targetId) {
 			Log.d(TAG, "moveItemsToMatched()");
 			// Add MatchedItem
@@ -520,24 +527,44 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		}
 
 		/**
-		 * @param targetId	ViewID
+		 * @param targetId	target view's parent view id.
 		 * @return true  : matched
 		 * 		   false : dismatched
 		 */
 		private boolean isMatched(int targetId) {
-			Log.d(TAG, "isMatched()");
-			if(m_PreClickedItem.equals(m_Items.get(targetId))) {
-				return true;
+			Log.d(TAG, "isMatched()pre: " + m_PreClickedItem.get(m_PreClickedItemId));
+			Log.d(TAG, "isMatched()target: " + m_Items.get(targetId));
+			
+			if(m_PreClickedItem.get(m_PreClickedItemId).equals(m_Items.get(targetId))) {
+				isMatched = true;
 			}
 			else {
-				return false;
+				isMatched = false;
 			}
+			
+			return isMatched;
     	}
+		
+		public boolean isMatched() {
+			return isMatched;
+		}
+		
+		public int getPreClickedId() {
+			return m_PreClickedItemId;
+		}
+		
+		public boolean isAllMatched() {
+			return isAllMatched;
+		}
     	
     	private void playSound(boolean b) {
 			// TODO Auto-generated method stub
 		}
     	
+    	/**
+    	 * @param key: target parent view's id
+    	 * @param value: item's string value
+    	 */
     	public void addItem(int key, String value) {
     		m_Items.put(key, value);
     	}
