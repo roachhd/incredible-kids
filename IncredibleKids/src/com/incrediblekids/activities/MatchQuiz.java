@@ -10,9 +10,7 @@ import java.util.Random;
 import java.util.Vector;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -42,12 +40,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private ViewGroup[] m_Containers;
 	private HashMap<Integer, Integer> m_RandomHashMap;
 	
-	/* �왿돟�モ닞 쩔횄�횄징� */
-	private ViewGroup	m_ClickedViewGroup;
-	private ImageView	m_ClickedQuestion;
-	private ImageView	m_ClickedItemImage;
-//	private ImageView	m_SoundBtnImage;
-	
 	/* FrameImage & Interpolator Animation */
 	private ImageView			m_TimeFrameImage;
 	private ImageView			m_TimeFrameImageEnd;
@@ -68,14 +60,40 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			switch(msg.what) {
 			case ANIMATION_ENDED:
 				clickEnable(true);
+				analysisMatchResult();
+				break;
+				
+			case TOGGLE_ENDED:
+				Log.d(TAG,"TOGGLE_ENDED");
+				clickEnable(true);
 				break;
 			}
 		}
 	};
 
+	public static final int ITEM_DEFAULT 	= 0;
+	public static final int ITEM_MATCHED 	= 1;
 	public static final int ANIMATION_ENDED = 10;
-	public static final int ITEM_DEFAULT = 0;
-	public static final int ITEM_MATCHED = 1;
+	public static final int TOGGLE_ENDED 	= 11;
+	
+	public class ViewHolder {
+		
+		View itemView;
+		View questionView;
+		
+		public ViewHolder(ImageView itemView, ImageView questionView) {
+			this.itemView = itemView;
+			this.questionView = questionView;
+		}
+
+		public View getItemView() {
+			return itemView;
+		}
+
+		public View getQuestionView() {
+			return questionView;
+		}
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +105,38 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		init();
 		toggleImages();
 		setItems();
+	}
+
+	private void analysisMatchResult() {
+		Log.d(TAG, "analysisMatchResult()");
+		if(m_MatchManager.isTouchedSameView()) {
+			m_MatchManager.setSolo(false);
+			m_MatchManager.setTouchedSameView(false);
+			return;
+		}
+		else { //Touched SameView
+			
+			if(!m_MatchManager.isSolo()) {
+				if(m_MatchManager.isMatched()) {
+					Log.d(TAG, "Matched!!");
+					//						Toast.makeText(this, "Matched", Toast.LENGTH_SHORT).show();
+					clickDisable(m_MatchManager.getPreClickedId(), m_MatchManager.getCurClickedId());
+				}
+				else {
+					toggleClickedItems(m_MatchManager.getPreClickedId(), m_MatchManager.getCurClickedId());
+				}
+				m_MatchManager.setSolo(true);
+				m_MatchManager.clearPreClikedItemInfo();
+			}
+			else {
+				m_MatchManager.setSolo(false);
+			}
+		}
+
+		if(m_MatchManager.isAllMatched()) {
+			Log.d(TAG, "Game End");
+			// TODO: make Popup
+		}
 	}
 
 	@Override
@@ -120,6 +170,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			
 			m_Containers[i]	= (ViewGroup)findViewById(viewGroupValue); // �녍뚌��-_-;
 			m_Containers[i].setPersistentDrawingCache(ViewGroup.PERSISTENT_ANIMATION_CACHE);
+			m_Containers[i].setTag(new ViewHolder(m_ItemImages[i], m_Questions[i]));
 			
 			firstItemValue  = firstItemValue + 3;
 			questionValue   = questionValue + 3;
@@ -127,12 +178,12 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		}
 		
 		/* Get Sound Button Image Resource */
+		/** deleted
 		BitmapDrawable bd 	= (BitmapDrawable)getResources().getDrawable(R.drawable.btn_sound);
 		Bitmap bit 			= bd.getBitmap();
 		Log.d(TAG, "bit.getWidtd(): " + bit.getWidth());
 		Log.d(TAG, "bit.getHeight(): " + bit.getHeight());
 		
-		/* deleted
 		m_bitSoundBtnLeft 	= Bitmap.createBitmap(bit, 0, 0, bit.getWidth()/2, bit.getHeight());
 		m_bitSoundBtnRight 	= Bitmap.createBitmap(bit, bit.getWidth()/2, 0, bit.getWidth()/2, bit.getHeight());
 		
@@ -140,13 +191,13 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_SoundBtnImage.setImageBitmap(m_bitSoundBtnLeft);
 		*/
 		
-		/* */
 		m_TimeFrameImage 	= (ImageView)findViewById(R.id.ivTimeFrame);
 		m_TimeFrameImage.setBackgroundResource(R.drawable.frame_transition);
 		
 		m_TimeFrameImageEnd	= (ImageView)findViewById(R.id.ivTimeFrameEnd);
 		
 		makeRandomHashMap();
+		clickEnable(false);
 	}
 	
 	/**
@@ -164,8 +215,9 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				}
 				//Test
 				m_TimeFrameImage.startAnimation(m_TimeFlowAnimation);
+				clickEnable(true);
 			}
-        }, 5000);
+        }, 1000);
 	}
 	
 	/**
@@ -180,24 +232,24 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		while(ii.hasNext()) {
 			Integer key = ii.next();
 			int value = m_RandomHashMap.get(key);
-			Log.d(TAG, "value : " + value);
 			
 			if((flag % 2) == 0) {
 //				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iItemImgId);
 				m_ItemImages[value].setImageResource(R.drawable.card_front);
 				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
+				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
+				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 			}
 			else {
 //				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iWordImgId);
 				m_ItemImages[value].setImageResource(R.drawable.card_word);
 				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
+				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
+				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 				vectorNum++;
 			}
-			Log.d(TAG, "key: " +  getParentId(m_ItemImages[value].getId()));
-			Log.d(TAG, "String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 			flag++;
 		}
-		Log.d(TAG, "flag: " + flag);
 	}
 	
 	/* Set TimeAnimation */
@@ -251,7 +303,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		while(true) {
 			tempNum = Math.abs(rnd.nextInt(MAX_COUNT));
 			if(!m_RandomHashMap.containsValue(tempNum)) {
-				Log.d(TAG, "tempNum:" + tempNum);
 				m_RandomHashMap.put(key, tempNum);
 				key++;
 			}
@@ -262,43 +313,70 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		m_ClickedViewGroup = (ViewGroup) v.getParent();
-		int cnt = m_ClickedViewGroup.getChildCount();
+		ViewGroup parentView = (ViewGroup) v.getParent();
+		
+		doRotation(parentView, false);
+		
+        m_MatchManager.clickedItem(getParentId(v.getId()));
+        if(!m_MatchManager.isSolo()) {
+        	m_MatchManager.setCurrentPviewId(parentView.getId());
+        }
+        
+        /*
+        if(!m_MatchManager.isSolo()) {
+        	if(m_MatchManager.isMatched()) {
+        		Log.d(TAG, "Matched!!");
+        		//						Toast.makeText(this, "Matched", Toast.LENGTH_SHORT).show();
+        		clickDisable(m_MatchManager.getPreClickedId(), m_MatchManager.getCurClickedId());
+        	}
+        	else {
+        		toggleClickedItems(m_MatchManager.getPreClickedId(), m_MatchManager.getCurClickedId());
+        	}
+        	m_MatchManager.setSolo(true);
+        	m_MatchManager.clearPreClikedItemInfo();
+        }
+        else {
+        	m_MatchManager.setSolo(false);
+        }
+        */
+        
+	}
+	
+    /**
+     * @param parentView
+     * @param isToggle 
+     */
+    private synchronized void doRotation(ViewGroup parentView, boolean isToggle) {
+    	Log.d(TAG, "doRatation()");
 		int flag = 0;
-		for(int i = 0; i < cnt; i++) {
-			if(m_ClickedViewGroup.getChildAt(i).getVisibility() == View.VISIBLE) {
-//				m_ClickedViewGroup.getChildAt(i).setVisibility(View.GONE);
+		
+		for(int i = 0; i < parentView.getChildCount(); i++) {
+			if(parentView.getChildAt(i).getVisibility() == View.VISIBLE) {
+//				parentView.getChildAt(i).setVisibility(View.GONE);
 				flag = 1;
 			}
 			else {
-//				m_ClickedViewGroup.getChildAt(i).setVisibility(View.VISIBLE);
+//				parentView.getChildAt(i).setVisibility(View.VISIBLE);
 				flag = -1;
 			}
 		}
 		
-		m_ClickedItemImage 	= (ImageView) m_ClickedViewGroup.getChildAt(0);
-		m_ClickedQuestion 	= (ImageView) m_ClickedViewGroup.getChildAt(1);
+		/**
+		m_ClickedItemImage 	= (ImageView) parentView.getChildAt(0);
+		m_ClickedQuestion 	= (ImageView) parentView.getChildAt(1);
+		**/
 		
 		clickEnable(false);
-        applyRotation(flag, 0, 90);
-        
-        m_MatchManager.clickedItem(getParentId(v.getId()));
-        
-        if(m_MatchManager.isMatched()) {
-        	Log.d(TAG, "Matched!!");
-        	clickDisable(m_MatchManager.getPreClickedId(), getParentId(v.getId()));
-        }
-        else {
-        	toggleClickedItems(m_MatchManager.getPreClickedId(), getParentId(v.getId()));
-        }
+        applyRotation(parentView, flag, 0, 90, isToggle);
 	}
-	
-    /**
+
+	/**
      * @param isEnable
      * true : click enable 
      * false: click disable
      */
     public void clickEnable(boolean isEnable) {
+    	Log.d(TAG, "clickeEnable:" + isEnable);
 		
     	if(isEnable) {	// change to clickable
     		for(int i = 0; i < MAX_COUNT; i++) {
@@ -340,6 +418,11 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
      */
     private void toggleClickedItems(int preClickedItemId, int targetId) {
     	Log.d(TAG, "toggleClickedItems()");
+    	ViewGroup parent1 = (ViewGroup) findViewById(preClickedItemId);
+    	ViewGroup parent2 = (ViewGroup) findViewById(targetId);
+    	
+    	doRotation(parent1, true);
+    	doRotation(parent2, true);
     	// TODO:
     }
     
@@ -355,20 +438,20 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
      * @param start the start angle at which the rotation must begin
      * @param end the end angle of the rotation
      */
-    private void applyRotation(int position, float start, float end) {
+    private void applyRotation(ViewGroup parentView, int position, float start, float end, boolean isToggle) {
         // Find the center of the container
-        final float centerX = m_ClickedViewGroup.getWidth() / 2.0f;
-        final float centerY = m_ClickedViewGroup.getHeight() / 2.0f;
+        final float centerX = parentView.getWidth() / 2.0f;
+        final float centerY = parentView.getHeight() / 2.0f;
 
         // Create a new 3D rotation with the supplied parameter
         // The animation listener is used to trigger the next animation
         final Rotate3dAnimation rotation = new Rotate3dAnimation(start, end, centerX, centerY, 310.0f, true);
-        rotation.setDuration(300);
+        rotation.setDuration(200);
         rotation.setFillAfter(true);
         rotation.setInterpolator(new AccelerateInterpolator());
-        rotation.setAnimationListener(new DisplayNextView(position));
+        rotation.setAnimationListener(new DisplayNextView(parentView, position, isToggle));
 
-        m_ClickedViewGroup.startAnimation(rotation);
+        parentView.startAnimation(rotation);
     }	
     
     /**
@@ -378,16 +461,20 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
      */
     private final class DisplayNextView implements Animation.AnimationListener {
         private final int mPosition;
+        private ViewGroup mParentView;
+        private boolean mIsToggle;
 
-        private DisplayNextView(int position) {
+        private DisplayNextView(ViewGroup parentView, int position, boolean isToggle) {
             mPosition = position;
+            mParentView = parentView;
+            mIsToggle = isToggle;
         }
 
         public void onAnimationStart(Animation animation) {
         }
 
         public void onAnimationEnd(Animation animation) {
-        	m_ClickedViewGroup.post(new SwapViews(mPosition));
+        	mParentView.post(new SwapViews(mParentView, mPosition, mIsToggle));
         }
 
         public void onAnimationRepeat(Animation animation) {
@@ -400,32 +487,44 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
      */
     private final class SwapViews implements Runnable {
         private final int mPosition;
+        private ViewGroup mParentView;
+        private ViewHolder mViewHolder;
+        private boolean mIsToggle;
 
-        public SwapViews(int position) {
+        public SwapViews(ViewGroup parentView, int position, boolean isToggle) {
             mPosition = position;
+            mParentView = parentView;
+            mViewHolder = (ViewHolder)mParentView.getTag();
+            mIsToggle = isToggle;
         }
 
         public void run() {
-            final float centerX = m_ClickedViewGroup.getWidth() / 2.0f;
-            final float centerY = m_ClickedViewGroup.getHeight() / 2.0f;
+            final float centerX = mParentView.getWidth() / 2.0f;
+            final float centerY = mParentView.getHeight() / 2.0f;
             Rotate3dAnimation rotation;
 //            Log.d(TAG, "mPosition : " + mPosition);
             
             if (mPosition > -1) {
-                m_ClickedQuestion.setVisibility(View.GONE);
-                m_ClickedItemImage.setVisibility(View.VISIBLE);
-                m_ClickedItemImage.requestFocus();
+            	mViewHolder.getQuestionView().setVisibility(View.GONE);
+//                m_ClickedQuestion.setVisibility(View.GONE);
+            	mViewHolder.getItemView().setVisibility(View.VISIBLE);
+//                m_ClickedItemImage.setVisibility(View.VISIBLE);
+            	mViewHolder.getItemView().requestFocus();
+//                m_ClickedItemImage.requestFocus();
 
                 rotation = new Rotate3dAnimation(270, 360, centerX, centerY, 310.0f, false);
             } else {
-            	m_ClickedItemImage.setVisibility(View.GONE);
-            	m_ClickedQuestion.setVisibility(View.VISIBLE);
-            	m_ClickedQuestion.requestFocus();
+            	mViewHolder.getItemView().setVisibility(View.GONE);
+//            	m_ClickedItemImage.setVisibility(View.GONE);
+            	mViewHolder.getQuestionView().setVisibility(View.VISIBLE);
+//            	m_ClickedQuestion.setVisibility(View.VISIBLE);
+            	mViewHolder.getQuestionView().requestFocus();
+//            	m_ClickedQuestion.requestFocus();
 
                 rotation = new Rotate3dAnimation(270, 360, centerX, centerY, 310.0f, false);
             }
 
-            rotation.setDuration(300);
+            rotation.setDuration(200);
             rotation.setFillAfter(true);
             rotation.setInterpolator(new DecelerateInterpolator());
             
@@ -443,15 +542,14 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				
 				@Override
 				public void onAnimationEnd(Animation paramAnimation) {
-					m_Handler.sendEmptyMessage(ANIMATION_ENDED);
-					clickEnable(true);
-					if(m_MatchManager.isAllMatched()) {
-						// TODO:
-					}
+					if(!mIsToggle)
+						m_Handler.sendEmptyMessage(ANIMATION_ENDED);
+					else
+						m_Handler.sendEmptyMessage(TOGGLE_ENDED);
 				}
 			});
 
-            m_ClickedViewGroup.startAnimation(rotation);
+            mParentView.startAnimation(rotation);
         }
     }
     
@@ -464,7 +562,9 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     	private boolean isSolo;
     	private boolean isMatched;
     	private boolean isAllMatched;
+    	private boolean isTouchedSameView;
     	private int m_PreClickedItemId;	// parentViewId
+    	private int m_CurClickedItemId;	// parentViewId
     	
     	private HashMap<Integer, String> m_Items;	// key: parentViewId, value: child String Value
     	private HashMap<Integer, String> m_MatchedItems;
@@ -475,7 +575,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     		m_MatchedItems 		= new HashMap<Integer, String>(MAX_COUNT);
     		m_PreClickedItem 	= new HashMap<Integer, String>();
     		isSolo				= true;
-    		m_PreClickedItemId	= 0;
+    		m_PreClickedItemId	= -1;
+    		m_CurClickedItemId	= 0;
     	}
     	
     	/**
@@ -485,29 +586,40 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     	 */
     	public void clickedItem(int targetId) {
     		Log.d(TAG, "clickedItem() isSolo : " + isSolo);
-    		Log.d(TAG, "clickedItem key: " + targetId);
-    		Log.d(TAG, "value: " + m_Items.get(targetId));
+    		Log.d(TAG, "clickedItem() key: " + targetId);
+    		Log.d(TAG, "clickedItem() value: " + m_Items.get(targetId));
     		
-    		if(isSolo) {
-    			m_PreClickedItem.put(targetId, m_Items.get(targetId));
-    			m_PreClickedItemId = targetId;
-    			isSolo = false;
+    		if(m_PreClickedItemId == targetId) {
+    			Log.e(TAG, "SAME");
+    			setTouchedSameView(true);
+    			//doNothing();
     		}
     		else {
-    			if(isMatched(targetId)) {
-    				moveItemsToMatched(targetId);
-    				playSound(true);
-    				checkAllMatched();
+    			if(isSolo) {
+    				m_PreClickedItem.put(targetId, m_Items.get(targetId));
+    				m_PreClickedItemId = targetId;
     			}
     			else {
-    				playSound(false);
+    				if(isMatched(targetId)) {
+    					moveItemsToMatched(targetId);
+    					playSound(true);
+    					checkAllMatched();
+    				}
+    				else {
+    					playSound(false);
+    				}
     			}
-    			m_PreClickedItem.clear();
-    			m_PreClickedItemId = 0;
-    			isSolo = true;
     		}
     	}
-    	
+
+		public void setTouchedSameView(boolean isTouchedSameView) {
+			Log.d(TAG, "touchedSameView()");
+			this.isTouchedSameView = isTouchedSameView;
+		}
+		
+		public boolean isTouchedSameView() {
+			return isTouchedSameView;
+		}
 
 		private void checkAllMatched() {
 			if(m_MatchedItems.size() == MAX)
@@ -532,8 +644,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		 * 		   false : dismatched
 		 */
 		private boolean isMatched(int targetId) {
-			Log.d(TAG, "isMatched()pre: " + m_PreClickedItem.get(m_PreClickedItemId));
-			Log.d(TAG, "isMatched()target: " + m_Items.get(targetId));
 			
 			if(m_PreClickedItem.get(m_PreClickedItemId).equals(m_Items.get(targetId))) {
 				isMatched = true;
@@ -550,14 +660,47 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		}
 		
 		public int getPreClickedId() {
+			if(m_PreClickedItemId == 0) {
+				Log.e(TAG, "getPreClickedId: " + m_PreClickedItemId);
+			}
 			return m_PreClickedItemId;
+		}
+		
+		public void setCurrentPviewId(int id) {
+			m_CurClickedItemId = id;
+		}
+		
+		public int getCurClickedId() {
+			if(m_CurClickedItemId == 0) {
+				Log.e(TAG, "m_CurClickedItemId: " + m_CurClickedItemId);
+			}
+			return m_CurClickedItemId;
+		}
+		
+		public void clearPreClikedItemInfo() {
+			Log.d(TAG, "clearPreClickedItemInfo()");
+			m_PreClickedItem.clear();
+			m_PreClickedItemId = -1;
 		}
 		
 		public boolean isAllMatched() {
 			return isAllMatched;
 		}
+		
+		/**
+		 * @return true: only one item was clicked.
+		 * 		  false: two items were clicked.
+		 */
+		public boolean isSolo() {
+			return isSolo;
+		}
+		
+		public void setSolo(boolean isSolo) {
+			this.isSolo = isSolo;
+		}
     	
     	private void playSound(boolean b) {
+    		Log.d(TAG, "playSound()");
 			// TODO Auto-generated method stub
 		}
     	
