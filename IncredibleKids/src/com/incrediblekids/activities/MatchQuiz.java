@@ -35,6 +35,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private ResourceClass m_Res;
 	private Vector<Item> m_ItemVector;
 	
+	private ImageView m_Hint;
+	
 	private ImageView[] m_ItemImages;
 	private ImageView[] m_Questions;
 	private ViewGroup[] m_Containers;
@@ -177,6 +179,15 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			viewGroupValue  = viewGroupValue + 3;
 		}
 		
+		m_Hint				= (ImageView)findViewById(R.id.ivHint);
+		
+		m_TimeFrameImage 	= (ImageView)findViewById(R.id.ivTimeFrame);
+		m_TimeFrameImage.setBackgroundResource(R.drawable.frame_transition);
+		
+		m_TimeFrameImageEnd	= (ImageView)findViewById(R.id.ivTimeFrameEnd);
+		
+		m_Hint.setOnClickListener(this);
+		
 		/* Get Sound Button Image Resource */
 		/** deleted
 		BitmapDrawable bd 	= (BitmapDrawable)getResources().getDrawable(R.drawable.btn_sound);
@@ -190,11 +201,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_SoundBtnImage 	= (ImageView)findViewById(R.id.ivSound);
 		m_SoundBtnImage.setImageBitmap(m_bitSoundBtnLeft);
 		*/
-		
-		m_TimeFrameImage 	= (ImageView)findViewById(R.id.ivTimeFrame);
-		m_TimeFrameImage.setBackgroundResource(R.drawable.frame_transition);
-		
-		m_TimeFrameImageEnd	= (ImageView)findViewById(R.id.ivTimeFrameEnd);
 		
 		makeRandomHashMap();
 		clickEnable(false);
@@ -265,7 +271,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_TimeFrameAnimation = (AnimationDrawable)m_TimeFrameImage.getBackground();
 		m_TimeFlowAnimation  = new TranslateAnimation(fromXDelta, toXDelta, 0.0f, 0.0f);
 		
-		m_TimeFlowAnimation.setDuration(10000);
+		m_TimeFlowAnimation.setDuration(50000);
 		m_TimeFlowAnimation.setInterpolator(AnimationUtils.loadInterpolator(this, android.R.anim.accelerate_decelerate_interpolator));
 		m_TimeFlowAnimation.setAnimationListener(new AnimationListener() {
 			
@@ -313,17 +319,62 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		ViewGroup parentView = (ViewGroup) v.getParent();
-		
-		doRotation(parentView, false);
-		
-        m_MatchManager.clickedItem(getParentId(v.getId()));
-        if(!m_MatchManager.isSolo()) {
-        	m_MatchManager.setCurrentPviewId(parentView.getId());
-        }
+		if(v.getId() == R.id.ivHint) {
+			Log.d(TAG, "Hint!");
+			showHint();
+		}
+		else {
+			ViewGroup parentView = (ViewGroup) v.getParent();
+
+			doRotation(parentView, false);
+
+			m_MatchManager.clickedItem(getParentId(v.getId()));
+			if(!m_MatchManager.isSolo()) {
+				m_MatchManager.setCurrentPviewId(parentView.getId());
+			}
+		}
 	}
 	
-    /**
+    private void showHint() {
+    	Log.d(TAG, "showHint()");
+    	clickEnable(false);
+    	
+    	m_TimeFlowAnimation.reset();
+			
+    	for(int i = 0; i < MAX_COUNT; i++) {
+    		m_ItemImages[i].setVisibility(View.VISIBLE);
+    		m_Questions[i].setVisibility(View.GONE);
+    	}
+    	
+        Handler mHandler = new Handler();
+        mHandler.postDelayed(new Runnable() {
+        	HashMap<Integer, String> rawItems 		= m_MatchManager.getItems();
+        	HashMap<Integer, String> matchedItems 	= m_MatchManager.getMatchedItems();
+        	Iterator<Integer> ri = rawItems.keySet().iterator();
+        	Iterator<Integer> mi = matchedItems.keySet().iterator();
+        	Integer parentViewId;
+        	ViewGroup parentView;
+
+			public void run() {
+				while(ri.hasNext()) {	// hide
+					parentViewId = ri.next();
+					parentView = (ViewGroup) findViewById(parentViewId);
+					parentView.getChildAt(0).setVisibility(View.INVISIBLE);
+					parentView.getChildAt(1).setVisibility(View.VISIBLE);
+				}
+				while(mi.hasNext()) {	// show
+					parentViewId = mi.next();
+					parentView = (ViewGroup) findViewById(parentViewId);
+					parentView.getChildAt(0).setVisibility(View.VISIBLE);
+					parentView.getChildAt(1).setVisibility(View.INVISIBLE);
+				}
+				clickEnable(true);
+				m_TimeFlowAnimation.start();
+			}
+        }, 2000);
+	}
+
+	/**
      * @param parentView
      * @param isToggle 
      */
@@ -673,6 +724,14 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		
 		public void setSolo(boolean isSolo) {
 			this.isSolo = isSolo;
+		}
+		
+		public HashMap<Integer, String> getItems() {
+			return m_Items;
+		}
+		
+		public HashMap<Integer, String> getMatchedItems() {
+			return m_MatchedItems;
 		}
     	
     	private void playSound(boolean b) {
