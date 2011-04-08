@@ -234,15 +234,15 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			int value = m_RandomHashMap.get(key);
 			
 			if((flag % 2) == 0) {
-//				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iItemImgId);
-				m_ItemImages[value].setImageResource(R.drawable.card_front);
+				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardImgId);
+//				m_ItemImages[value].setImageResource(R.drawable.card_front);
 				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
 				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
 				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 			}
 			else {
-//				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iWordImgId);
-				m_ItemImages[value].setImageResource(R.drawable.card_word);
+				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardWordId);
+//				m_ItemImages[value].setImageResource(R.drawable.card_word);
 				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
 				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
 				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
@@ -321,25 +321,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
         if(!m_MatchManager.isSolo()) {
         	m_MatchManager.setCurrentPviewId(parentView.getId());
         }
-        
-        /*
-        if(!m_MatchManager.isSolo()) {
-        	if(m_MatchManager.isMatched()) {
-        		Log.d(TAG, "Matched!!");
-        		//						Toast.makeText(this, "Matched", Toast.LENGTH_SHORT).show();
-        		clickDisable(m_MatchManager.getPreClickedId(), m_MatchManager.getCurClickedId());
-        	}
-        	else {
-        		toggleClickedItems(m_MatchManager.getPreClickedId(), m_MatchManager.getCurClickedId());
-        	}
-        	m_MatchManager.setSolo(true);
-        	m_MatchManager.clearPreClikedItemInfo();
-        }
-        else {
-        	m_MatchManager.setSolo(false);
-        }
-        */
-        
 	}
 	
     /**
@@ -506,20 +487,14 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
             
             if (mPosition > -1) {
             	mViewHolder.getQuestionView().setVisibility(View.GONE);
-//                m_ClickedQuestion.setVisibility(View.GONE);
             	mViewHolder.getItemView().setVisibility(View.VISIBLE);
-//                m_ClickedItemImage.setVisibility(View.VISIBLE);
             	mViewHolder.getItemView().requestFocus();
-//                m_ClickedItemImage.requestFocus();
 
                 rotation = new Rotate3dAnimation(270, 360, centerX, centerY, 310.0f, false);
             } else {
             	mViewHolder.getItemView().setVisibility(View.GONE);
-//            	m_ClickedItemImage.setVisibility(View.GONE);
             	mViewHolder.getQuestionView().setVisibility(View.VISIBLE);
-//            	m_ClickedQuestion.setVisibility(View.VISIBLE);
             	mViewHolder.getQuestionView().requestFocus();
-//            	m_ClickedQuestion.requestFocus();
 
                 rotation = new Rotate3dAnimation(270, 360, centerX, centerY, 310.0f, false);
             }

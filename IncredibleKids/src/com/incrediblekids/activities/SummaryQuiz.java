@@ -41,7 +41,7 @@ import com.incrediblekids.util.ThemeSprite;
 import com.incrediblekids.util.WordSprite;
 
 public class SummaryQuiz extends BaseGameActivity {
-	//	TODO: O,X Å¸ÀÌ¹Ö
+	//	TODO: O,X Å¸ï¿½Ì¹ï¿½
 	//	TODO: Hint, Sound on
 	
 	
@@ -218,11 +218,11 @@ public class SummaryQuiz extends BaseGameActivity {
 			int value = m_RandomHashMap.get(key);
 			
 			m_ItemTextures[key] = new Texture(512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-			m_ItemTextureRegion[key] = TextureRegionFactory.createFromResource(m_ItemTextures[key], this, m_ItemVector.get(value).iSmallItemImgId, 0, 0);
+//			m_ItemTextureRegion[key] = TextureRegionFactory.createFromResource(m_ItemTextures[key], this, m_ItemVector.get(value).iSmallItemImgId, 0, 0);
 			this.mEngine.getTextureManager().loadTexture(m_ItemTextures[key]);
 			
 			m_WordItemTextures[key] = new Texture(512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-			m_WordItemTextureRegion[key] = TextureRegionFactory.createFromResource(m_WordItemTextures[key], this, m_ItemVector.get(value).iSmallWordImgId, 0, 0);
+//			m_WordItemTextureRegion[key] = TextureRegionFactory.createFromResource(m_WordItemTextures[key], this, m_ItemVector.get(value).iSmallWordImgId, 0, 0);
 			this.mEngine.getTextureManager().loadTexture(m_WordItemTextures[key]);
 		}
 		
@@ -485,7 +485,7 @@ public class SummaryQuiz extends BaseGameActivity {
 		float themePosition = 0;
 		float wordPosition = 0;
 		
-		//TODO: Scale °ª¿¡ µû¶ó ±¸ºÐÇØ¾ßµÊ.
+		//TODO: Scale ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ßµï¿½.
 //		leftPosition 		= ((ITEM_WIDTH) - m_ItemTextureRegion[0].getWidth() + GAP_WIDTH) * THEME_ITEM_SCALE;
 //		leftPosition 		= THEME_GAP_WIDTH * THEME_ITEM_SCALE - THEME_GAP_WIDTH;
 		leftPosition 		= THEME_GAP_WIDTH + m_ItemTextureRegion[0].getHeight() * (THEME_ITEM_SCALE - 1)/2;

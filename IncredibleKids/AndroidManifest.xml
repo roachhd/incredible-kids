@@ -21,10 +21,12 @@
 				  android:theme="@android:style/Theme.NoTitleBar"
 				  android:screenOrientation="landscape" />
 				  
+	    <!--  
 	    <activity android:name="SummaryQuiz"
 				  android:theme="@android:style/Theme.NoTitleBar"
 				  android:screenOrientation="landscape">
 	    </activity>
+	    -->
 	    <activity android:name="PreviewWords"
 	    		  android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
 	    		  android:screenOrientation="landscape"/>
