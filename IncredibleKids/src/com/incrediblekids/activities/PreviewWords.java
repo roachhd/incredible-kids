@@ -39,7 +39,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 	private ImageAdapter m_iaPrevewImgAdapter;
 	private ImageView m_ivLeftBtn, m_ivRightBtn;
 	private ImageView m_ivWordImg, m_ivQuizImg;
-	private ImageView m_ivSoundBtn, m_ivPicViewBtn;
+	private ImageView m_ivPicViewBtn;
 	private PreviewGallery m_pgPreviewImgGallery;
 	private Vector<Item> m_ItemVector;
 	private Vector<Bitmap> m_vLeftImg, m_vRightImg;
@@ -83,17 +83,17 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 		}
 		
 		/* Get Sound Button Image Resource */
-		BitmapDrawable bd = (BitmapDrawable)getResources().getDrawable(R.drawable.btn_sound);
+		/*BitmapDrawable bd = (BitmapDrawable)getResources().getDrawable(R.drawable.btn_sound);
 		Bitmap bit = bd.getBitmap();
 		m_bitSoundBtnLeft = Bitmap.createBitmap(bit, 0, 0, 64, 63);
-		m_bitSoundBtnRight = Bitmap.createBitmap(bit, 64, 0, 64, 63);
+		m_bitSoundBtnRight = Bitmap.createBitmap(bit, 64, 0, 64, 63);*/
 		
 		/* Assign from Resource */
 		m_ivQuizImg = (ImageView) findViewById(R.id.preview_center_image);
 		m_ivWordImg = (ImageView) findViewById(R.id.preview_word_image);
 		m_ivLeftBtn = (ImageView) findViewById(R.id.preview_leftbtn);
 		m_ivRightBtn = (ImageView) findViewById(R.id.preview_rightbtn);
-		m_ivSoundBtn = (ImageView) findViewById(R.id.preview_soundbtn);
+		//m_ivSoundBtn = (ImageView) findViewById(R.id.preview_soundbtn);
 		m_ivPicViewBtn = (ImageView) findViewById(R.id.preview_picviewbtn);
 		
 		m_iaPrevewImgAdapter = new ImageAdapter(this);
@@ -127,7 +127,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			public boolean onTouch(View v, MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					m_fPosX = event.getX();
-					m_ivWordImg.setImageResource(m_ItemVector.get(m_iSelectedItem).iWordImgId);
+					m_ivWordImg.setImageResource(m_ItemVector.get(m_iSelectedItem).iItemWordId);
 				} else if (event.getAction() == MotionEvent.ACTION_UP) {
 					if ((m_fPosX - event.getX()) < -50) { // Moving left
 						if(m_iSelectedItem != 0)
@@ -165,7 +165,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 		});
 		
 		/* Sound Button Setting */
-		if(res.getSound()) {
+		/*if(res.getSound()) {
 			m_ivSoundBtn.setImageBitmap(m_bitSoundBtnLeft);
 		} else {
 			m_ivSoundBtn.setImageBitmap(m_bitSoundBtnRight);
@@ -181,7 +181,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 					m_ivSoundBtn.setImageBitmap(m_bitSoundBtnLeft);
 				}
 			}
-		});
+		});*/
 		
 		/* Picture View Button Setting */
 		m_ivPicViewBtn.setOnClickListener(new View.OnClickListener() {
