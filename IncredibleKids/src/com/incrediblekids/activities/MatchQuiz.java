@@ -286,6 +286,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			
 			@Override
 			public void onAnimationEnd(Animation animation) {
+				Log.d(TAG, "onEnd()");
 				m_TimeFrameAnimation.stop();
 				m_TimeFrameImage.setVisibility(View.INVISIBLE);
 				m_TimeFrameImageEnd.setVisibility(View.VISIBLE);
@@ -339,7 +340,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     	Log.d(TAG, "showHint()");
     	clickEnable(false);
     	
-    	m_TimeFlowAnimation.reset();
+//    	m_TimeFlowAnimation.reset();
 			
     	for(int i = 0; i < MAX_COUNT; i++) {
     		m_ItemImages[i].setVisibility(View.VISIBLE);
@@ -369,7 +370,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 					parentView.getChildAt(1).setVisibility(View.INVISIBLE);
 				}
 				clickEnable(true);
-				m_TimeFlowAnimation.start();
 			}
         }, 2000);
 	}
