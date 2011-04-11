@@ -10,6 +10,7 @@ import java.util.Random;
 import java.util.Vector;
 
 import android.app.Activity;
+import android.graphics.Matrix;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,6 +23,7 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 
@@ -31,6 +33,14 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	
 	private final String TAG = "MatchQuiz";
 	private final int MAX_COUNT = 8;
+	private final long ANIMATION_TIME_DURATION 	= 60 * 60 * 10;
+	private final long HINT_TIME_DURATION 		= 60 * 60 * 1;
+	
+	private long m_TimeInterval;
+	private long m_AnimationTimeDuration;
+	
+	/* Animation status flag */ 
+	private boolean m_IsPause;
 	
 	private ResourceClass m_Res;
 	private Vector<Item> m_ItemVector;
@@ -47,6 +57,9 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private ImageView			m_TimeFrameImageEnd;
 	private AnimationDrawable 	m_TimeFrameAnimation;
 	private Animation			m_TimeFlowAnimation;
+	
+	/* timeframe image's left position */
+	private int m_LeftPosition;
 	
 	/* MatchManger */
 	private MatchManager m_MatchManager;
@@ -121,7 +134,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			if(!m_MatchManager.isSolo()) {
 				if(m_MatchManager.isMatched()) {
 					Log.d(TAG, "Matched!!");
-					//						Toast.makeText(this, "Matched", Toast.LENGTH_SHORT).show();
 					clickDisable(m_MatchManager.getPreClickedId(), m_MatchManager.getCurClickedId());
 				}
 				else {
@@ -158,6 +170,11 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_Res 				= ResourceClass.getInstance();
 		m_ItemVector 		= m_Res.getvItems();
 		
+		m_IsPause			= false;
+		m_LeftPosition		= 0;
+		m_TimeInterval		= 0;
+		m_AnimationTimeDuration	= ANIMATION_TIME_DURATION;
+		
 		int firstItemValue	= R.id.ivItems1;
 		int questionValue	= R.id.ivQuestion1;
 		int viewGroupValue	= R.id.flContainer1;
@@ -187,6 +204,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_TimeFrameImageEnd	= (ImageView)findViewById(R.id.ivTimeFrameEnd);
 		
 		m_Hint.setOnClickListener(this);
+		m_Hint.setClickable(false);
 		
 		/* Get Sound Button Image Resource */
 		/** deleted
@@ -222,8 +240,9 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				//Test
 				m_TimeFrameImage.startAnimation(m_TimeFlowAnimation);
 				clickEnable(true);
+				m_Hint.setClickable(true);
 			}
-        }, 1000);
+        }, HINT_TIME_DURATION);
 	}
 	
 	/**
@@ -241,17 +260,15 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			
 			if((flag % 2) == 0) {
 				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardImgId);
-//				m_ItemImages[value].setImageResource(R.drawable.card_front);
 				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
-				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
-				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
+//				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
+//				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 			}
 			else {
 				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardWordId);
-//				m_ItemImages[value].setImageResource(R.drawable.card_word);
 				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
-				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
-				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
+//				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
+//				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 				vectorNum++;
 			}
 			flag++;
@@ -260,18 +277,23 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	
 	/* Set TimeAnimation */
 	private void setTimeAnimation() {
+		Log.d(TAG, "setTimeAnimation()");
 		View targetParent;
 		float fromXDelta;
 		float toXDelta;
 		
 		targetParent = (View) m_TimeFrameImage.getParent();
-		fromXDelta 	 = m_TimeFrameImage.getLeft();
-		toXDelta 	 = targetParent.getWidth() - m_TimeFrameImage.getWidth();
+		fromXDelta 	 = m_TimeFrameImage.getLeft() - m_LeftPosition;
+		toXDelta 	 = targetParent.getWidth() - m_TimeFrameImage.getWidth() - m_LeftPosition;
 		
-		m_TimeFrameAnimation = (AnimationDrawable)m_TimeFrameImage.getBackground();
-		m_TimeFlowAnimation  = new TranslateAnimation(fromXDelta, toXDelta, 0.0f, 0.0f);
+		m_TimeFrameAnimation 	= (AnimationDrawable)m_TimeFrameImage.getBackground();
+		m_TimeFlowAnimation  	= new TranslateAnimation(fromXDelta, toXDelta, 0.0f, 0.0f);
 		
-		m_TimeFlowAnimation.setDuration(50000);
+		m_AnimationTimeDuration = m_AnimationTimeDuration - m_TimeInterval;
+		if(m_AnimationTimeDuration < 0) 
+			m_AnimationTimeDuration = 0;
+		
+		m_TimeFlowAnimation.setDuration(m_AnimationTimeDuration);
 		m_TimeFlowAnimation.setInterpolator(AnimationUtils.loadInterpolator(this, android.R.anim.accelerate_decelerate_interpolator));
 		m_TimeFlowAnimation.setAnimationListener(new AnimationListener() {
 			
@@ -279,17 +301,23 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			public void onAnimationStart(Animation animation) {
 				m_TimeFrameAnimation.start();
 			}
-			
 			@Override
 			public void onAnimationRepeat(Animation animation) {
 			}
-			
 			@Override
 			public void onAnimationEnd(Animation animation) {
 				Log.d(TAG, "onEnd()");
-				m_TimeFrameAnimation.stop();
-				m_TimeFrameImage.setVisibility(View.INVISIBLE);
-				m_TimeFrameImageEnd.setVisibility(View.VISIBLE);
+				if(m_IsPause) {
+					// Do nothing : )
+				}
+				else {
+					m_TimeFrameAnimation.stop();
+					m_TimeFrameImage.setVisibility(View.INVISIBLE);
+					m_TimeFrameImageEnd.setVisibility(View.VISIBLE);
+					m_Hint.setClickable(false);
+					
+					//TODO: make popup retry or not?
+				}
 			}
 		});
 	}
@@ -338,17 +366,16 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	
     private void showHint() {
     	Log.d(TAG, "showHint()");
+    	m_Hint.setClickable(false);
     	clickEnable(false);
     	
-//    	m_TimeFlowAnimation.reset();
-			
     	for(int i = 0; i < MAX_COUNT; i++) {
     		m_ItemImages[i].setVisibility(View.VISIBLE);
     		m_Questions[i].setVisibility(View.GONE);
     	}
     	
-        Handler mHandler = new Handler();
-        mHandler.postDelayed(new Runnable() {
+    	pauseAnimation();
+        m_Handler.postDelayed(new Runnable() {
         	HashMap<Integer, String> rawItems 		= m_MatchManager.getItems();
         	HashMap<Integer, String> matchedItems 	= m_MatchManager.getMatchedItems();
         	Iterator<Integer> ri = rawItems.keySet().iterator();
@@ -370,8 +397,62 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 					parentView.getChildAt(1).setVisibility(View.INVISIBLE);
 				}
 				clickEnable(true);
+				resumeAnimation();
+				m_Hint.setClickable(true);
 			}
-        }, 2000);
+        }, HINT_TIME_DURATION);
+	}
+
+
+	/**
+	 * pause timeflowAnimation
+	 */
+	private void pauseAnimation() {
+		Log.d(TAG, "pauseAnimation()");
+		
+		Matrix transformationMatrix;
+		Transformation outTransformation = new Transformation();
+		float[] matrixValues = new float[9];
+		long currentTime = AnimationUtils.currentAnimationTimeMillis();
+		float transX;
+		
+		m_IsPause = true;
+		
+		m_TimeFlowAnimation.getTransformation(currentTime, outTransformation);
+		transformationMatrix = outTransformation.getMatrix();
+		transformationMatrix.getValues(matrixValues);
+		
+		transX = matrixValues[Matrix.MTRANS_X];
+		
+		m_TimeInterval = currentTime - m_TimeFlowAnimation.getStartTime();
+		if(m_TimeInterval < 0)
+			m_TimeInterval = 0;
+		Log.d(TAG, "m_TimeInterval: " + m_TimeInterval);
+		
+		savePreViewLeftPosition((int) transX);
+		m_TimeFrameImage.layout(m_LeftPosition,
+								m_TimeFrameImage.getTop(), 
+								m_LeftPosition + m_TimeFrameImage.getWidth(),
+								m_TimeFrameImage.getBottom());
+		m_TimeFrameImage.clearAnimation();
+		m_TimeFlowAnimation = null;
+	}
+	
+	private void savePreViewLeftPosition(int x) {
+		m_LeftPosition = m_TimeFrameImage.getLeft() + x;
+	}
+
+	/**
+	 * resume timeflowAnimation
+	 */
+	private void resumeAnimation() {
+		Log.d(TAG, "resumeAnimation()");
+		
+		m_IsPause = false;
+		
+		setTimeAnimation();
+		
+		m_TimeFrameImage.startAnimation(m_TimeFlowAnimation);
 	}
 
 	/**
