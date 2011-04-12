@@ -149,11 +149,11 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 							m_ivQuizImg.setImageBitmap(m_vRightImg.get(m_iSelectedItem));
 							m_ivWordImg.setAnimation(AnimationUtils.loadAnimation(PreviewWords.this, android.R.anim.fade_in));
 							m_ivWordImg.setVisibility(View.VISIBLE);
-							if (m_WordImgAnimation == null) {
-								m_WordImgAnimation = new WordImgAnimation();
-								m_tAnimationTimer = new Timer(false);
-								m_tAnimationTimer.schedule(m_WordImgAnimation, 500, 500);
-							}
+							
+							m_WordImgAnimation = null;
+							m_WordImgAnimation = new WordImgAnimation();
+							m_tAnimationTimer = new Timer(false);
+							m_tAnimationTimer.schedule(m_WordImgAnimation, 500, 500);
 						}
 					}
 				}
