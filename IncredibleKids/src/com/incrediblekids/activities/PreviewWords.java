@@ -43,8 +43,8 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 	private PreviewGallery m_pgPreviewImgGallery;
 	private Vector<Item> m_ItemVector;
 	private Vector<Bitmap> m_vLeftImg, m_vRightImg;
-	private Bitmap m_bitSoundBtnLeft, m_bitSoundBtnRight;
-	private Timer t = new Timer(false);
+	private Timer m_tAnimationTimer;
+	private WordImgAnimation m_WordImgAnimation;
 	
 	private int m_iSelectedItem=0;
 	private float m_fPosX=0;
@@ -84,12 +84,6 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			m_vRightImg.add(Bitmap.createBitmap(bit, 380, 0, 380, 256));
 		}
 		
-		/* Get Sound Button Image Resource */
-		/*BitmapDrawable bd = (BitmapDrawable)getResources().getDrawable(R.drawable.btn_sound);
-		Bitmap bit = bd.getBitmap();
-		m_bitSoundBtnLeft = Bitmap.createBitmap(bit, 0, 0, 64, 63);
-		m_bitSoundBtnRight = Bitmap.createBitmap(bit, 64, 0, 64, 63);*/
-		
 		/* Assign from Resource */
 		m_ivQuizImg = (ImageView) findViewById(R.id.preview_center_image);
 		m_ivWordImg = (ImageView) findViewById(R.id.preview_word_image);
@@ -120,6 +114,11 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 				m_ivQuizImg.setImageBitmap(m_vLeftImg.get(m_iSelectedItem));
 				m_ivWordImg.setVisibility(View.GONE);
 				m_iaPrevewImgAdapter.notifyDataSetChanged();
+				if (m_WordImgAnimation != null) {
+					m_tAnimationTimer.cancel();
+					m_tAnimationTimer = null;
+					m_WordImgAnimation = null;
+				}
 			}
 			public void onNothingSelected(AdapterView<?> arg0) {Log.d(TAG, "onNothingSelected()");}
 		});
@@ -143,8 +142,11 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 							m_ivQuizImg.setImageBitmap(m_vRightImg.get(m_iSelectedItem));
 							m_ivWordImg.setAnimation(AnimationUtils.loadAnimation(PreviewWords.this, android.R.anim.fade_in));
 							m_ivWordImg.setVisibility(View.VISIBLE);
-							t.purge();
-							t.schedule(new WordImgAnimation(), 500, 500);
+							if (m_WordImgAnimation == null) {
+								m_WordImgAnimation = new WordImgAnimation();
+								m_tAnimationTimer = new Timer(false);
+								m_tAnimationTimer.schedule(m_WordImgAnimation, 500, 500);
+							}
 						}
 					}
 				}
@@ -168,25 +170,6 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			}
 		});
 		
-		/* Sound Button Setting */
-		/*if(res.getSound()) {
-			m_ivSoundBtn.setImageBitmap(m_bitSoundBtnLeft);
-		} else {
-			m_ivSoundBtn.setImageBitmap(m_bitSoundBtnRight);
-		}
-		m_ivSoundBtn.setImageBitmap(m_bitSoundBtnLeft);
-		m_ivSoundBtn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				if(res.getSound()) {
-					res.setSound(false);
-					m_ivSoundBtn.setImageBitmap(m_bitSoundBtnRight);
-				} else {
-					res.setSound(true);
-					m_ivSoundBtn.setImageBitmap(m_bitSoundBtnLeft);
-				}
-			}
-		});*/
-		
 		/* Picture View Button Setting */
 		m_ivPicViewBtn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -202,9 +185,17 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 		});
 	}
 	
-	public void hideWordImg() {
-		m_ivWordImg.setVisibility(View.GONE);
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		m_vLeftImg = null;
+		m_vRightImg = null;
+		if (m_tAnimationTimer == null)
+			m_tAnimationTimer.purge();
+		System.gc();
+		super.onDestroy();
 	}
+
 	public View makeView() {
 		ImageView i = new ImageView(this);
 		i.setBackgroundColor(0x00000000);
@@ -297,7 +288,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 					}
 				}
 			});
-			if (repeat == 4) {				
+			if (repeat == 4) {		
 				this.cancel();
 			}
 		}

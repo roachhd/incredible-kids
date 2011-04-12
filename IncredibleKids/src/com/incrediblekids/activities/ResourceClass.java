@@ -2,9 +2,12 @@ package com.incrediblekids.activities;
 
 import java.util.Vector;
 
-import com.incrediblekids.util.Const;
-
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
+
+import com.incrediblekids.util.Const;
 
 public class ResourceClass {
 	private final String TAG="PreviewWords";
