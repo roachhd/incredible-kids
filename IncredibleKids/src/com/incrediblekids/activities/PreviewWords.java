@@ -190,7 +190,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 		// TODO Auto-generated method stub
 		m_vLeftImg = null;
 		m_vRightImg = null;
-		if (m_tAnimationTimer == null)
+		if (m_tAnimationTimer != null)
 			m_tAnimationTimer.purge();
 		System.gc();
 		super.onDestroy();
