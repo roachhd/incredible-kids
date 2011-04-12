@@ -56,41 +56,46 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		/* Get Resrouce from ResourceClass */ 
 		res = ResourceClass.getInstance();
 		m_ItemVector = res.getvItems();
+		
 		
 		/* Create Linear Layout View */
 		LinearLayout linear = new LinearLayout(this);
 		linear.setOrientation(LinearLayout.VERTICAL);
 		linear.setBackgroundColor(Color.WHITE);
-		
 		LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		LinearLayout linear2 = (LinearLayout)inflater.inflate(R.layout.previewwords, null);
 		linear.addView(linear2);
 		
+		
 		/* Set Content View */
 		setContentView(linear);
+		
 		
 		/* Get Thumbnail Image Resource */
 		m_vLeftImg = new Vector<Bitmap>();
 		m_vRightImg = new Vector<Bitmap>();
-		for(int i=0 ; i<m_ItemVector.size() ; ++i) {
+		for(int i=0 ; i<5 ; ++i) {
 			Log.d(TAG, "ItemVector = " + i);
 			BitmapDrawable bd = (BitmapDrawable)getResources().getDrawable(m_ItemVector.get(i).iItemImgId);
 			Bitmap bit = bd.getBitmap();
 			m_vLeftImg.add(Bitmap.createBitmap(bit, 0, 0, 380, 256));
 			m_vRightImg.add(Bitmap.createBitmap(bit, 380, 0, 380, 256));
 		}
+		ImageLoadingThread ilThread = new ImageLoadingThread();
+		ilThread.start();
+
 		
 		/* Assign from Resource */
 		m_ivQuizImg = (ImageView) findViewById(R.id.preview_center_image);
 		m_ivWordImg = (ImageView) findViewById(R.id.preview_word_image);
 		m_ivLeftBtn = (ImageView) findViewById(R.id.preview_leftbtn);
 		m_ivRightBtn = (ImageView) findViewById(R.id.preview_rightbtn);
-		//m_ivSoundBtn = (ImageView) findViewById(R.id.preview_soundbtn);
 		m_ivPicViewBtn = (ImageView) findViewById(R.id.preview_picviewbtn);
+	
 		
 		m_iaPrevewImgAdapter = new ImageAdapter(this);
 		
@@ -107,6 +112,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			}
 		});
 		
+		
 		m_pgPreviewImgGallery.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			public void onItemSelected(AdapterView<?> arg0, View arg1,	int arg2, long arg3) {
 				Log.d(TAG, "onItemSelected()");
@@ -122,6 +128,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			}
 			public void onNothingSelected(AdapterView<?> arg0) {Log.d(TAG, "onNothingSelected()");}
 		});
+		
 		
 		/* Center(Quiz) Image Setting */
 		m_ivQuizImg.setOnTouchListener(new View.OnTouchListener() {
@@ -154,6 +161,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			}
 		});
 		
+		
 		/* Left Button Setting */
 		m_ivLeftBtn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -162,6 +170,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			}
 		});
 		
+		
 		/* Right Button Setting */
 		m_ivRightBtn.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -169,6 +178,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 					m_pgPreviewImgGallery.setSelection(m_iSelectedItem+1);
 			}
 		});
+		
 		
 		/* Picture View Button Setting */
 		m_ivPicViewBtn.setOnClickListener(new View.OnClickListener() {
@@ -265,18 +275,13 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 	class WordImgAnimation extends TimerTask {
 		WordImgAnimation () {
 			repeat = 0;
-			Log.d(TAG, "WordImgAnimation Constructor");
 		}
 
-		public boolean cancel() {
-			Log.d(TAG, "WordImgAnimation Cancel");
-			return super.cancel();
-		}
 		public void run() {
 			runOnUiThread(new Runnable() {
 				public void run() {
 					if (m_ivWordImg.isShown()) {
-						Log.d(TAG, "Runninggggg, repeat=" + ++repeat);
+						Log.d(TAG, "Running, repeat=" + ++repeat);
 						if (repeat == 4) {
 							m_ivWordImg.setAnimation(AnimationUtils.loadAnimation(PreviewWords.this, android.R.anim.fade_out));
 							m_ivWordImg.setVisibility(View.GONE);
@@ -291,6 +296,19 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			if (repeat == 4) {		
 				this.cancel();
 			}
+		}
+	}
+	
+	class ImageLoadingThread extends Thread {
+		public void run() {
+			for(int i=5 ; i<m_ItemVector.size() ; ++i) {
+				Log.d(TAG, "ItemVector = " + i);
+				BitmapDrawable bd = (BitmapDrawable)getResources().getDrawable(m_ItemVector.get(i).iItemImgId);
+				Bitmap bit = bd.getBitmap();
+				m_vLeftImg.add(Bitmap.createBitmap(bit, 0, 0, 380, 256));
+				m_vRightImg.add(Bitmap.createBitmap(bit, 380, 0, 380, 256));
+			}
+			this.stop();
 		}
 	}
 }
