@@ -48,6 +48,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 	
 	private int m_iSelectedItem=0;
 	private float m_fPosX=0;
+	private static int repeat=0;
 	
 	private static int[] IMAGE_SIZE={198, 169, 128, 96, 64};
 	
@@ -76,6 +77,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 		m_vLeftImg = new Vector<Bitmap>();
 		m_vRightImg = new Vector<Bitmap>();
 		for(int i=0 ; i<m_ItemVector.size() ; ++i) {
+			Log.d(TAG, "ItemVector = " + i);
 			BitmapDrawable bd = (BitmapDrawable)getResources().getDrawable(m_ItemVector.get(i).iItemImgId);
 			Bitmap bit = bd.getBitmap();
 			m_vLeftImg.add(Bitmap.createBitmap(bit, 0, 0, 380, 256));
@@ -137,10 +139,12 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 							m_pgPreviewImgGallery.setSelection(m_iSelectedItem+1);
 					} else { // Click
 						if(!m_ivWordImg.isShown()) {
+							Log.d(TAG, "Image Click");
 							m_ivQuizImg.setImageBitmap(m_vRightImg.get(m_iSelectedItem));
 							m_ivWordImg.setAnimation(AnimationUtils.loadAnimation(PreviewWords.this, android.R.anim.fade_in));
 							m_ivWordImg.setVisibility(View.VISIBLE);
-							t.schedule(new WordImgAnimation(), 1000);
+							t.purge();
+							t.schedule(new WordImgAnimation(), 500, 500);
 						}
 					}
 				}
@@ -237,7 +241,6 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ImageView imageView;
 
-			Log.d("PreviewWords", "position = " + position);
 			if(convertView!=null){
 				imageView = (ImageView)convertView;
 			}else{
@@ -248,13 +251,10 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			imageView.setAdjustViewBounds(false);
 
 			if(position == m_iSelectedItem){
-				Log.d(TAG, "getView 196");
 				imageView.setLayoutParams(new Gallery.LayoutParams(IMAGE_SIZE[0], IMAGE_SIZE[0]/2));
 			}else if(Math.abs(position-m_iSelectedItem)==1 && m_iSelectedItem!=-1){
-				Log.d(TAG, "getView 128");
 				imageView.setLayoutParams(new Gallery.LayoutParams(IMAGE_SIZE[1], IMAGE_SIZE[1]/2));
 			}else if(Math.abs(position-m_iSelectedItem)>=2 && m_iSelectedItem!=-1){
-				Log.d(TAG, "getView from IMAGE_SIZE");
 				int size = 0;
 				if(Math.abs(position-m_iSelectedItem) >= IMAGE_SIZE.length){
 					size = IMAGE_SIZE[IMAGE_SIZE.length-1];
@@ -264,7 +264,6 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 				imageView.setLayoutParams(new Gallery.LayoutParams(size, size/2));
 
 			}else{
-				Log.d(TAG, "getView else");
 				imageView.setLayoutParams(new Gallery.LayoutParams(IMAGE_SIZE[0], IMAGE_SIZE[0]/2));
 			}
 			imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -273,18 +272,34 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 	}
 	
 	class WordImgAnimation extends TimerTask {
-		WordImgAnimation () {}
+		WordImgAnimation () {
+			repeat = 0;
+			Log.d(TAG, "WordImgAnimation Constructor");
+		}
 
+		public boolean cancel() {
+			Log.d(TAG, "WordImgAnimation Cancel");
+			return super.cancel();
+		}
 		public void run() {
 			runOnUiThread(new Runnable() {
 				public void run() {
-					if(m_ivWordImg.isShown()) {
-						m_ivWordImg.setAnimation(AnimationUtils.loadAnimation(PreviewWords.this, android.R.anim.fade_out));
-						m_ivWordImg.setVisibility(View.GONE);
-						m_ivQuizImg.setImageBitmap(m_vLeftImg.get(m_iSelectedItem));
+					if (m_ivWordImg.isShown()) {
+						Log.d(TAG, "Runninggggg, repeat=" + ++repeat);
+						if (repeat == 4) {
+							m_ivWordImg.setAnimation(AnimationUtils.loadAnimation(PreviewWords.this, android.R.anim.fade_out));
+							m_ivWordImg.setVisibility(View.GONE);
+						}
+						else if (repeat%2 == 1)
+							m_ivQuizImg.setImageBitmap(m_vLeftImg.get(m_iSelectedItem));
+						else
+							m_ivQuizImg.setImageBitmap(m_vRightImg.get(m_iSelectedItem));
 					}
 				}
 			});
+			if (repeat == 4) {				
+				this.cancel();
+			}
 		}
 	}
 }
