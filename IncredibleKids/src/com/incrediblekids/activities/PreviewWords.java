@@ -150,7 +150,11 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 							m_ivWordImg.setAnimation(AnimationUtils.loadAnimation(PreviewWords.this, android.R.anim.fade_in));
 							m_ivWordImg.setVisibility(View.VISIBLE);
 							
-							m_WordImgAnimation = null;
+							if (m_WordImgAnimation != null) {
+								m_tAnimationTimer.cancel();
+								m_tAnimationTimer = null;
+								m_WordImgAnimation = null;
+							}
 							m_WordImgAnimation = new WordImgAnimation();
 							m_tAnimationTimer = new Timer(false);
 							m_tAnimationTimer.schedule(m_WordImgAnimation, 500, 500);
@@ -282,18 +286,23 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 				public void run() {
 					if (m_ivWordImg.isShown()) {
 						Log.d(TAG, "Running, repeat=" + ++repeat);
-						if (repeat == 4) {
+						if (repeat == 5) {
 							m_ivWordImg.setAnimation(AnimationUtils.loadAnimation(PreviewWords.this, android.R.anim.fade_out));
 							m_ivWordImg.setVisibility(View.GONE);
 						}
-						else if (repeat%2 == 1)
+						
+						if (repeat%2 == 1) {
 							m_ivQuizImg.setImageBitmap(m_vLeftImg.get(m_iSelectedItem));
-						else
+							Log.d(TAG, "Left Image");
+						}
+						else {
 							m_ivQuizImg.setImageBitmap(m_vRightImg.get(m_iSelectedItem));
+							Log.d(TAG, "Right Image");
+						}
 					}
 				}
 			});
-			if (repeat == 4) {		
+			if (repeat == 5) {		
 				this.cancel();
 			}
 		}
