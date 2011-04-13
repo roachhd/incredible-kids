@@ -10,6 +10,7 @@ import java.util.Random;
 import java.util.Vector;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.graphics.Matrix;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
@@ -33,8 +34,9 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	
 	private final String TAG = "MatchQuiz";
 	private final int MAX_COUNT = 8;
-	private final long ANIMATION_TIME_DURATION 	= 60 * 60 * 10;
-	private final long HINT_TIME_DURATION 		= 60 * 60 * 1;
+	private final int ANI_ROTATION_TIME_DURATION = 180;
+	private final long ANIMATION_TIME_DURATION 	 = 60 * 60 * 10;
+	private final long HINT_TIME_DURATION 		 = 60 * 60 * 1;
 	
 	private long m_TimeInterval;
 	private long m_AnimationTimeDuration;
@@ -74,8 +76,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			super.handleMessage(msg);
 			switch(msg.what) {
 			case ANIMATION_ENDED:
-				clickEnable(true);
 				analysisMatchResult();
+				clickEnable(true);
 				break;
 				
 			case TOGGLE_ENDED:
@@ -90,6 +92,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	public static final int ITEM_MATCHED 	= 1;
 	public static final int ANIMATION_ENDED = 10;
 	public static final int TOGGLE_ENDED 	= 11;
+	public static final int RETRY_DIALOG 	= 20;
 	
 	public class ViewHolder {
 		
@@ -149,6 +152,9 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 
 		if(m_MatchManager.isAllMatched()) {
 			Log.d(TAG, "Game End");
+			pauseAnimation();
+			m_TimeFrameAnimation.stop();
+			showDialog(RETRY_DIALOG);
 			// TODO: make Popup
 		}
 	}
@@ -316,6 +322,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 					m_TimeFrameImageEnd.setVisibility(View.VISIBLE);
 					m_Hint.setClickable(false);
 					
+//					showDialog(RETRY_DIALOG);
 					//TODO: make popup retry or not?
 				}
 			}
@@ -367,6 +374,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     private void showHint() {
     	Log.d(TAG, "showHint()");
     	m_Hint.setClickable(false);
+    	m_MatchManager.setSolo(true);
     	clickEnable(false);
     	
     	for(int i = 0; i < MAX_COUNT; i++) {
@@ -559,7 +567,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
         // Create a new 3D rotation with the supplied parameter
         // The animation listener is used to trigger the next animation
         final Rotate3dAnimation rotation = new Rotate3dAnimation(start, end, centerX, centerY, 310.0f, true);
-        rotation.setDuration(200);
+        rotation.setDuration(ANI_ROTATION_TIME_DURATION);
         rotation.setFillAfter(true);
         rotation.setInterpolator(new AccelerateInterpolator());
         rotation.setAnimationListener(new DisplayNextView(parentView, position, isToggle));
@@ -631,7 +639,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
                 rotation = new Rotate3dAnimation(270, 360, centerX, centerY, 310.0f, false);
             }
 
-            rotation.setDuration(200);
+            rotation.setDuration(ANI_ROTATION_TIME_DURATION);
             rotation.setFillAfter(true);
             rotation.setInterpolator(new DecelerateInterpolator());
             
@@ -828,7 +836,31 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     		m_Items.put(key, value);
     	}
     }
+    
+    
 	
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		// TODO Auto-generated method stub
+		Dialog dialog = null;
+		switch(id) {
+		case RETRY_DIALOG:
+			dialog = setRetryDialog();
+			break;
+		default:
+			dialog = null;
+		}
+		return dialog;
+	}
+
+	private Dialog setRetryDialog() {
+		Dialog dialog = new Dialog(MatchQuiz.this);
+
+		dialog.setContentView(R.layout.custom_dialog);
+		
+		return dialog;
+	}
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -844,6 +876,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
+		Log.d(TAG, "onDestroy()");
 	}
 
 }
