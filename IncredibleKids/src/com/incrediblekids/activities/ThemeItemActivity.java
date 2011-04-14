@@ -166,14 +166,16 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	private ResourceClass res;
 	private Vector<Item> m_ItemVector;
-	
-	ArrayList<Point> m_RandomPoint;
+	private ArrayList <Item> m_quizItemList;
+	private ArrayList<Point> m_RandomPoint;
 	
 	private boolean m_bFirstTouch = true;
 
 
 	@Override
 	public Engine onLoadEngine() {
+		
+		m_quizItemList = new ArrayList<Item>();
 
 		this.m_iCurrentItemNum = 0;
 		this.m_bSoundOn = true;
@@ -407,13 +409,13 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private void resetScreen(){
 
 		if (this.m_iCurrentItemNum % ITEM_NUM_PER_STAGE == 0){
-			ArrayList <Item> itemList = new ArrayList<Item>();
-			itemList.addAll(this.m_ItemVector.subList(m_iCurrentItemNum - ITEM_NUM_PER_STAGE, m_iCurrentItemNum));
-			Intent intent = new Intent("com.pantech.ypcmap");
-//			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, itemList);
-			intent.putExtra(Const.MATCH_QUIZ, itemList);
+			m_quizItemList.clear();
+			m_quizItemList.addAll(this.m_ItemVector.subList(m_iCurrentItemNum - ITEM_NUM_PER_STAGE, m_iCurrentItemNum));
+			Intent intent = new Intent(this, MatchQuiz.class);
+			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, m_quizItemList);
+//			intent.putExtra(Const.MATCH_QUIZ, itemList);
 			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
-		}else{
+		}else{ 
 			Log.e(TAG, "resetScreen()");
 			mEngine.runOnUpdateThread(new Runnable() {
 				@Override
@@ -605,7 +607,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
 					if (!NetworkConnInfo.IsWifiAvailable(ThemeItemActivity.this) && !NetworkConnInfo.Is3GAvailable(ThemeItemActivity.this))
 					{
-						Toast.makeText(ThemeItemActivity.this, "��ũ��ũ�� ������ �� ����ϴ�.", Toast.LENGTH_LONG).show();
+						Toast.makeText(ThemeItemActivity.this, "占쏙옙크占쏙옙크占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙 占쏙옙占쏙옙求占�", Toast.LENGTH_LONG).show();
 						return true;
 					}
 					intent = new Intent(ThemeItemActivity.this, ItemPicActivity.class);
