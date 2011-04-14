@@ -412,29 +412,30 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			Intent intent = new Intent("com.pantech.ypcmap");
 			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, itemList);
 			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
+		}else{
+			Log.e(TAG, "resetScreen()");
+			mEngine.runOnUpdateThread(new Runnable() {
+				@Override
+				public void run() {
+	
+					while(m_Scene.getLayer(ENTITIES_LAYER).getEntityCount()>0){
+						m_Scene.getLayer(ENTITIES_LAYER).removeEntity(0);
+					}				
+					m_Scene.clearUpdateHandlers();
+					m_iCurrentCollideBoxIdx = 0;
+					m_CurrentTouchedAlphabetSprite = null;
+					m_ItemTextureRegion = null;
+					m_arrAlphabetTexture = null;
+					m_arrAlphabet = null;
+					m_Item = null;
+					m_arrBoxSprite = null;
+					m_arrAlphabetSprite = null;
+					m_bFirstTouch = true;
+	
+					ThemeItemActivity.this.updateScene();
+				}        	
+			});
 		}
-		Log.e(TAG, "resetScreen()");
-		mEngine.runOnUpdateThread(new Runnable() {
-			@Override
-			public void run() {
-
-				while(m_Scene.getLayer(ENTITIES_LAYER).getEntityCount()>0){
-					m_Scene.getLayer(ENTITIES_LAYER).removeEntity(0);
-				}				
-				m_Scene.clearUpdateHandlers();
-				m_iCurrentCollideBoxIdx = 0;
-				m_CurrentTouchedAlphabetSprite = null;
-				m_ItemTextureRegion = null;
-				m_arrAlphabetTexture = null;
-				m_arrAlphabet = null;
-				m_Item = null;
-				m_arrBoxSprite = null;
-				m_arrAlphabetSprite = null;
-				m_bFirstTouch = true;
-
-				ThemeItemActivity.this.updateScene();
-			}        	
-		});
 	}
 	
 	//Reset Screen - Remove all the m_DarkenSprite from scene.
