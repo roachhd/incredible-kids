@@ -8,6 +8,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 
 import com.incrediblekids.util.Const;
+import com.incrediblekids.util.Item;
 
 public class ResourceClass {
 	private final String TAG="PreviewWords";
@@ -27,22 +28,6 @@ public class ResourceClass {
 	}
 	
 	private ResourceClass() {}
-	
-	public class Item {
-		public int iItemImgId;
-		public int iItemWordId;
-		public int iCardImgId;
-		public int iCardWordId;
-		public String strWordCharId;
-		
-		public Item(String _name, int _imgId, int _wordId, int _cardImgId, int _cardWordId){
-			strWordCharId = _name;
-			iItemImgId = _imgId;
-			iItemWordId = _wordId;
-			iCardImgId = _cardImgId;
-			iCardWordId = _cardWordId;			
-		}
-	}
 	
 	public void setTheme(String _theme) {
 		Log.d(TAG, "theme = " + _theme);

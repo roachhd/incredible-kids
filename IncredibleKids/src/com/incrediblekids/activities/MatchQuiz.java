@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
 
+import com.incrediblekids.util.Item;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.graphics.Matrix;
@@ -27,8 +29,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
-
-import com.incrediblekids.activities.ResourceClass.Item;
 
 public class MatchQuiz extends Activity implements View.OnClickListener {
 	
@@ -186,14 +186,14 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		int viewGroupValue	= R.id.flContainer1;
 		
 		for(int i = 0; i < MAX_COUNT; i++) {
-			m_ItemImages[i]	= (ImageView)findViewById(firstItemValue); // �녍뚌��-_-;
+			m_ItemImages[i]	= (ImageView)findViewById(firstItemValue); // 占쎈뀓�뚳옙占�_-;
 			m_ItemImages[i].setOnClickListener(this);
 			m_ItemImages[i].setTag(ITEM_DEFAULT);
 			
 			m_Questions[i]	= (ImageView)findViewById(questionValue);
 			m_Questions[i].setOnClickListener(this);
 			
-			m_Containers[i]	= (ViewGroup)findViewById(viewGroupValue); // �녍뚌��-_-;
+			m_Containers[i]	= (ViewGroup)findViewById(viewGroupValue); // 占쎈뀓�뚳옙占�_-;
 			m_Containers[i].setPersistentDrawingCache(ViewGroup.PERSISTENT_ANIMATION_CACHE);
 			m_Containers[i].setTag(new ViewHolder(m_ItemImages[i], m_Questions[i]));
 			
@@ -231,7 +231,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	}
 	
 	/**
-	 * N �슿�쨩� �륅？쨉횁 쩔횄�횄징��뤒�Question 쩔횄�횄징��뫥��타�ㅲ궗짜타.
+	 * N 占쎌듌占쎌Ł占�占쎈쪋竊잛쮬��姨뷀쉪占쏀쉪吏뺧옙占쎈쨸占폪uestion 姨뷀쉪占쏀쉪吏뺧옙占쎈ゥ占쏙옙��옙�꿸텢吏쒗�.
 	 */
 	private void toggleImages() {
         Handler mHandler = new Handler();
@@ -330,8 +330,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	}
 	
 	/**
-	 * Random HashMap 짧�쨘��<br />
-	 * Item쩔짧 �횏�째짬���궱�짧횁첩횓쨉쨩짜타.
+	 * Random HashMap 吏㏆옙夷섓옙占�br />
+	 * Item姨붿㎣ 占쏀쉹占쎌㎏吏э옙占쏙옙沅깍옙吏㏉쉧泥⑺슀夷됱Ł吏쒗�.
 	 */
 	private void makeRandomHashMap() {
 		Log.d(TAG, "makeRandomHashMap()");

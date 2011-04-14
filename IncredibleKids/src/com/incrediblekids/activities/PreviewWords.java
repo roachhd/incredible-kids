@@ -27,10 +27,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
-
-import com.incrediblekids.activities.ResourceClass.Item;
 import com.incrediblekids.network.NetworkConnInfo;
 import com.incrediblekids.util.Const;
+import com.incrediblekids.util.Item;
 import com.incrediblekids.util.PreviewGallery;
 
 public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{

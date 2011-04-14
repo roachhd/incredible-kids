@@ -52,10 +52,10 @@ import android.view.MotionEvent;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.Toast;
-import com.incrediblekids.activities.ResourceClass.Item;
 import com.incrediblekids.network.NetworkConnInfo;
 import com.incrediblekids.util.AlphabetSprite;
 import com.incrediblekids.util.Const;
+import com.incrediblekids.util.Item;
 
 /**
  * @author Nicolas Gramlich
@@ -84,6 +84,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	public final static String TAG = "ThemeItemActivity";
 	public final static char EMPTY_ALPHABET = '0';
 
+	public final static int ITEM_NUM_PER_STAGE = 5;
 	// ===========================================================
 	// Fields
 	// ===========================================================
@@ -128,12 +129,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private Sprite m_Help;
 	private Texture  m_HelpTexture;
 	private TextureRegion m_HelpTextureRegion;
-
-	//Show Pic Button Sprite
-	private Sprite m_ShowPicSprite;
-	private Texture  m_ShowPicTexture;
-	private TextureRegion m_ShowPicTextureRegion;
-
 	
 	//Skip Button Sprite
 	private Sprite m_SkipSprite;
@@ -143,10 +138,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	//Pause
 	private Scene m_Scene;
 
-	//Sound on/off
-/*	private Texture m_SoundTexture;
-	private TiledTextureRegion m_SoundTextureRegion;
-	private AnimatedSprite m_SoundSprite;*/
 	private Boolean m_bSoundOn;
 	
 	//Darken bg
@@ -254,10 +245,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.btn_hint , 0, 0);
 
-		//Load Show pic
-/*		this.m_ShowPicTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_ShowPicTextureRegion = TextureRegionFactory.createFromResource(this.m_ShowPicTexture, this, R.drawable.btn_showpic, 0, 0);
-*/
 		//Retry popup texture
 		this.m_RetryTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
 		this.m_RetryOkTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
@@ -266,11 +253,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.m_RetryTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryTexture, this, R.drawable.retry_popup_bg,0,0);
 		this.m_RetryOkTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryOkTexture, this, R.drawable.retry_ok_btn,0,0);
 		this.m_RetryCancelTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryCancelTexture, this, R.drawable.retry_no_btn,0,0);
-		
-		//Load sound on/off
-/*		this.m_SoundTexture = new Texture(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_SoundTextureRegion = TextureRegionFactory.createTiledFromResource(m_SoundTexture, this, R.drawable.btn_sound, 0, 0, 2, 1);*/
-		
+
 		//Skip 		
 		this.m_SkipTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_SkipTextureRegion = TextureRegionFactory.createFromResource(m_SkipTexture, this, R.drawable.btn_skip, 0, 0);
@@ -390,9 +373,46 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.m_RetryScene.registerTouchArea(retryOKSprite);
 		this.m_RetryScene.registerTouchArea(retryCancelSprite);
 	}
+	
+	public void onActivityResult(int requestCode, int resultCode, Intent intent){
+		super.onActivityResult(requestCode, resultCode, intent);
+		if (requestCode == Const.MATCH_QUIZ_RESULT){
+			if (resultCode == RESULT_OK){
+				mEngine.runOnUpdateThread(new Runnable() {
+					@Override
+					public void run() {
+
+						while(m_Scene.getLayer(ENTITIES_LAYER).getEntityCount()>0){
+							m_Scene.getLayer(ENTITIES_LAYER).removeEntity(0);
+						}				
+						m_Scene.clearUpdateHandlers();
+						m_iCurrentCollideBoxIdx = 0;
+						m_CurrentTouchedAlphabetSprite = null;
+						m_ItemTextureRegion = null;
+						m_arrAlphabetTexture = null;
+						m_arrAlphabet = null;
+						m_Item = null;
+						m_arrBoxSprite = null;
+						m_arrAlphabetSprite = null;
+						m_bFirstTouch = true;
+
+						ThemeItemActivity.this.updateScene();
+					}        	
+				});
+			}
+		}
+	}
 
 	//Reset Screen - Remove all the entities from scene.
 	private void resetScreen(){
+
+		if (this.m_iCurrentItemNum % ITEM_NUM_PER_STAGE == 0){
+			ArrayList <Item> itemList = new ArrayList<Item>();
+			itemList.addAll(this.m_ItemVector.subList(m_iCurrentItemNum - ITEM_NUM_PER_STAGE, m_iCurrentItemNum));
+			Intent intent = new Intent("com.pantech.ypcmap");
+			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, itemList);
+			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
+		}
 		Log.e(TAG, "resetScreen()");
 		mEngine.runOnUpdateThread(new Runnable() {
 			@Override
@@ -457,29 +477,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
 		
 		this.m_DarkenSprite = new Sprite(0,0,this.m_DarkenTextureRegion);
-		
-/*		this.m_SoundSprite = new AnimatedSprite(m_SoundTextureRegion.getTileWidth()/4, m_SoundTextureRegion.getHeight()/4, this.m_SoundTextureRegion){
-			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-					if (m_bSoundOn == true){
-						m_Music.pause();
-						m_bSoundOn = false;
-						m_SoundTextureRegion.setCurrentTileIndex(SOUND_OFF);
-					}else
-					{
-						m_Music.resume();
-						m_bSoundOn = true;
-						m_SoundTextureRegion.setCurrentTileIndex(SOUND_ON);
-					}
-				}
-				return true;
-			}
-		};
 
-		this.m_SoundTextureRegion.setCurrentTileIndex(SOUND_ON);
-		this.m_Scene.getLayer(BASE_LAYER).addEntity(m_SoundSprite);*/
-		
 		this.m_SkipSprite = new Sprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
 				m_SkipTextureRegion.getHeight()/4, this.m_SkipTextureRegion){
 			@Override
@@ -512,9 +510,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				CAMERA_WIDTH/2-(this.m_FailTextureRegion.getWidth()/2),
 				CAMERA_HEIGHT/2 - (this.m_FailTextureRegion.getHeight()/2),
 				this.m_FailTextureRegion);
-/*CAMERA_WIDTH - m_HelpTextureRegion.getWidth() - m_HelpTextureRegion.getWidth()/4,
-		m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion
-*/		this.m_Help = new Sprite(m_HelpTextureRegion.getWidth()/4, m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion){
+
+		this.m_Help = new Sprite(m_HelpTextureRegion.getWidth()/4, m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion){
 
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
@@ -542,8 +539,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 							m_arrBoxSprite[i].bCorrect = false;
 							m_arrBoxSprite[i].filledAlphabetIndex = -1;
 							m_arrBoxSprite[i].alphabetContainer = EMPTY_ALPHABET;
-
-							//return true;
 						}
 
 						if(!m_arrBoxSprite[i].bFilled){

@@ -34,14 +34,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.ViewGroup.LayoutParams;
 
-import com.incrediblekids.activities.ResourceClass.Item;
+import com.incrediblekids.util.Item;
 import com.incrediblekids.util.ItemSizeInfo;
 import com.incrediblekids.util.PointSprite;
 import com.incrediblekids.util.ThemeSprite;
 import com.incrediblekids.util.WordSprite;
 
 public class SummaryQuiz extends BaseGameActivity {
-	//	TODO: O,X Ÿ�̹�
+	//	TODO: O,X 타占싱뱄옙
 	//	TODO: Hint, Sound on
 	
 	
@@ -485,7 +485,7 @@ public class SummaryQuiz extends BaseGameActivity {
 		float themePosition = 0;
 		float wordPosition = 0;
 		
-		//TODO: Scale ���� ��� �����ؾߵ�.
+		//TODO: Scale 占쏙옙占쏙옙 占쏙옙占�占쏙옙占쏙옙占쌔야듸옙.
 //		leftPosition 		= ((ITEM_WIDTH) - m_ItemTextureRegion[0].getWidth() + GAP_WIDTH) * THEME_ITEM_SCALE;
 //		leftPosition 		= THEME_GAP_WIDTH * THEME_ITEM_SCALE - THEME_GAP_WIDTH;
 		leftPosition 		= THEME_GAP_WIDTH + m_ItemTextureRegion[0].getHeight() * (THEME_ITEM_SCALE - 1)/2;
