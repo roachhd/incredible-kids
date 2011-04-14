@@ -227,9 +227,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			m_Music.play();
 		}
 
-		//Load Texture
-		TextureRegionFactory.setAssetBasePath("gfx/");
-
 		//Load Background
 		this.m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
@@ -592,34 +589,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				return true;
 			}
 		};
-/*		m_Help.addShapeModifier(new LoopShapeModifier(-1,
-				new SequenceShapeModifier(new RotationModifier(0.2f, 0, 5),
-				new RotationModifier(0.2f, 0, -5))));*/
-		
-		m_Scene.getLayer(BASE_LAYER).addEntity(m_Help);
-
-/*		this.m_ShowPicSprite = new Sprite(CAMERA_WIDTH - m_ShowPicTextureRegion.getWidth() - m_ShowPicTextureRegion.getWidth()/4,
-				m_Help.getHeight() + m_Help.getY() + m_ShowPicTextureRegion.getHeight()/4 , this.m_ShowPicTextureRegion){
-			Intent intent = null;
-			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				Log.e(TAG, "onAreaTouched");
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-					if (!NetworkConnInfo.IsWifiAvailable(ThemeItemActivity.this) && !NetworkConnInfo.Is3GAvailable(ThemeItemActivity.this))
-					{
-						Toast.makeText(ThemeItemActivity.this, "占쏙옙크占쏙옙크占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙 占쏙옙占쏙옙求占�", Toast.LENGTH_LONG).show();
-						return true;
-					}
-					intent = new Intent(ThemeItemActivity.this, ItemPicActivity.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-					intent.putExtra(Const.ITEM_NAME, m_strAlphabet);
-					startActivity(intent);
-				}
-				return true;
-			}
-		};
-		m_Scene.getLayer(BASE_LAYER).addEntity(m_ShowPicSprite);*/
-
 	}
 
 	//Update scene with new entities.

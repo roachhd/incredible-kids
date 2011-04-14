@@ -261,8 +261,6 @@ public class MainThemeActivity extends BaseGameActivity{
 					public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 						if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
 							res.setTheme(Const.THEME_ANIMAL);
-							/*m_Scene.clearTouchAreas();
-					m_Scene.setChildScene(m_GameModeScene, false, true, true);	*/
 							Intent intent = new Intent(MainThemeActivity.this, MatchQuiz.class);
 							startActivity(intent);
 						}
