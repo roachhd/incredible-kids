@@ -410,7 +410,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			ArrayList <Item> itemList = new ArrayList<Item>();
 			itemList.addAll(this.m_ItemVector.subList(m_iCurrentItemNum - ITEM_NUM_PER_STAGE, m_iCurrentItemNum));
 			Intent intent = new Intent("com.pantech.ypcmap");
-			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, itemList);
+//			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, itemList);
+			intent.putExtra(Const.MATCH_QUIZ, itemList);
 			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
 		}else{
 			Log.e(TAG, "resetScreen()");
@@ -604,7 +605,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
 					if (!NetworkConnInfo.IsWifiAvailable(ThemeItemActivity.this) && !NetworkConnInfo.Is3GAvailable(ThemeItemActivity.this))
 					{
-						Toast.makeText(ThemeItemActivity.this, "³×Å©¿öÅ©¿¡ ¿¬°áÇÒ ¼ö ¾ø½À´Ï´Ù.", Toast.LENGTH_LONG).show();
+						Toast.makeText(ThemeItemActivity.this, "ï¿½ï¿½Å©ï¿½ï¿½Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.", Toast.LENGTH_LONG).show();
 						return true;
 					}
 					intent = new Intent(ThemeItemActivity.this, ItemPicActivity.class);
