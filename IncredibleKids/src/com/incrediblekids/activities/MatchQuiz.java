@@ -4,12 +4,11 @@
  */
 package com.incrediblekids.activities;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
-
-import com.incrediblekids.util.Item;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -30,10 +29,14 @@ import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 
+import com.incrediblekids.util.Const;
+import com.incrediblekids.util.Item;
+
 public class MatchQuiz extends Activity implements View.OnClickListener {
 	
 	private final String TAG = "MatchQuiz";
-	private final int MAX_COUNT = 8;
+	private final int MAX_COUNT 				 = 8;
+	private final int CARD_PAIR_COUNT 			 = 4;
 	private final int ANI_ROTATION_TIME_DURATION = 180;
 	private final long ANIMATION_TIME_DURATION 	 = 60 * 60 * 10;
 	private final long HINT_TIME_DURATION 		 = 60 * 60 * 1;
@@ -45,7 +48,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private boolean m_IsPause;
 	
 	private ResourceClass m_Res;
-	private Vector<Item> m_ItemVector;
+//	private Vector<Item> m_ItemVector;
+	private ArrayList<Item> m_ItemList;
 	
 	private ImageView m_Hint;
 	
@@ -118,7 +122,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate()");
 		
-		
 		setContentView(R.layout.match_quiz);
 		init();
 		toggleImages();
@@ -154,6 +157,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			Log.d(TAG, "Game End");
 			pauseAnimation();
 			m_TimeFrameAnimation.stop();
+			setResult(RESULT_OK);
+			finish();
 			showDialog(RETRY_DIALOG);
 			// TODO: make Popup
 		}
@@ -168,13 +173,15 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private void init() {
 		Log.d(TAG, "init()");
 		
+		m_ItemList			= new ArrayList<Item>(CARD_PAIR_COUNT);
+		
 		m_ItemImages 		= new ImageView[MAX_COUNT];
 		m_Questions			= new ImageView[MAX_COUNT];
 		m_Containers 		= new ViewGroup[MAX_COUNT];
 		m_MatchManager		= new MatchManager();
 		
 		m_Res 				= ResourceClass.getInstance();
-		m_ItemVector 		= m_Res.getvItems();
+//		m_ItemVector 		= m_Res.getvItems();
 		
 		m_IsPause			= false;
 		m_LeftPosition		= 0;
@@ -260,19 +267,22 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		Iterator<Integer> ii = m_RandomHashMap.keySet().iterator();
 		int vectorNum = 0;
 		int flag = 0;
+		
+		setItemList();
 		while(ii.hasNext()) {
 			Integer key = ii.next();
 			int value = m_RandomHashMap.get(key);
+			Log.d(TAG, "value:" + value);
 			
 			if((flag % 2) == 0) {
-				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardImgId);
-				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
+				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardImgId);
+				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
 //				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
 //				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 			}
 			else {
-				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardWordId);
-				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
+				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardWordId);
+				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
 //				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
 //				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 				vectorNum++;
@@ -280,7 +290,40 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			flag++;
 		}
 	}
-	
+
+	private void setItemList() {
+		ArrayList<Item> oriItemList;
+		Random rnd;
+		Bundle bundle;
+		
+		int tempNum;
+		int loopCount = 0;
+		
+		bundle 		= getIntent().getExtras();
+		oriItemList = bundle.getParcelableArrayList(Const.MATCH_QUIZ);
+		
+		if(oriItemList == null) {
+			Log.e(TAG, "setItemList(), oriItemList is null");
+			return;
+		}
+		
+		rnd = new Random(System.currentTimeMillis());
+		
+		
+		while(true) {
+			tempNum = Math.abs(rnd.nextInt(oriItemList.size()));
+			Log.d(TAG, "tempNum: " + tempNum);
+			if(!m_ItemList.contains(oriItemList.get(tempNum))) {
+				m_ItemList.add(oriItemList.get(tempNum));
+				oriItemList.remove(tempNum);
+				loopCount++;
+			}
+			if(loopCount > 3)
+				break;
+		}
+		
+	}
+
 	/* Set TimeAnimation */
 	private void setTimeAnimation() {
 		Log.d(TAG, "setTimeAnimation()");

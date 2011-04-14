@@ -413,7 +413,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			m_quizItemList.addAll(this.m_ItemVector.subList(m_iCurrentItemNum - ITEM_NUM_PER_STAGE, m_iCurrentItemNum));
 			Intent intent = new Intent(this, MatchQuiz.class);
 			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, m_quizItemList);
-//			intent.putExtra(Const.MATCH_QUIZ, itemList);
+//			intent.putExtra(Const.MATCH_QUIZ, m_quizItemList);
 			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
 		}else{ 
 			Log.e(TAG, "resetScreen()");
