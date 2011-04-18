@@ -12,6 +12,7 @@ import java.util.Vector;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Matrix;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
@@ -32,6 +33,7 @@ import android.widget.ImageView;
 import com.incrediblekids.util.Const;
 import com.incrediblekids.util.Item;
 
+// TODO: error occured at hint operation.
 public class MatchQuiz extends Activity implements View.OnClickListener {
 	
 	private final String TAG = "MatchQuiz";
@@ -47,16 +49,20 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	/* Animation status flag */ 
 	private boolean m_IsPause;
 	
-	private ResourceClass m_Res;
-//	private Vector<Item> m_ItemVector;
 	private ArrayList<Item> m_ItemList;
 	
 	private ImageView m_Hint;
+	private ImageView m_Skip;
 	
 	private ImageView[] m_ItemImages;
 	private ImageView[] m_Questions;
 	private ViewGroup[] m_Containers;
 	private HashMap<Integer, Integer> m_RandomHashMap;
+	
+	private ResourceClass m_Res;
+	private Vector<Item> m_ItemVector;
+	
+	private Intent 				m_PopupIntent;
 	
 	/* FrameImage & Interpolator Animation */
 	private ImageView			m_TimeFrameImage;
@@ -127,6 +133,26 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		toggleImages();
 		setItems();
 	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		Log.d(TAG, "onActivityResult()");
+		super.onActivityResult(requestCode, resultCode, data);
+		if(requestCode == Const.RETRY_DIALOG_RESULT) {
+			if(resultCode == RESULT_OK) {
+				Log.d(TAG, "resultCode:" + "RESULT_OK");
+				//TODO: restart game
+			}
+			else if(resultCode == RESULT_CANCELED) {
+				Log.d(TAG, "resultCode:" + "RESULT_CANCELED");
+				setResult(RESULT_OK);
+				finish();
+			}
+		}
+	}
+
+
 
 	private void analysisMatchResult() {
 		Log.d(TAG, "analysisMatchResult()");
@@ -157,10 +183,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			Log.d(TAG, "Game End");
 			pauseAnimation();
 			m_TimeFrameAnimation.stop();
-			setResult(RESULT_OK);
-			finish();
-			showDialog(RETRY_DIALOG);
-			// TODO: make Popup
+			
+			startActivityForResult(m_PopupIntent, Const.RETRY_DIALOG_RESULT);
 		}
 	}
 
@@ -173,16 +197,17 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private void init() {
 		Log.d(TAG, "init()");
 		
+		m_PopupIntent 		= new Intent(MatchQuiz.this, RetryPopupActivity.class);
 		m_ItemList			= new ArrayList<Item>(CARD_PAIR_COUNT);
 		
 		m_ItemImages 		= new ImageView[MAX_COUNT];
 		m_Questions			= new ImageView[MAX_COUNT];
 		m_Containers 		= new ViewGroup[MAX_COUNT];
+		
 		m_MatchManager		= new MatchManager();
-		
 		m_Res 				= ResourceClass.getInstance();
-//		m_ItemVector 		= m_Res.getvItems();
 		
+		m_ItemVector 		= m_Res.getvItems();
 		m_IsPause			= false;
 		m_LeftPosition		= 0;
 		m_TimeInterval		= 0;
@@ -210,6 +235,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		}
 		
 		m_Hint				= (ImageView)findViewById(R.id.ivHint);
+		m_Skip				= (ImageView)findViewById(R.id.ivSkip);
 		
 		m_TimeFrameImage 	= (ImageView)findViewById(R.id.ivTimeFrame);
 		m_TimeFrameImage.setBackgroundResource(R.drawable.frame_transition);
@@ -218,6 +244,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		
 		m_Hint.setOnClickListener(this);
 		m_Hint.setClickable(false);
+		
+		m_Skip.setOnClickListener(this);
 		
 		/* Get Sound Button Image Resource */
 		/** deleted
@@ -268,21 +296,26 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		int vectorNum = 0;
 		int flag = 0;
 		
-		setItemList();
+//		setItemList();
 		while(ii.hasNext()) {
 			Integer key = ii.next();
 			int value = m_RandomHashMap.get(key);
 			Log.d(TAG, "value:" + value);
 			
 			if((flag % 2) == 0) {
-				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardImgId);
-				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
+				
+				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardImgId);
+//				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardImgId);
+//				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
+				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
 //				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
 //				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 			}
 			else {
-				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardWordId);
-				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
+				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardWordId);
+//				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardWordId);
+//				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
+				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
 //				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
 //				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 				vectorNum++;
@@ -359,12 +392,13 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				if(m_IsPause) {
 					// Do nothing : )
 				}
-				else {
+				else {	// Animation end. Time out.
 					m_TimeFrameAnimation.stop();
 					m_TimeFrameImage.setVisibility(View.INVISIBLE);
 					m_TimeFrameImageEnd.setVisibility(View.VISIBLE);
 					m_Hint.setClickable(false);
 					
+					startActivityForResult(m_PopupIntent, Const.RETRY_DIALOG_RESULT);
 //					showDialog(RETRY_DIALOG);
 					//TODO: make popup retry or not?
 				}
@@ -401,6 +435,10 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		if(v.getId() == R.id.ivHint) {
 			Log.d(TAG, "Hint!");
 			showHint();
+		}
+		else if(v.getId() == R.id.ivSkip) {
+			setResult(RESULT_OK);
+			finish();
 		}
 		else {
 			ViewGroup parentView = (ViewGroup) v.getParent();
@@ -899,7 +937,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private Dialog setRetryDialog() {
 		Dialog dialog = new Dialog(MatchQuiz.this);
 
-		dialog.setContentView(R.layout.custom_dialog);
+		dialog.setContentView(R.layout.retry_dialog);
 		
 		return dialog;
 	}

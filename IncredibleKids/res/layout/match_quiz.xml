@@ -20,6 +20,25 @@
 			android:layout_marginLeft="5dp"
 			android:background="@drawable/btn_hint">
 		</ImageView>
+		
+		<!-- dummy -->
+		<ImageView
+			android:id="@+id/ivHint"
+			android:layout_width="43dp"
+			android:layout_height="43dp"
+			android:layout_marginTop="5dp"
+			android:layout_weight="1">
+		</ImageView>
+		
+		<!-- Skip Icon -->
+		<ImageView
+			android:id="@+id/ivSkip"
+			android:layout_width="43dp"
+			android:layout_height="43dp"
+			android:layout_marginTop="5dp"
+			android:layout_marginRight="5dp"
+			android:background="@drawable/btn_skip">
+		</ImageView>
     </LinearLayout>
     
     <!-- Center Layout -->

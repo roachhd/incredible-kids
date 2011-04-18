@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_height="fill_parent" android:layout_width="fill_parent" android:orientation="vertical"
+  android:background="@drawable/popup_game_retry"
+  android:paddingTop="16dp"
+  android:paddingBottom="16dp"
+  android:paddingLeft="9dp"
+  android:paddingRight="9dp"
+  >
+  
+  <RelativeLayout
+  	android:layout_width="fill_parent"
+  	android:layout_height="fill_parent"
+  	android:layout_weight="1" >
+	 </RelativeLayout>
+  <RelativeLayout
+  	android:layout_width="fill_parent"
+  	android:layout_height="fill_parent"
+  	android:layout_weight="1">
+  	<LinearLayout
+  		android:layout_width="fill_parent"
+  		android:layout_height="fill_parent" >
+  	
+	  	<RelativeLayout
+		  	android:layout_width="fill_parent"
+		  	android:layout_height="fill_parent"
+		  	android:layout_weight="1">
+	  	</RelativeLayout>
+	  	<RelativeLayout
+		  	android:layout_width="fill_parent"
+		  	android:layout_height="fill_parent"
+		  	android:layout_weight="1">
+			<ImageView android:src="@drawable/icon" android:id="@+id/ivOk"
+				android:layout_height="wrap_content" android:layout_width="wrap_content"
+				android:layout_centerVertical="true"
+				android:layout_alignParentLeft="true"
+				android:layout_marginLeft="8dp">
+			</ImageView>
+		</RelativeLayout>
+		
+	  	<RelativeLayout
+		  	android:layout_width="fill_parent"
+		  	android:layout_height="fill_parent"
+		  	android:layout_weight="1">
+			<ImageView android:src="@drawable/icon" android:id="@+id/ivCancel"
+				android:layout_height="wrap_content" android:layout_width="wrap_content"
+				android:layout_centerVertical="true"
+				android:layout_alignParentRight="true"
+				android:layout_marginRight="8dp">
+			</ImageView>
+		</RelativeLayout>
+		
+	  	<RelativeLayout
+		  	android:layout_width="fill_parent"
+		  	android:layout_height="fill_parent"
+		  	android:layout_weight="1">
+	  	</RelativeLayout>
+	</LinearLayout>
+		
+    </RelativeLayout>
+</LinearLayout>

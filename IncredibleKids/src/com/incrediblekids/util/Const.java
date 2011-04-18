@@ -10,4 +10,5 @@ public class Const {
 	public final static String STAGE_IDX = "com.incrediblekids.item.idx";
 	public final static String MATCH_QUIZ = "com.incrediblekids.item.matchquiz";
 	public final static int MATCH_QUIZ_RESULT = 1000;
+	public final static int RETRY_DIALOG_RESULT = 2000;
 }

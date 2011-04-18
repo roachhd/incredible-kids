@@ -36,6 +36,9 @@
 	    		  android:configChanges="orientation|keyboardHidden"/>
 	    <activity android:name="MatchQuiz"
 				  android:screenOrientation="landscape" />
+	    <activity android:name="RetryPopupActivity"
+				  android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"
+				  android:screenOrientation="landscape" />
 				  
 </application>
     <uses-sdk android:minSdkVersion="7" />
