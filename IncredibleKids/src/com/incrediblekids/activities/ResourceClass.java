@@ -56,27 +56,38 @@ public class ResourceClass {
 			vItems.add(new Item("frog", R.drawable.img_frog, R.drawable.word_frog, R.drawable.card_img_frog, R.drawable.card_word_frog));
 
 		} else if (_theme.equals(Const.THEME_TOY)) {
-			vItems.add(new Item("dog", R.drawable.img_dog, R.drawable.word_dog, R.drawable.card_img_dog, R.drawable.card_word_dog));
-			vItems.add(new Item("bear", R.drawable.img_bear, R.drawable.word_bear, R.drawable.card_img_bear, R.drawable.card_word_bear));			
-			vItems.add(new Item("fish", R.drawable.img_fish, R.drawable.word_fish, R.drawable.card_img_fish, R.drawable.card_word_fish));
-			vItems.add(new Item("snake", R.drawable.img_snake, R.drawable.word_snake, R.drawable.card_img_snake, R.drawable.card_word_snake));
-			vItems.add(new Item("duck", R.drawable.img_duck, R.drawable.word_duck, R.drawable.card_img_duck, R.drawable.card_word_duck));
-			vItems.add(new Item("mouse", R.drawable.img_mouse, R.drawable.word_mouse, R.drawable.card_img_mouse, R.drawable.card_word_mouse));
-			vItems.add(new Item("monkey", R.drawable.img_monkey, R.drawable.word_monkey, R.drawable.card_img_monkey, R.drawable.card_word_monkey));
-			vItems.add(new Item("cat", R.drawable.img_cat, R.drawable.word_cat, R.drawable.card_img_cat, R.drawable.card_word_cat));			
-			vItems.add(new Item("pig", R.drawable.img_pig, R.drawable.word_pig, R.drawable.card_img_pig, R.drawable.card_word_pig));
-			vItems.add(new Item("frog", R.drawable.img_frog, R.drawable.word_frog, R.drawable.card_img_frog, R.drawable.card_word_frog));
+			vItems.add(new Item("car", R.drawable.img_car, R.drawable.word_dog, R.drawable.card_img_dog, R.drawable.card_word_dog));
+			vItems.add(new Item("bed", R.drawable.img_bed, R.drawable.word_bear, R.drawable.card_img_bear, R.drawable.card_word_bear));			
+			vItems.add(new Item("cup", R.drawable.img_cup, R.drawable.word_fish, R.drawable.card_img_fish, R.drawable.card_word_fish));
+			vItems.add(new Item("sun", R.drawable.img_sun, R.drawable.word_snake, R.drawable.card_img_snake, R.drawable.card_word_snake));
+			vItems.add(new Item("bus", R.drawable.img_bus, R.drawable.word_duck, R.drawable.card_img_duck, R.drawable.card_word_duck));
+			vItems.add(new Item("book", R.drawable.img_book, R.drawable.word_mouse, R.drawable.card_img_mouse, R.drawable.card_word_mouse));
+			vItems.add(new Item("moon", R.drawable.img_moon, R.drawable.word_monkey, R.drawable.card_img_monkey, R.drawable.card_word_monkey));
+			vItems.add(new Item("ball", R.drawable.img_ball, R.drawable.word_cat, R.drawable.card_img_cat, R.drawable.card_word_cat));			
+			vItems.add(new Item("ship", R.drawable.img_ship, R.drawable.word_pig, R.drawable.card_img_pig, R.drawable.card_word_pig));
+			vItems.add(new Item("ring", R.drawable.img_ring, R.drawable.word_frog, R.drawable.card_img_frog, R.drawable.card_word_frog));
 			
-			vItems.add(new Item("ant", R.drawable.img_ant, R.drawable.word_ant, R.drawable.card_img_ant, R.drawable.card_word_ant));
-			vItems.add(new Item("turtle", R.drawable.img_turtle, R.drawable.word_turtle, R.drawable.card_img_turtle, R.drawable.card_word_turtle));
-			vItems.add(new Item("whale", R.drawable.img_whale, R.drawable.word_whale, R.drawable.card_img_whale, R.drawable.card_word_whale));
-			vItems.add(new Item("horse", R.drawable.img_horse, R.drawable.word_horse, R.drawable.card_img_horse, R.drawable.card_word_horse));
-			vItems.add(new Item("lion", R.drawable.img_lion, R.drawable.word_lion, R.drawable.card_img_lion, R.drawable.card_word_lion));
-			vItems.add(new Item("shark", R.drawable.img_shark, R.drawable.word_shark, R.drawable.card_img_shark, R.drawable.card_word_shark));
-			vItems.add(new Item("bird", R.drawable.img_bird, R.drawable.word_bird, R.drawable.card_img_bird, R.drawable.card_word_bird));
-			vItems.add(new Item("fox", R.drawable.img_fox, R.drawable.word_fox, R.drawable.card_img_fox, R.drawable.card_word_fox));
-			vItems.add(new Item("rabbit", R.drawable.img_rabbit, R.drawable.word_rabbit, R.drawable.card_img_rabbit, R.drawable.card_word_rabbit));
-			vItems.add(new Item("tiger", R.drawable.img_tiger, R.drawable.word_tiger, R.drawable.card_img_tiger, R.drawable.card_word_tiger));
+			vItems.add(new Item("fork", R.drawable.img_fork, R.drawable.word_ant, R.drawable.card_img_ant, R.drawable.card_word_ant));
+			vItems.add(new Item("desk", R.drawable.img_desk, R.drawable.word_turtle, R.drawable.card_img_turtle, R.drawable.card_word_turtle));
+			vItems.add(new Item("spoon", R.drawable.img_spoon, R.drawable.word_whale, R.drawable.card_img_whale, R.drawable.card_word_whale));
+			vItems.add(new Item("train", R.drawable.img_train, R.drawable.word_horse, R.drawable.card_img_horse, R.drawable.card_word_horse));
+			vItems.add(new Item("clock", R.drawable.img_clock, R.drawable.word_lion, R.drawable.card_img_lion, R.drawable.card_word_lion));
+			vItems.add(new Item("plane", R.drawable.img_plane, R.drawable.word_shark, R.drawable.card_img_shark, R.drawable.card_word_shark));
+			vItems.add(new Item("chair", R.drawable.img_chair, R.drawable.word_bird, R.drawable.card_img_bird, R.drawable.card_word_bird));
+			vItems.add(new Item("robot", R.drawable.img_robot, R.drawable.word_fox, R.drawable.card_img_fox, R.drawable.card_word_fox));
+			vItems.add(new Item("pencil", R.drawable.img_pencil, R.drawable.word_rabbit, R.drawable.card_img_rabbit, R.drawable.card_word_rabbit));
+			vItems.add(new Item("eraser", R.drawable.img_eraser, R.drawable.word_tiger, R.drawable.card_img_tiger, R.drawable.card_word_tiger));
+		} else if (_theme.equals(Const.THEME_FOOD)) {
+			vItems.add(new Item("egg", R.drawable.img_egg, R.drawable.word_dog, R.drawable.card_img_dog, R.drawable.card_word_dog));
+			vItems.add(new Item("peer", R.drawable.img_peer, R.drawable.word_bear, R.drawable.card_img_bear, R.drawable.card_word_bear));			
+			vItems.add(new Item("rice", R.drawable.img_rice, R.drawable.word_fish, R.drawable.card_img_fish, R.drawable.card_word_fish));
+			vItems.add(new Item("milk", R.drawable.img_milk, R.drawable.word_snake, R.drawable.card_img_snake, R.drawable.card_word_snake));
+			vItems.add(new Item("candy", R.drawable.img_candy, R.drawable.word_duck, R.drawable.card_img_duck, R.drawable.card_word_duck));
+			vItems.add(new Item("bread", R.drawable.img_bread, R.drawable.word_mouse, R.drawable.card_img_mouse, R.drawable.card_word_mouse));
+			vItems.add(new Item("apple", R.drawable.img_apple, R.drawable.word_monkey, R.drawable.card_img_monkey, R.drawable.card_word_monkey));
+			vItems.add(new Item("peach", R.drawable.img_peach, R.drawable.word_cat, R.drawable.card_img_cat, R.drawable.card_word_cat));			
+			vItems.add(new Item("banana", R.drawable.img_banana, R.drawable.word_pig, R.drawable.card_img_pig, R.drawable.card_word_pig));
+			vItems.add(new Item("cookie", R.drawable.img_cookie, R.drawable.word_frog, R.drawable.card_img_frog, R.drawable.card_word_frog));
 		}
 	}
 	
