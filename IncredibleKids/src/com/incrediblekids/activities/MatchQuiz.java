@@ -83,6 +83,9 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	/* BGM */
 	private MediaPlayer m_QuizBGM;
 	
+	/* Runnable */
+	private Runnable m_Runnable;
+	
 	/* MatchManger */
 	private MatchManager m_MatchManager;
 	
@@ -294,7 +297,31 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	 * N 占쎌듌占쎌Ł占�占쎈쪋竊잛쮬��姨뷀쉪占쏀쉪吏뺧옙占쎈쨸占폪uestion 姨뷀쉪占쏀쉪吏뺧옙占쎈ゥ占쏙옙��옙�꿸텢吏쒗�.
 	 */
 	private void toggleImages() {
-		Handler mHandler = new Handler();
+		
+		m_Runnable = new Runnable() {
+			
+			@Override
+			public void run() {
+				for(int i = 0; i < MAX_COUNT; i++) {
+					m_ItemImages[i].setVisibility(View.GONE);
+					m_Questions[i].setVisibility(View.VISIBLE);
+					
+				}
+				//Test
+				if(m_TimeFrameImage == null)
+					Log.d(TAG, "m_TimeFrameImage");
+				
+				if(m_TimeFlowAnimation == null)
+					Log.d(TAG, "m_TimeFlowAnimation");
+				m_TimeFrameImage.startAnimation(m_TimeFlowAnimation);
+				clickEnable(true);
+				m_Hint.setClickable(true);
+			}
+		};
+		
+		m_Handler.postDelayed(m_Runnable, HINT_TIME_DURATION);
+
+		/*
         mHandler.postDelayed(new Runnable() {
 
 			public void run() {
@@ -314,6 +341,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				m_Hint.setClickable(true);
 			}
         }, HINT_TIME_DURATION);
+        */
 	}
 	
 	/**
@@ -484,6 +512,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			showHint();
 		}
 		else if(v.getId() == R.id.ivSkip) {
+			m_Handler.removeCallbacks(m_Runnable);
 			setResult(RESULT_OK);
 			finish();
 		}
@@ -512,6 +541,39 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     	}
     	
     	pauseAnimation();
+    	
+    	m_Runnable = new Runnable() {
+        	HashMap<Integer, String> rawItems 		= m_MatchManager.getItems();
+        	HashMap<Integer, String> matchedItems 	= m_MatchManager.getMatchedItems();
+        	Iterator<Integer> ri = rawItems.keySet().iterator();
+        	Iterator<Integer> mi = matchedItems.keySet().iterator();
+        	Integer parentViewId;
+        	ViewGroup parentView;
+			
+			@Override
+			public void run() {
+				while(ri.hasNext()) {	// hide
+					parentViewId = ri.next();
+					parentView = (ViewGroup) findViewById(parentViewId);
+					parentView.getChildAt(0).setVisibility(View.INVISIBLE);
+					parentView.getChildAt(1).setVisibility(View.VISIBLE);
+				}
+				while(mi.hasNext()) {	// show
+					parentViewId = mi.next();
+					parentView = (ViewGroup) findViewById(parentViewId);
+					parentView.getChildAt(0).setVisibility(View.VISIBLE);
+					parentView.getChildAt(1).setVisibility(View.INVISIBLE);
+				}
+				clickEnable(true);
+				resumeAnimation();
+				m_Hint.setClickable(true);
+				
+			}
+		};
+		
+		m_Handler.postDelayed(m_Runnable, HINT_TIME_DURATION);
+		
+		/*
         m_Handler.postDelayed(new Runnable() {
         	HashMap<Integer, String> rawItems 		= m_MatchManager.getItems();
         	HashMap<Integer, String> matchedItems 	= m_MatchManager.getMatchedItems();
@@ -538,6 +600,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				m_Hint.setClickable(true);
 			}
         }, HINT_TIME_DURATION);
+        */
 	}
 
 
@@ -1050,12 +1113,10 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	protected void onDestroy() {
 		super.onDestroy();
 		Log.d(TAG, "onDestroy()");
-		if(m_QuizBGM.isPlaying()) 
-			m_QuizBGM.release();
-		
-		m_SoundEffect.release();
-		
 		releaseMemory();
+		
+		m_Handler 				= null;
+		m_Runnable				= null;
 		
 		m_TimeFrameImage 		= null;
 		m_TimeFrameImageEnd 	= null;
@@ -1074,6 +1135,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_SoundEffect.release();
 		m_MatchManager.release();
 		
+		m_Handler.removeCallbacks(m_Runnable);
+		
 		m_ItemList				= null;
 		
 		m_ItemImages 			= null;	
@@ -1088,6 +1151,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_ItemVector 			= null;
 		
 		m_PopupIntent 			= null;
+		
 	}
 
 }
