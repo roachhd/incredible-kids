@@ -281,8 +281,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	protected void onPause(){
 		Log.e(TAG, "onPause()");
 		super.onPause();
-		if(m_Music != null && !m_Music.isPlaying()) {
-			m_Music.stop();
+		if(m_Music != null && m_Music.isPlaying()) {
+			m_Music.pause();
 		}
 	}
 
@@ -405,6 +405,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, m_quizItemList);
 //			intent.putExtra(Const.MATCH_QUIZ, m_quizItemList);
 			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
+/*			if (m_Music.isPlaying()){
+				m_Music.pause();
+			}*/
 		}else{ 
 			Log.e(TAG, "resetScreen()");
 			mEngine.runOnUpdateThread(new Runnable() {
@@ -582,10 +585,14 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				return true;
 			}
 		};
+		m_Scene.getLayer(BASE_LAYER).addEntity(m_Help);
 	}
 
 	//Update scene with new entities.
 	private void updateScene(){
+		if (!m_Music.isPlaying()){
+			m_Music.play();
+		}
 		
 		m_RandomPoint = this.getAreaArray();
 
@@ -920,38 +927,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				resetScreen();
 			}			
 		});
-/*		SequenceShapeModifier modifier = new SequenceShapeModifier(
-				new RotationModifier(0.1f, 0, 15),
-				new RotationModifier(0.1f, 15, -15),
-				new RotationModifier(0.1f, -15, 10),
-				new RotationModifier(0.1f, 10, -10),
-				new RotationModifier(0.1f, -10, 5),
-				new RotationModifier(0.1f, 5, -5),
-				new RotationModifier(0.1f, -5, 0)
-				new ParallelShapeModifier(
-						new ScaleModifier(1, 1f, 1.5f),
-						new RotationModifier(1, 0, 360)
-				),
-				new ParallelShapeModifier(
-						new ScaleModifier(1, 1.5f, 1f),
-						new RotationModifier(1, 360, 0)
-				)							
-		);
-		modifier.setModifierListener(new IModifierListener<IShape>(){
-			@Override
-			public void onModifierFinished(IModifier<IShape> pModifier,
-					IShape pItem) {
-				m_ItemSound.play();		
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				resetScreen();
-			}			
-		});		
-		sprite.addShapeModifier(modifier);*/
 	}
 
 	@Override
