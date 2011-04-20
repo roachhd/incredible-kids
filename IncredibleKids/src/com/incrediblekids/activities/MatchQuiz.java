@@ -326,7 +326,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		int vectorNum = 0;
 		int flag = 0;
 		
-//		setItemList();
+		setItemList();
 		while(ii.hasNext()) {
 			Integer key = ii.next();
 			int value = m_RandomHashMap.get(key);
@@ -334,18 +334,18 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			
 			if((flag % 2) == 0) {
 				
-				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardImgId);
-//				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardImgId);
-//				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
-				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
+//				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardImgId);
+//				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
+				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardImgId);
+				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
 //				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
 //				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 			}
 			else {
-				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardWordId);
-//				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardWordId);
-//				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
-				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
+//				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardWordId);
+//				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
+				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardWordId);
+				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
 //				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
 //				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 				vectorNum++;
