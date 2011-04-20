@@ -1,10 +1,13 @@
 package com.incrediblekids.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+
+import com.incrediblekids.util.Const;
 
 public class RetryPopupActivity extends Activity {
 	
@@ -16,6 +19,7 @@ public class RetryPopupActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.d(TAG, "onCreate()");
 		setContentView(R.layout.retry_dialog);
 		
 		m_Ok 	 = (ImageView)findViewById(R.id.ivOk);
@@ -25,6 +29,9 @@ public class RetryPopupActivity extends Activity {
 			
 			@Override
 			public void onClick(View paramView) {
+//				Intent intent = new Intent(RetryPopupActivity.this, MatchQuiz.class);
+//				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//				startActivityForResult(intent, Const.RETRY_DIALOG_RESULT);
 				setResult(RESULT_OK);
 				finish();
 			}

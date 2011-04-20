@@ -15,6 +15,9 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Matrix;
 import android.graphics.drawable.AnimationDrawable;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -33,13 +36,13 @@ import android.widget.ImageView;
 import com.incrediblekids.util.Const;
 import com.incrediblekids.util.Item;
 
-// TODO: error occured at hint operation.
 public class MatchQuiz extends Activity implements View.OnClickListener {
 	
-	private final String TAG = "MatchQuiz";
-	private final int MAX_COUNT 				 = 8;
+	private final static String TAG = "MatchQuiz";
+	private final static int MAX_COUNT 			 = 8;
 	private final int CARD_PAIR_COUNT 			 = 4;
 	private final int ANI_ROTATION_TIME_DURATION = 180;
+	private final int TOGGLE_INTERVAL 			 = 200;
 	private final long ANIMATION_TIME_DURATION 	 = 60 * 60 * 10;
 	private final long HINT_TIME_DURATION 		 = 60 * 60 * 1;
 	
@@ -73,8 +76,20 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	/* timeframe image's left position */
 	private int m_LeftPosition;
 	
+	/* Sound Effect */
+	private SoundPool m_SoundEffect;
+	private int	m_SoundEffectId;
+	
+	/* BGM */
+	private MediaPlayer m_QuizBGM;
+	
 	/* MatchManger */
 	private MatchManager m_MatchManager;
+	
+	/* Retry Game variable */
+	private boolean m_IsInit = false;
+	private int m_StartPosition;
+	private int m_EndPosition;
 	
 	
 	/**
@@ -129,6 +144,9 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		Log.d(TAG, "onCreate()");
 		
 		setContentView(R.layout.match_quiz);
+		
+		m_IsInit = true;
+		
 		init();
 		toggleImages();
 		setItems();
@@ -136,13 +154,14 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		// TODO Auto-generated method stub
 		Log.d(TAG, "onActivityResult()");
 		super.onActivityResult(requestCode, resultCode, data);
 		if(requestCode == Const.RETRY_DIALOG_RESULT) {
 			if(resultCode == RESULT_OK) {
 				Log.d(TAG, "resultCode:" + "RESULT_OK");
-				//TODO: restart game
+				Intent intent = new Intent(MatchQuiz.this, MatchQuiz.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				startActivity(intent);
 			}
 			else if(resultCode == RESULT_CANCELED) {
 				Log.d(TAG, "resultCode:" + "RESULT_CANCELED");
@@ -151,8 +170,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			}
 		}
 	}
-
-
 
 	private void analysisMatchResult() {
 		Log.d(TAG, "analysisMatchResult()");
@@ -191,7 +208,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
-		setTimeAnimation();
+		Log.d(TAG, "onWindowFocusChanged()");
+		setTimeAnimation(false);
 	}
 
 	private void init() {
@@ -204,7 +222,9 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_Questions			= new ImageView[MAX_COUNT];
 		m_Containers 		= new ViewGroup[MAX_COUNT];
 		
-		m_MatchManager		= new MatchManager();
+		m_QuizBGM			= MediaPlayer.create(this, R.raw.quizbgm); 
+		m_SoundEffect		= new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+		m_MatchManager		= MatchManager.getInstance();
 		m_Res 				= ResourceClass.getInstance();
 		
 		m_ItemVector 		= m_Res.getvItems();
@@ -221,9 +241,11 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			m_ItemImages[i]	= (ImageView)findViewById(firstItemValue); // 占쎈뀓�뚳옙占�_-;
 			m_ItemImages[i].setOnClickListener(this);
 			m_ItemImages[i].setTag(ITEM_DEFAULT);
+			m_ItemImages[i].setClickable(true);
 			
 			m_Questions[i]	= (ImageView)findViewById(questionValue);
 			m_Questions[i].setOnClickListener(this);
+			m_Questions[i].setClickable(true);
 			
 			m_Containers[i]	= (ViewGroup)findViewById(viewGroupValue); // 占쎈뀓�뚳옙占�_-;
 			m_Containers[i].setPersistentDrawingCache(ViewGroup.PERSISTENT_ANIMATION_CACHE);
@@ -242,10 +264,13 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		
 		m_TimeFrameImageEnd	= (ImageView)findViewById(R.id.ivTimeFrameEnd);
 		
+		m_SoundEffectId		= m_SoundEffect.load(this, R.raw.flipflop, 1);
 		m_Hint.setOnClickListener(this);
 		m_Hint.setClickable(false);
 		
 		m_Skip.setOnClickListener(this);
+		
+		m_QuizBGM.setLooping(true);
 		
 		/* Get Sound Button Image Resource */
 		/** deleted
@@ -261,15 +286,15 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_SoundBtnImage.setImageBitmap(m_bitSoundBtnLeft);
 		*/
 		
-		makeRandomHashMap();
 		clickEnable(false);
+		makeRandomHashMap();
 	}
 	
 	/**
 	 * N 占쎌듌占쎌Ł占�占쎈쪋竊잛쮬��姨뷀쉪占쏀쉪吏뺧옙占쎈쨸占폪uestion 姨뷀쉪占쏀쉪吏뺧옙占쎈ゥ占쏙옙��옙�꿸텢吏쒗�.
 	 */
 	private void toggleImages() {
-        Handler mHandler = new Handler();
+		Handler mHandler = new Handler();
         mHandler.postDelayed(new Runnable() {
 
 			public void run() {
@@ -279,6 +304,11 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 					
 				}
 				//Test
+				if(m_TimeFrameImage == null)
+					Log.d(TAG, "m_TimeFrameImage");
+				
+				if(m_TimeFlowAnimation == null)
+					Log.d(TAG, "m_TimeFlowAnimation");
 				m_TimeFrameImage.startAnimation(m_TimeFlowAnimation);
 				clickEnable(true);
 				m_Hint.setClickable(true);
@@ -358,7 +388,10 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	}
 
 	/* Set TimeAnimation */
-	private void setTimeAnimation() {
+	/**
+	 * @param isRetry 
+	 */
+	private void setTimeAnimation(boolean isRetry) {
 		Log.d(TAG, "setTimeAnimation()");
 		View targetParent;
 		float fromXDelta;
@@ -368,14 +401,30 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		fromXDelta 	 = m_TimeFrameImage.getLeft() - m_LeftPosition;
 		toXDelta 	 = targetParent.getWidth() - m_TimeFrameImage.getWidth() - m_LeftPosition;
 		
+		// temp T_T
+		if(m_IsInit) {
+			m_StartPosition = (int) fromXDelta;
+			m_EndPosition = (int) toXDelta;
+			m_IsInit = false;
+		}
+		
 		m_TimeFrameAnimation 	= (AnimationDrawable)m_TimeFrameImage.getBackground();
-		m_TimeFlowAnimation  	= new TranslateAnimation(fromXDelta, toXDelta, 0.0f, 0.0f);
+		
+		if(isRetry) {
+			m_TimeFlowAnimation	= new TranslateAnimation(m_StartPosition, m_EndPosition, 0.0f, 0.0f);
+		}
+		else {
+			m_TimeFlowAnimation	= new TranslateAnimation(fromXDelta, toXDelta, 0.0f, 0.0f);
+		}
 		
 		m_AnimationTimeDuration = m_AnimationTimeDuration - m_TimeInterval;
 		if(m_AnimationTimeDuration < 0) 
 			m_AnimationTimeDuration = 0;
 		
 		m_TimeFlowAnimation.setDuration(m_AnimationTimeDuration);
+		Log.d(TAG, "m_AnimationTimeDuration: " + m_AnimationTimeDuration);
+		Log.d(TAG, "fromXDelta: " + fromXDelta);
+		Log.d(TAG, "toXDelta: " + toXDelta);
 		m_TimeFlowAnimation.setInterpolator(AnimationUtils.loadInterpolator(this, android.R.anim.accelerate_decelerate_interpolator));
 		m_TimeFlowAnimation.setAnimationListener(new AnimationListener() {
 			
@@ -399,8 +448,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 					m_Hint.setClickable(false);
 					
 					startActivityForResult(m_PopupIntent, Const.RETRY_DIALOG_RESULT);
-//					showDialog(RETRY_DIALOG);
-					//TODO: make popup retry or not?
 				}
 			}
 		});
@@ -456,6 +503,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     	Log.d(TAG, "showHint()");
     	m_Hint.setClickable(false);
     	m_MatchManager.setSolo(true);
+    	m_MatchManager.clearPreClikedItemInfo();
     	clickEnable(false);
     	
     	for(int i = 0; i < MAX_COUNT; i++) {
@@ -539,7 +587,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		
 		m_IsPause = false;
 		
-		setTimeAnimation();
+		setTimeAnimation(false);
 		
 		m_TimeFrameImage.startAnimation(m_TimeFlowAnimation);
 	}
@@ -594,7 +642,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     		}
     	}
 	}
-
+    
     /**
      * @param preClickedItemId parentViewId
      * @param targetId parentViewId
@@ -618,14 +666,18 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
      * @param targetId parentViewId
      * It toggles clicked items only if it dosen't match.
      */
-    private void toggleClickedItems(int preClickedItemId, int targetId) {
+    private void toggleClickedItems(final int preClickedItemId, final int targetId) {
     	Log.d(TAG, "toggleClickedItems()");
-    	ViewGroup parent1 = (ViewGroup) findViewById(preClickedItemId);
-    	ViewGroup parent2 = (ViewGroup) findViewById(targetId);
     	
-    	doRotation(parent1, true);
-    	doRotation(parent2, true);
-    	// TODO:
+        m_Handler.postDelayed(new Runnable() {
+        	ViewGroup parent1 = (ViewGroup) findViewById(preClickedItemId);
+        	ViewGroup parent2 = (ViewGroup) findViewById(targetId);
+
+			public void run() {
+				doRotation(parent1, true);
+				doRotation(parent2, true);
+			}
+        }, TOGGLE_INTERVAL);
     }
     
     private int getParentId(int targetId) {
@@ -742,6 +794,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 						m_Handler.sendEmptyMessage(ANIMATION_ENDED);
 					else
 						m_Handler.sendEmptyMessage(TOGGLE_ENDED);
+					
+					Log.d(TAG, "Sound: " + m_SoundEffect.play(m_SoundEffectId, 1.0f, 1.0f, 0, 0, 1.0f));
 				}
 			});
 
@@ -753,7 +807,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
      * @author TickerBomb
      * This class is responsible for matching results.
      */
-    private class MatchManager {
+    public static class MatchManager {
     	private final int MAX = 8;
     	private boolean isSolo;
     	private boolean isMatched;
@@ -761,16 +815,35 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     	private boolean isTouchedSameView;
     	private int m_PreClickedItemId;	// parentViewId
     	private int m_CurClickedItemId;	// parentViewId
+    	private static MatchManager mMatchManager;
     	
     	private HashMap<Integer, String> m_Items;	// key: parentViewId, value: child String Value
     	private HashMap<Integer, String> m_MatchedItems;
     	private HashMap<Integer, String> m_PreClickedItem;
     	
     	private MatchManager() {
+    		Log.d(TAG, "MatchManager()");
     		m_Items 			= new HashMap<Integer, String>(MAX_COUNT);
     		m_MatchedItems 		= new HashMap<Integer, String>(MAX_COUNT);
     		m_PreClickedItem 	= new HashMap<Integer, String>();
     		isSolo				= true;
+    		m_PreClickedItemId	= -1;
+    		m_CurClickedItemId	= 0;
+    	}
+    	
+    	public static MatchManager getInstance() {
+    		if(mMatchManager == null) {
+    			mMatchManager = new MatchManager();
+    		}
+    		return mMatchManager;
+    	}
+    	
+    	public void release() {
+    		m_Items.clear();
+    		m_MatchedItems.clear();
+    		m_PreClickedItem.clear();
+    		isSolo				= true;
+    		isAllMatched        = false;
     		m_PreClickedItemId	= -1;
     		m_CurClickedItemId	= 0;
     	}
@@ -917,12 +990,9 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     		m_Items.put(key, value);
     	}
     }
-    
-    
 	
 	@Override
 	protected Dialog onCreateDialog(int id) {
-		// TODO Auto-generated method stub
 		Dialog dialog = null;
 		switch(id) {
 		case RETRY_DIALOG:
@@ -944,20 +1014,80 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 
 	@Override
 	protected void onResume() {
+		Log.d(TAG, "onResume()");
 		super.onResume();
+		
+		if(!m_QuizBGM.isPlaying()) 
+			m_QuizBGM.start();
+	}
+	
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		Log.d(TAG, "onNewIntent()");
+		
+		releaseMemory();
+		
+		setContentView(R.layout.match_quiz);
+		
+		init();
+		toggleImages();
+		setItems();
+		setTimeAnimation(true);
 	}
 	
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
+		Log.d(TAG, "onPause()");
+		if(m_QuizBGM != null) {
+			if(m_QuizBGM.isPlaying()) 
+				m_QuizBGM.pause();
+		}
 	}
 	
 	@Override
 	protected void onDestroy() {
-		// TODO Auto-generated method stub
 		super.onDestroy();
 		Log.d(TAG, "onDestroy()");
+		if(m_QuizBGM.isPlaying()) 
+			m_QuizBGM.release();
+		
+		m_SoundEffect.release();
+		
+		releaseMemory();
+		
+		m_TimeFrameImage 		= null;
+		m_TimeFrameImageEnd 	= null;
+		m_TimeFrameAnimation 	= null;
+		m_TimeFlowAnimation 	= null;
+		
+		System.gc();
+	}
+	
+	private void releaseMemory() {
+		Log.d(TAG, "releaseMemory()");
+		
+		if(m_QuizBGM.isPlaying()) 
+			m_QuizBGM.release();
+		
+		m_SoundEffect.release();
+		m_MatchManager.release();
+		
+		m_ItemList				= null;
+		
+		m_ItemImages 			= null;	
+		m_Questions				= null;
+		m_Containers 			= null;	
+		
+		m_QuizBGM				= null; 
+		m_SoundEffect			= null;
+		m_MatchManager			= null;
+		m_Res 					= null;
+		
+		m_ItemVector 			= null;
+		
+		m_PopupIntent 			= null;
 	}
 
 }
