@@ -35,7 +35,7 @@ import com.incrediblekids.util.Const;
 
 
 public class MainThemeActivity extends BaseGameActivity{
-
+	
 	private final String TAG = "MainThemeActivity";
 
 	private Camera m_Camera;

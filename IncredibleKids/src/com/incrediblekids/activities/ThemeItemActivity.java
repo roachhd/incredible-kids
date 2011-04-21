@@ -131,7 +131,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private TextureRegion m_SkipTextureRegion;
 
 	//Pause
-	private Scene m_Scene;
+	private Scene m_playScene;
 
 	private Boolean m_bSoundOn;
 
@@ -239,10 +239,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.m_BoxTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_BoxTexture, this, R.drawable.box, 0, 0, 1, 1);
 		this.m_ItemTexture = new Texture(1024, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
-		//Load Help
-		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.btn_hint , 0, 0);
-
 		//Retry popup texture
 		this.m_RetryTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
 		this.m_RetryOkTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
@@ -252,9 +248,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.m_RetryOkTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryOkTexture, this, R.drawable.retry_ok_btn,0,0);
 		this.m_RetryCancelTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryCancelTexture, this, R.drawable.retry_no_btn,0,0);
 
-		//Skip 		
-		this.m_SkipTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_SkipTextureRegion = TextureRegionFactory.createFromResource(m_SkipTexture, this, R.drawable.btn_skip, 0, 0);
 
 		//Load pass texture
 		this.m_PassTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -300,238 +293,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		final Scene loadingScene = new Scene(1);
 		//Load Background
+
+		//Load Help
+		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.btn_hint , 0, 0);
 		
-		this.m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
-		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
-		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
-		loadingScene.setBackground(new SpriteBackground(m_BackgroundSprite));
-
-		//Make scene
-		this.m_Scene = new Scene(2);
-		loadingScene.registerUpdateHandler(new TimerHandler(1.0f, true, new ITimerCallback() {
-			@Override
-			public void onTimePassed(final TimerHandler pTimerHandler) {
-				loadingScene.unregisterUpdateHandler(pTimerHandler);
-				myLoadResources();
-
-				//Make retry scene
-				m_RetryScene = new CameraScene(1, m_Camera);
-				composeRetryScene();
-				m_RetryScene.setBackgroundEnabled(false);
-
-				createBaseSprite();
-				m_Scene.setBackground(new SpriteBackground(m_BackgroundSprite));//new ColorBackground(0.09804f, 0.6274f, 0.8784f));
-
-				//Add all the entities
-				updateScene();
-				mEngine.setScene(m_Scene);
-			}
-		}));
-
-		return loadingScene;
-	}
-
-	private void composeRetryScene(){
-		final int OFFSET = m_RetryOkTextureRegion.getWidth()/2;	
-		final int width = this.m_RetryTextureRegion.getWidth();
-		final int height = this.m_RetryTextureRegion.getHeight();
-		final int okHeight = this.m_RetryOkTextureRegion.getHeight();
-		final int okWidth = this.m_RetryOkTextureRegion.getWidth();
-
-		final int x = CAMERA_WIDTH / 2 - width / 2;
-		final int y = CAMERA_HEIGHT / 2 - height / 2;
-
-		Log.e(TAG, "width="+width+" height="+height);
-
-		final Sprite retryBGSprite = new Sprite(x , y, this.m_RetryTextureRegion);
-
-		final Sprite retryOKSprite = new Sprite(x + OFFSET, y + height - okHeight/2, this.m_RetryOkTextureRegion){
-
-			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				Log.e(TAG, "onAreaTouched");
-
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-					removeDarkenBG();
-					m_Scene.clearChildScene();					
-					resetScreen();
-				}
-				return true;
-			}			
-
-		};
-
-		final Sprite retryCancelSprite = new Sprite(x + width - okWidth - OFFSET, y + height - okHeight/2, this.m_RetryCancelTextureRegion){
-			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				Log.e(TAG, "onAreaTouched");
-
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-					if (m_iCurrentItemNum < m_ItemVector.size()-1){
-						m_iCurrentItemNum++;
-						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
-					}else{
-						m_iCurrentItemNum = 0;
-						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
-					}
-					removeDarkenBG();
-					m_Scene.clearChildScene();
-					resetScreen();
-				}
-				return true;
-			}	
-		};		
-
-		this.m_RetryScene.getTopLayer().addEntity(retryBGSprite);
-		this.m_RetryScene.getTopLayer().addEntity(retryOKSprite);
-		this.m_RetryScene.getTopLayer().addEntity(retryCancelSprite);
-		this.m_RetryScene.registerTouchArea(retryOKSprite);
-		this.m_RetryScene.registerTouchArea(retryCancelSprite);
-	}
-
-	public void onActivityResult(int requestCode, int resultCode, Intent intent){
-		super.onActivityResult(requestCode, resultCode, intent);
-		if (requestCode == Const.MATCH_QUIZ_RESULT){
-			if (resultCode == RESULT_OK){
-				mEngine.runOnUpdateThread(new Runnable() {
-					@Override
-					public void run() {
-
-						while(m_Scene.getLayer(ENTITIES_LAYER).getEntityCount()>0){
-							m_Scene.getLayer(ENTITIES_LAYER).removeEntity(0);
-						}				
-						m_Scene.clearUpdateHandlers();
-						m_iCurrentCollideBoxIdx = 0;
-						m_CurrentTouchedAlphabetSprite = null;
-						m_ItemTextureRegion = null;
-						m_arrAlphabetTexture = null;
-						m_arrAlphabet = null;
-						m_Item = null;
-						m_arrBoxSprite = null;
-						m_arrAlphabetSprite = null;
-						m_bFirstTouch = true;
-
-						ThemeItemActivity.this.updateScene();
-					}        	
-				});
-			}
-		}
-	}
-
-	//Reset Screen - Remove all the entities from scene.
-	private void resetScreen(){
-
-		if (this.m_iCurrentItemNum % ITEM_NUM_PER_STAGE == 0){
-			m_quizItemList.clear();
-			m_quizItemList.addAll(this.m_ItemVector.subList(m_iCurrentItemNum - ITEM_NUM_PER_STAGE, m_iCurrentItemNum));
-			Intent intent = new Intent(this, MatchQuiz.class);
-			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, m_quizItemList);
-			//			intent.putExtra(Const.MATCH_QUIZ, m_quizItemList);
-			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
-			/*			if (m_Music.isPlaying()){
-				m_Music.pause();
-			}*/
-		}else{ 
-			Log.e(TAG, "resetScreen()");
-			mEngine.runOnUpdateThread(new Runnable() {
-				@Override
-				public void run() {
-
-					while(m_Scene.getLayer(ENTITIES_LAYER).getEntityCount()>0){
-						m_Scene.getLayer(ENTITIES_LAYER).removeEntity(0);
-					}				
-					m_Scene.clearUpdateHandlers();
-					m_iCurrentCollideBoxIdx = 0;
-					m_CurrentTouchedAlphabetSprite = null;
-					m_ItemTextureRegion = null;
-					m_arrAlphabetTexture = null;
-					m_arrAlphabet = null;
-					m_Item = null;
-					m_arrBoxSprite = null;
-					m_arrAlphabetSprite = null;
-					m_bFirstTouch = true;
-
-					ThemeItemActivity.this.updateScene();
-				}        	
-			});
-		}
-	}
-
-	//Reset Screen - Remove all the m_DarkenSprite from scene.
-	private void removeDarkenBG(){
-		Log.e(TAG, "removeDarkenBG()");
-		mEngine.runOnUpdateThread(new Runnable() {
-			@Override
-			public void run() {
-				m_Scene.getLayer(ENTITIES_LAYER).removeEntity(m_DarkenSprite);		
-			}        	
-		});
-	}
-
-	//Load fixed texture
-	private void loadBaseTexture(){
-		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_HelpTexture);
-		/*		this.mEngine.getTextureManager().loadTexture(this.m_ShowPicTexture);*/
-		this.mEngine.getTextureManager().loadTexture(this.m_PassTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_FailTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_RetryTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_RetryOkTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_RetryCancelTexture);
-		//		this.mEngine.getTextureManager().loadTexture(this.m_SoundTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_DarkenTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_SkipTexture);
-	}
-
-	//Load changeable texture
-	private void loadEntityTexture(){
-		this.mEngine.getTextureManager().loadTexture(this.m_ItemTexture);	
-		this.mEngine.getTextureManager().loadTexture(this.m_BoxTexture);
-	}
-
-	//Create base object
-	private void createBaseSprite(){
-
-		loadBaseTexture();
-
-		/*this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);*/
-
-		this.m_DarkenSprite = new Sprite(0,0,this.m_DarkenTextureRegion);
-
-		this.m_SkipSprite = new Sprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
-				m_SkipTextureRegion.getHeight()/4, this.m_SkipTextureRegion){
-			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-
-					if (m_iCurrentItemNum < m_ItemVector.size()-1){
-						m_iCurrentItemNum++;
-						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
-					}else{
-						m_iCurrentItemNum = 0;
-						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
-					}
-					m_Scene.clearTouchAreas();			
-					resetScreen();
-					return true;
-				}
-				return false;
-
-			}
-		};
-		m_Scene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);
-
-		this.m_PassSprite = new Sprite(
-				CAMERA_WIDTH/2-(this.m_PassTextureRegion.getWidth()/2),
-				CAMERA_HEIGHT/2 - (this.m_PassTextureRegion.getHeight()/2),
-				this.m_PassTextureRegion);
-
-		this.m_FailSprite = new Sprite(
-				CAMERA_WIDTH/2-(this.m_FailTextureRegion.getWidth()/2),
-				CAMERA_HEIGHT/2 - (this.m_FailTextureRegion.getHeight()/2),
-				this.m_FailTextureRegion);
-
 		this.m_Help = new Sprite(m_HelpTextureRegion.getWidth()/4, m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion){
 
 			@Override
@@ -597,7 +363,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 										m_iCurrentItemNum = 0;
 										m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
 									}
-									m_Scene.clearTouchAreas();
+									m_playScene.clearTouchAreas();
 									shakeAndResetSprite(m_Item);
 								}
 							}
@@ -609,7 +375,263 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				return true;
 			}
 		};
-		m_Scene.getLayer(BASE_LAYER).addEntity(m_Help);
+		loadingScene.getLayer(BASE_LAYER).addEntity(m_Help);
+		
+		//Skip 		
+		this.m_SkipTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_SkipTextureRegion = TextureRegionFactory.createFromResource(m_SkipTexture, this, R.drawable.btn_skip, 0, 0);
+
+		this.m_SkipSprite = new Sprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
+				m_SkipTextureRegion.getHeight()/4, this.m_SkipTextureRegion){
+			@Override
+			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+
+					if (m_iCurrentItemNum < m_ItemVector.size()-1){
+						m_iCurrentItemNum++;
+						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
+					}else{
+						m_iCurrentItemNum = 0;
+						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
+					}
+					m_playScene.clearTouchAreas();			
+					resetScreen();
+					return true;
+				}
+				return false;
+
+			}
+		};
+		loadingScene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);
+		
+		this.m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
+		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
+		loadingScene.setBackground(new SpriteBackground(m_BackgroundSprite));
+
+		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_HelpTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_SkipTexture);
+		
+		//Make scene
+		this.m_playScene = new Scene(2);
+		loadingScene.registerUpdateHandler(new TimerHandler(1.0f, true, new ITimerCallback() {
+			@Override
+			public void onTimePassed(final TimerHandler pTimerHandler) {
+				loadingScene.unregisterUpdateHandler(pTimerHandler);
+				myLoadResources();
+
+				//Make retry scene
+				m_RetryScene = new CameraScene(1, m_Camera);
+				composeRetryScene();
+				m_RetryScene.setBackgroundEnabled(false);
+
+				createBaseSprite();
+				m_playScene.setBackground(new SpriteBackground(m_BackgroundSprite));//new ColorBackground(0.09804f, 0.6274f, 0.8784f));
+
+				//Add all the entities
+				updateScene();
+				mEngine.setScene(m_playScene);
+			}
+		}));
+
+		return loadingScene;
+	}
+
+	private void composeRetryScene(){
+		final int OFFSET = m_RetryOkTextureRegion.getWidth()/2;	
+		final int width = this.m_RetryTextureRegion.getWidth();
+		final int height = this.m_RetryTextureRegion.getHeight();
+		final int okHeight = this.m_RetryOkTextureRegion.getHeight();
+		final int okWidth = this.m_RetryOkTextureRegion.getWidth();
+
+		final int x = CAMERA_WIDTH / 2 - width / 2;
+		final int y = CAMERA_HEIGHT / 2 - height / 2;
+
+		Log.e(TAG, "width="+width+" height="+height);
+
+		final Sprite retryBGSprite = new Sprite(x , y, this.m_RetryTextureRegion);
+
+		final Sprite retryOKSprite = new Sprite(x + OFFSET, y + height - okHeight/2, this.m_RetryOkTextureRegion){
+
+			@Override
+			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+				Log.e(TAG, "onAreaTouched");
+
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+					removeDarkenBG();
+					m_playScene.clearChildScene();					
+					resetScreen();
+				}
+				return true;
+			}			
+
+		};
+
+		final Sprite retryCancelSprite = new Sprite(x + width - okWidth - OFFSET, y + height - okHeight/2, this.m_RetryCancelTextureRegion){
+			@Override
+			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+				Log.e(TAG, "onAreaTouched");
+
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+					if (m_iCurrentItemNum < m_ItemVector.size()-1){
+						m_iCurrentItemNum++;
+						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
+					}else{
+						m_iCurrentItemNum = 0;
+						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
+					}
+					removeDarkenBG();
+					m_playScene.clearChildScene();
+					resetScreen();
+				}
+				return true;
+			}	
+		};		
+
+		this.m_RetryScene.getTopLayer().addEntity(retryBGSprite);
+		this.m_RetryScene.getTopLayer().addEntity(retryOKSprite);
+		this.m_RetryScene.getTopLayer().addEntity(retryCancelSprite);
+		this.m_RetryScene.registerTouchArea(retryOKSprite);
+		this.m_RetryScene.registerTouchArea(retryCancelSprite);
+	}
+
+	public void onActivityResult(int requestCode, int resultCode, Intent intent){
+		super.onActivityResult(requestCode, resultCode, intent);
+		if (requestCode == Const.MATCH_QUIZ_RESULT){
+			if (resultCode == RESULT_OK){
+				mEngine.runOnUpdateThread(new Runnable() {
+					@Override
+					public void run() {
+
+						while(m_playScene.getLayer(ENTITIES_LAYER).getEntityCount()>0){
+							m_playScene.getLayer(ENTITIES_LAYER).removeEntity(0);
+						}				
+						m_playScene.clearUpdateHandlers();
+						m_iCurrentCollideBoxIdx = 0;
+						m_CurrentTouchedAlphabetSprite = null;
+						m_ItemTextureRegion = null;
+						m_arrAlphabetTexture = null;
+						m_arrAlphabet = null;
+						m_Item = null;
+						m_arrBoxSprite = null;
+						m_arrAlphabetSprite = null;
+						m_bFirstTouch = true;
+
+						ThemeItemActivity.this.updateScene();
+					}        	
+				});
+			}
+		}
+	}
+
+	//Reset Screen - Remove all the entities from scene.
+	private void resetScreen(){
+
+		if (this.m_iCurrentItemNum % ITEM_NUM_PER_STAGE == 0){
+			m_quizItemList.clear();
+			m_quizItemList.addAll(this.m_ItemVector.subList(m_iCurrentItemNum - ITEM_NUM_PER_STAGE, m_iCurrentItemNum));
+			Intent intent = new Intent(this, MatchQuiz.class);
+			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, m_quizItemList);
+			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
+
+		}else{ 
+			Log.e(TAG, "resetScreen()");
+			mEngine.runOnUpdateThread(new Runnable() {
+				@Override
+				public void run() {
+
+					while(m_playScene.getLayer(ENTITIES_LAYER).getEntityCount()>0){
+						m_playScene.getLayer(ENTITIES_LAYER).removeEntity(0);
+					}				
+					m_playScene.clearUpdateHandlers();
+					m_iCurrentCollideBoxIdx = 0;
+					m_CurrentTouchedAlphabetSprite = null;
+					m_ItemTextureRegion = null;
+					m_arrAlphabetTexture = null;
+					m_arrAlphabet = null;
+					m_Item = null;
+					m_arrBoxSprite = null;
+					m_arrAlphabetSprite = null;
+					m_bFirstTouch = true;
+
+					ThemeItemActivity.this.updateScene();
+				}        	
+			});
+		}
+	}
+
+	//Reset Screen - Remove all the m_DarkenSprite from scene.
+	private void removeDarkenBG(){
+		Log.e(TAG, "removeDarkenBG()");
+		mEngine.runOnUpdateThread(new Runnable() {
+			@Override
+			public void run() {
+				m_playScene.getLayer(ENTITIES_LAYER).removeEntity(m_DarkenSprite);		
+			}        	
+		});
+	}
+	//Load fixed texture
+	private void loadBaseTexture(){
+		
+		this.mEngine.getTextureManager().loadTexture(this.m_PassTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_FailTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_RetryTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_RetryOkTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_RetryCancelTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_DarkenTexture);
+		
+	}
+
+	//Load changeable texture
+	private void loadEntityTexture(){
+		this.mEngine.getTextureManager().loadTexture(this.m_ItemTexture);	
+		this.mEngine.getTextureManager().loadTexture(this.m_BoxTexture);
+	}
+
+	//Create base object
+	private void createBaseSprite(){
+
+		loadBaseTexture();
+
+		/*this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);*/
+
+		this.m_DarkenSprite = new Sprite(0,0,this.m_DarkenTextureRegion);
+
+		this.m_SkipSprite = new Sprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
+				m_SkipTextureRegion.getHeight()/4, this.m_SkipTextureRegion){
+			@Override
+			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+
+					if (m_iCurrentItemNum < m_ItemVector.size()-1){
+						m_iCurrentItemNum++;
+						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
+					}else{
+						m_iCurrentItemNum = 0;
+						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
+					}
+					m_playScene.clearTouchAreas();			
+					resetScreen();
+					return true;
+				}
+				return false;
+
+			}
+		};
+		m_playScene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);
+
+		this.m_PassSprite = new Sprite(
+				CAMERA_WIDTH/2-(this.m_PassTextureRegion.getWidth()/2),
+				CAMERA_HEIGHT/2 - (this.m_PassTextureRegion.getHeight()/2),
+				this.m_PassTextureRegion);
+
+		this.m_FailSprite = new Sprite(
+				CAMERA_WIDTH/2-(this.m_FailTextureRegion.getWidth()/2),
+				CAMERA_HEIGHT/2 - (this.m_FailTextureRegion.getHeight()/2),
+				this.m_FailTextureRegion);
+
+		m_playScene.getLayer(BASE_LAYER).addEntity(m_Help);
 	}
 
 	//Update scene with new entities.
@@ -625,10 +647,10 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		m_FailSprite.setVisible(true);
 
 		//re regist touch area for help and pause btn
-		m_Scene.registerTouchArea(m_Help);
-		/*		m_Scene.registerTouchArea(m_ShowPicSprite);*/
-		//		m_Scene.registerTouchArea(m_SoundSprite);
-		m_Scene.registerTouchArea(m_SkipSprite);
+		m_playScene.registerTouchArea(m_Help);
+		/*		m_playScene.registerTouchArea(m_ShowPicSprite);*/
+		//		m_playScene.registerTouchArea(m_SoundSprite);
+		m_playScene.registerTouchArea(m_SkipSprite);
 		//Load Sound
 		try {
 			this.m_ItemSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "bird.mp3");//m_strAlphabet+".mp3");
@@ -662,7 +684,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		m_Item.setScale(1.3f);
 
-		m_Scene.getLayer(ENTITIES_LAYER).addEntity(m_Item);
+		m_playScene.getLayer(ENTITIES_LAYER).addEntity(m_Item);
 
 		//Load Box Sprite to scene.
 		int length = m_strAlphabet.length();
@@ -678,7 +700,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			m_arrBoxSprite[i] = new AlphabetSprite(x,//divWidth * i + (divWidth-m_BoxTextureRegion.getWidth())/2,
 					CAMERA_HEIGHT-m_BoxTextureRegion.getHeight(), this.m_BoxTextureRegion, i, m_strAlphabet.charAt(i));
 			Log.e(TAG, "CAMERA_HEIGHT:"+CAMERA_HEIGHT+" m_BoxTexture.getWidth()"+m_BoxTexture.getWidth()+" CAMERA_HEIGHT/10:"+CAMERA_HEIGHT/10);
-			m_Scene.getLayer(ENTITIES_LAYER).addEntity(m_arrBoxSprite[i]);
+			m_playScene.getLayer(ENTITIES_LAYER).addEntity(m_arrBoxSprite[i]);
 			x = x + space + boxWidth;
 		}
 
@@ -777,12 +799,12 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 								}
 								//drawResult(m_PassSprite);
 								shakeAndResetSprite(m_Item);							
-								m_Scene.clearTouchAreas();
+								m_playScene.clearTouchAreas();
 								//resetAfterDelay(2500);
 							}
 							else{								
 								drawResult(m_FailSprite);
-								m_Scene.clearTouchAreas();
+								m_playScene.clearTouchAreas();
 								popupAfterDelay(2500);								
 							}
 						}
@@ -805,14 +827,14 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		}
 
 		for (int k = m_strAlphabet.length(); k > 0; k--){
-			m_Scene.registerTouchArea(m_arrAlphabetSprite[k-1]);
+			m_playScene.registerTouchArea(m_arrAlphabetSprite[k-1]);
 		}
 
-		m_Scene.registerTouchArea(m_Item);	
-		m_Scene.setTouchAreaBindingEnabled(true);
+		m_playScene.registerTouchArea(m_Item);	
+		m_playScene.setTouchAreaBindingEnabled(true);
 
 		// The actual collision-checking.
-		m_Scene.registerUpdateHandler(new IUpdateHandler() {
+		m_playScene.registerUpdateHandler(new IUpdateHandler() {
 
 			@Override
 			public void reset() { }
@@ -847,7 +869,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					new RotationModifier(1, 0, 360)));
 		}
 		for(int l=0; l < m_strAlphabet.length(); l++){
-			m_Scene.getLayer(ENTITIES_LAYER).addEntity(m_arrAlphabetSprite[l]);
+			m_playScene.getLayer(ENTITIES_LAYER).addEntity(m_arrAlphabetSprite[l]);
 		}
 	}
 
@@ -856,7 +878,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		final SequenceShapeModifier shapeModifier = new SequenceShapeModifier(new AlphaModifier(2, 0, 1));
 		sprite.addShapeModifier(shapeModifier);
 		sprite.setScale(1.5f);
-		this.m_Scene.getLayer(ENTITIES_LAYER).addEntity(sprite);
+		this.m_playScene.getLayer(ENTITIES_LAYER).addEntity(sprite);
 	}
 
 	private void popupAfterDelay(int delayMS){
@@ -866,13 +888,13 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			public void run() {
 				m_FailSprite.setVisible(false);		
 				darkenBG();
-				m_Scene.setChildScene(m_RetryScene, false, true, true);
+				m_playScene.setChildScene(m_RetryScene, false, true, true);
 			}
 		}, delayMS);
 	}
 
 	private void darkenBG(){
-		m_Scene.getLayer(ENTITIES_LAYER).addEntity(m_DarkenSprite);	
+		m_playScene.getLayer(ENTITIES_LAYER).addEntity(m_DarkenSprite);	
 	}
 
 	@Override
