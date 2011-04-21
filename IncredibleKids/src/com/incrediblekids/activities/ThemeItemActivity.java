@@ -12,6 +12,8 @@ import org.anddev.andengine.audio.sound.SoundFactory;
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.camera.Camera;
 import org.anddev.andengine.engine.handler.IUpdateHandler;
+import org.anddev.andengine.engine.handler.timer.ITimerCallback;
+import org.anddev.andengine.engine.handler.timer.TimerHandler;
 import org.anddev.andengine.engine.options.EngineOptions;
 import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.anddev.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
@@ -68,7 +70,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	public final static int SOUND_ON = 0;
 	public final static int SOUND_OFF = 1;
-	
+
 	public final static int ITEM_IMG_FIRST = 0;
 	public final static int ITEM_IMG_SECOND = 1;
 
@@ -122,17 +124,17 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private Sprite m_Help;
 	private Texture  m_HelpTexture;
 	private TextureRegion m_HelpTextureRegion;
-	
+
 	//Skip Button Sprite
 	private Sprite m_SkipSprite;
 	private Texture  m_SkipTexture;
 	private TextureRegion m_SkipTextureRegion;
-	
+
 	//Pause
 	private Scene m_Scene;
 
 	private Boolean m_bSoundOn;
-	
+
 	//Darken bg
 	private Texture m_DarkenTexture;
 	private TextureRegion m_DarkenTextureRegion;
@@ -161,13 +163,13 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private Vector<Item> m_ItemVector;
 	private ArrayList <Item> m_quizItemList;
 	private ArrayList<Point> m_RandomPoint;
-	
+
 	private boolean m_bFirstTouch = true;
 
 
 	@Override
 	public Engine onLoadEngine() {
-		
+
 		m_quizItemList = new ArrayList<Item>();
 
 		this.m_iCurrentItemNum = 0;
@@ -192,6 +194,10 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	@Override
 	public void onLoadResources() {
 		Log.e(TAG, "onLoadResources()");
+
+	}
+
+	public void myLoadResources(){
 		SoundFactory.setAssetBasePath("mfx/");
 
 		try {
@@ -220,14 +226,14 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			m_Music.play();
 		}
 
-		//Load Background
+		/*//Load Background
 		this.m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
+		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);*/
 
 		//Darken BG
 		m_DarkenTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		m_DarkenTextureRegion = TextureRegionFactory.createFromResource(this.m_DarkenTexture, this, R.drawable.darken_bg, 0, 0);
-		
+
 		//Load Box
 		this.m_BoxTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_BoxTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_BoxTexture, this, R.drawable.box, 0, 0, 1, 1);
@@ -258,12 +264,12 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.m_FailTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_FailTextureRegion = TextureRegionFactory.createFromResource(this.m_FailTexture, this, R.drawable.fail_128, 0, 0);
 	}
-	
+
 	private ArrayList <Point> getAreaArray(){
 		ArrayList <Point> area = new ArrayList<Point>();
 		int areaWidth = (CAMERA_WIDTH- 2*m_BoxTextureRegion.getWidth())/3;
 		int areaHeight = (CAMERA_HEIGHT * 2 / 3 - m_BoxTextureRegion.getHeight())/2;
-		
+
 		int offsetX = m_BoxTextureRegion.getWidth()/4;
 		int offsetY = m_BoxTextureRegion.getHeight()/4;
 		area.add(new Point(m_BoxTextureRegion.getWidth() + randomX.nextInt(areaWidth- offsetX), randomY.nextInt(areaHeight- offsetY)));
@@ -272,7 +278,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		area.add(new Point(m_BoxTextureRegion.getWidth() + randomX.nextInt(areaWidth- offsetX), randomY.nextInt(areaHeight- offsetY) + areaHeight));
 		area.add(new Point(m_BoxTextureRegion.getWidth() + areaWidth + randomX.nextInt(areaWidth- offsetX), randomY.nextInt(areaHeight- offsetY) + areaHeight));
 		area.add(new Point(m_BoxTextureRegion.getWidth() + 2 * areaWidth + randomX.nextInt(areaWidth- offsetX), randomY.nextInt(areaHeight- offsetY) + areaHeight));
-		
+
 		Collections.shuffle(area);
 		return area;
 	}
@@ -292,20 +298,38 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
-		//Make retry scene
-		this.m_RetryScene = new CameraScene(1, this.m_Camera);
-		this.composeRetryScene();
-		this.m_RetryScene.setBackgroundEnabled(false);
+		final Scene loadingScene = new Scene(1);
+		//Load Background
+		
+		this.m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
+		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
+		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
+		loadingScene.setBackground(new SpriteBackground(m_BackgroundSprite));
 
 		//Make scene
 		this.m_Scene = new Scene(2);
-		this.createBaseSprite();
-		this.m_Scene.setBackground(new SpriteBackground(m_BackgroundSprite));//new ColorBackground(0.09804f, 0.6274f, 0.8784f));
+		loadingScene.registerUpdateHandler(new TimerHandler(1.0f, true, new ITimerCallback() {
+			@Override
+			public void onTimePassed(final TimerHandler pTimerHandler) {
+				loadingScene.unregisterUpdateHandler(pTimerHandler);
+				myLoadResources();
 
-		//Add all the entities
-		this.updateScene();
+				//Make retry scene
+				m_RetryScene = new CameraScene(1, m_Camera);
+				composeRetryScene();
+				m_RetryScene.setBackgroundEnabled(false);
 
-		return m_Scene;
+				createBaseSprite();
+				m_Scene.setBackground(new SpriteBackground(m_BackgroundSprite));//new ColorBackground(0.09804f, 0.6274f, 0.8784f));
+
+				//Add all the entities
+				updateScene();
+				mEngine.setScene(m_Scene);
+			}
+		}));
+
+		return loadingScene;
 	}
 
 	private void composeRetryScene(){
@@ -365,7 +389,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.m_RetryScene.registerTouchArea(retryOKSprite);
 		this.m_RetryScene.registerTouchArea(retryCancelSprite);
 	}
-	
+
 	public void onActivityResult(int requestCode, int resultCode, Intent intent){
 		super.onActivityResult(requestCode, resultCode, intent);
 		if (requestCode == Const.MATCH_QUIZ_RESULT){
@@ -403,9 +427,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			m_quizItemList.addAll(this.m_ItemVector.subList(m_iCurrentItemNum - ITEM_NUM_PER_STAGE, m_iCurrentItemNum));
 			Intent intent = new Intent(this, MatchQuiz.class);
 			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, m_quizItemList);
-//			intent.putExtra(Const.MATCH_QUIZ, m_quizItemList);
+			//			intent.putExtra(Const.MATCH_QUIZ, m_quizItemList);
 			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
-/*			if (m_Music.isPlaying()){
+			/*			if (m_Music.isPlaying()){
 				m_Music.pause();
 			}*/
 		}else{ 
@@ -413,7 +437,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			mEngine.runOnUpdateThread(new Runnable() {
 				@Override
 				public void run() {
-	
+
 					while(m_Scene.getLayer(ENTITIES_LAYER).getEntityCount()>0){
 						m_Scene.getLayer(ENTITIES_LAYER).removeEntity(0);
 					}				
@@ -427,20 +451,20 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					m_arrBoxSprite = null;
 					m_arrAlphabetSprite = null;
 					m_bFirstTouch = true;
-	
+
 					ThemeItemActivity.this.updateScene();
 				}        	
 			});
 		}
 	}
-	
+
 	//Reset Screen - Remove all the m_DarkenSprite from scene.
 	private void removeDarkenBG(){
 		Log.e(TAG, "removeDarkenBG()");
 		mEngine.runOnUpdateThread(new Runnable() {
 			@Override
 			public void run() {
-					m_Scene.getLayer(ENTITIES_LAYER).removeEntity(m_DarkenSprite);		
+				m_Scene.getLayer(ENTITIES_LAYER).removeEntity(m_DarkenSprite);		
 			}        	
 		});
 	}
@@ -449,13 +473,13 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private void loadBaseTexture(){
 		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_HelpTexture);
-/*		this.mEngine.getTextureManager().loadTexture(this.m_ShowPicTexture);*/
+		/*		this.mEngine.getTextureManager().loadTexture(this.m_ShowPicTexture);*/
 		this.mEngine.getTextureManager().loadTexture(this.m_PassTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_FailTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryOkTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryCancelTexture);
-//		this.mEngine.getTextureManager().loadTexture(this.m_SoundTexture);
+		//		this.mEngine.getTextureManager().loadTexture(this.m_SoundTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_DarkenTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_SkipTexture);
 	}
@@ -471,8 +495,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		loadBaseTexture();
 
-		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
-		
+		/*this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);*/
+
 		this.m_DarkenSprite = new Sprite(0,0,this.m_DarkenTextureRegion);
 
 		this.m_SkipSprite = new Sprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
@@ -480,7 +504,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-					
+
 					if (m_iCurrentItemNum < m_ItemVector.size()-1){
 						m_iCurrentItemNum++;
 						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
@@ -493,7 +517,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					return true;
 				}
 				return false;
-				
+
 			}
 		};
 		m_Scene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);
@@ -514,10 +538,10 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				Log.e(TAG, "onAreaTouched");
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-					
+
 					if (m_bFirstTouch == true)
 						return true;
-					
+
 					//play sound
 					if (m_bSoundOn == true)
 						m_HelpSound.play();
@@ -593,7 +617,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		if (!m_Music.isPlaying()){
 			m_Music.play();
 		}
-		
+
 		m_RandomPoint = this.getAreaArray();
 
 		loadEntityTexture();
@@ -602,8 +626,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		//re regist touch area for help and pause btn
 		m_Scene.registerTouchArea(m_Help);
-/*		m_Scene.registerTouchArea(m_ShowPicSprite);*/
-//		m_Scene.registerTouchArea(m_SoundSprite);
+		/*		m_Scene.registerTouchArea(m_ShowPicSprite);*/
+		//		m_Scene.registerTouchArea(m_SoundSprite);
 		m_Scene.registerTouchArea(m_SkipSprite);
 		//Load Sound
 		try {
@@ -623,33 +647,33 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				,CAMERA_HEIGHT/8, this.m_ItemTextureRegion){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				
+
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN && m_ItemSound!=null && m_bSoundOn == true && m_bFirstTouch == false)
 					m_ItemSound.play();
-				
+
 				if (pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN && m_bFirstTouch == true){
 					drawAlphabet(pSceneTouchEvent);
 					m_bFirstTouch = false;
 				}
-				
+
 				return true;
 			}
 		};
 
 		m_Item.setScale(1.3f);
-		
+
 		m_Scene.getLayer(ENTITIES_LAYER).addEntity(m_Item);
 
 		//Load Box Sprite to scene.
 		int length = m_strAlphabet.length();
 		m_arrBoxSprite = new AlphabetSprite[m_strAlphabet.length()];
 		//int divWidth = CAMERA_WIDTH/length;
-		
+
 		int space = m_BoxTextureRegion.getWidth()/(length * length);
 		int boxWidth = m_BoxTextureRegion.getWidth();
 		int w = boxWidth * length + space*(length-1);
 		int x = (CAMERA_WIDTH - w)/2;
-		
+
 		for(int i=0; i < length; i++){			
 			m_arrBoxSprite[i] = new AlphabetSprite(x,//divWidth * i + (divWidth-m_BoxTextureRegion.getWidth())/2,
 					CAMERA_HEIGHT-m_BoxTextureRegion.getHeight(), this.m_BoxTextureRegion, i, m_strAlphabet.charAt(i));
@@ -814,7 +838,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			}
 		});
 	}
-	
+
 	private void drawAlphabet(final TouchEvent touchEvent){
 		for(int j=0; j < m_strAlphabet.length(); j++){
 			m_arrAlphabetSprite[j].setPosition(touchEvent.getX(), touchEvent.getY());
@@ -846,7 +870,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			}
 		}, delayMS);
 	}
-	
+
 	private void darkenBG(){
 		m_Scene.getLayer(ENTITIES_LAYER).addEntity(m_DarkenSprite);	
 	}
@@ -932,18 +956,18 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	@Override
 	public void onAnimationEnd(Animation animation) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onAnimationRepeat(Animation animation) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onAnimationStart(Animation animation) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }
