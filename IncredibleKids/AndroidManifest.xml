@@ -9,6 +9,7 @@
         <activity android:name=".MainThemeActivity"
 				  android:label="@string/app_name"
 				  android:theme="@android:style/Theme.NoTitleBar"
+				  android:configChanges="orientation|keyboardHidden" 
 				  android:screenOrientation="landscape" >
 			<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,6 +20,7 @@
 		<activity android:name=".ThemeItemActivity"
 				  android:label="@string/app_name"
 				  android:theme="@android:style/Theme.NoTitleBar"
+				  android:configChanges="orientation|keyboardHidden" 
 				  android:screenOrientation="landscape" />
 				  
 	    <!--  
@@ -29,15 +31,18 @@
 	    -->
 	    <activity android:name="PreviewWords"
 	    		  android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+	    		  android:configChanges="orientation|keyboardHidden" 
 	    		  android:screenOrientation="landscape"/>
 	    <activity android:name=".ItemPicActivity"
-	    		  android:theme="@android:style/Theme.NoTitleBar"
+	    		  android:theme="@android:style/Theme.NoTitleBar"	    		  
 	    		  android:screenOrientation="landscape"
 	    		  android:configChanges="orientation|keyboardHidden"/>
 	    <activity android:name="MatchQuiz"
-				  android:screenOrientation="landscape" />
+				  android:screenOrientation="landscape"
+				  android:configChanges="orientation|keyboardHidden"  />
 	    <activity android:name="RetryPopupActivity"
 				  android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"
+				  android:configChanges="orientation|keyboardHidden" 
 				  android:screenOrientation="landscape" />
 				  
 </application>
