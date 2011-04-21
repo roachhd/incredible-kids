@@ -320,28 +320,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		};
 		
 		m_Handler.postDelayed(m_Runnable, HINT_TIME_DURATION);
-
-		/*
-        mHandler.postDelayed(new Runnable() {
-
-			public void run() {
-				for(int i = 0; i < MAX_COUNT; i++) {
-					m_ItemImages[i].setVisibility(View.GONE);
-					m_Questions[i].setVisibility(View.VISIBLE);
-					
-				}
-				//Test
-				if(m_TimeFrameImage == null)
-					Log.d(TAG, "m_TimeFrameImage");
-				
-				if(m_TimeFlowAnimation == null)
-					Log.d(TAG, "m_TimeFlowAnimation");
-				m_TimeFrameImage.startAnimation(m_TimeFlowAnimation);
-				clickEnable(true);
-				m_Hint.setClickable(true);
-			}
-        }, HINT_TIME_DURATION);
-        */
 	}
 	
 	/**
@@ -572,35 +550,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		};
 		
 		m_Handler.postDelayed(m_Runnable, HINT_TIME_DURATION);
-		
-		/*
-        m_Handler.postDelayed(new Runnable() {
-        	HashMap<Integer, String> rawItems 		= m_MatchManager.getItems();
-        	HashMap<Integer, String> matchedItems 	= m_MatchManager.getMatchedItems();
-        	Iterator<Integer> ri = rawItems.keySet().iterator();
-        	Iterator<Integer> mi = matchedItems.keySet().iterator();
-        	Integer parentViewId;
-        	ViewGroup parentView;
-
-			public void run() {
-				while(ri.hasNext()) {	// hide
-					parentViewId = ri.next();
-					parentView = (ViewGroup) findViewById(parentViewId);
-					parentView.getChildAt(0).setVisibility(View.INVISIBLE);
-					parentView.getChildAt(1).setVisibility(View.VISIBLE);
-				}
-				while(mi.hasNext()) {	// show
-					parentViewId = mi.next();
-					parentView = (ViewGroup) findViewById(parentViewId);
-					parentView.getChildAt(0).setVisibility(View.VISIBLE);
-					parentView.getChildAt(1).setVisibility(View.INVISIBLE);
-				}
-				clickEnable(true);
-				resumeAnimation();
-				m_Hint.setClickable(true);
-			}
-        }, HINT_TIME_DURATION);
-        */
 	}
 
 
@@ -1109,6 +1058,19 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		}
 	}
 	
+	
+	
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		Log.d(TAG, "onBackPressed()");
+		finish();
+		Intent intent = new Intent(MatchQuiz.this, MainThemeActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
+	}
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
