@@ -2,6 +2,7 @@
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_height="fill_parent" android:layout_width="fill_parent" android:orientation="vertical"
+  android:id="@+id/main_bg"
   android:background="@drawable/popup_game_retry"
   android:paddingTop="16dp"
   android:paddingBottom="16dp"

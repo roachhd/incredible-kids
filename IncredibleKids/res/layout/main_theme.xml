@@ -1,32 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout 
+<FrameLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	android:background="@drawable/theme_bg">
+	android:layout_width="fill_parent" android:layout_height="fill_parent">
+	<RelativeLayout 
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:id="@+id/main_theme"
+		android:background="@drawable/theme_bg"
+		android:visibility="gone">
+		
+		<ImageView android:id="@+id/ivThing"
+			android:layout_height="100sp" android:layout_width="100sp"
+			android:background="@drawable/box" android:layout_alignParentTop="true" android:layout_marginLeft="10dip"
+			android:layout_marginTop="10dip" android:layout_alignParentLeft="true"></ImageView>
+			
+		<ImageView android:id="@+id/ivStudy"
+			android:layout_height="100sp" android:layout_width="100sp"
+			android:background="@drawable/box" android:layout_alignParentTop="true" android:layout_marginLeft="10dip"
+			android:layout_toRightOf="@id/ivThing"
+			android:layout_marginTop="10dip"></ImageView>
+			
+		<ImageView android:id="@+id/ivColor"
+			android:layout_height="100sp" android:layout_width="100sp"
+			android:background="@drawable/box" android:layout_alignParentTop="true" android:layout_marginRight="10dip"
+			android:layout_marginTop="10dip" android:layout_alignParentRight="true"></ImageView>
+			
+		<ImageView android:id="@+id/ivFood"
+			android:layout_height="100sp" android:layout_width="100sp"
+			android:background="@drawable/box" android:layout_alignParentLeft="true"
+			android:layout_alignParentBottom="true" android:layout_marginLeft="10dip"
+			android:layout_marginBottom="10dip"></ImageView>
+			
+		<ImageView android:id="@+id/ivGame"
+			android:layout_height="100sp" android:layout_width="100sp"
+			android:background="@drawable/box" android:layout_alignParentBottom="true" android:layout_marginLeft="10dip"
+			android:layout_toRightOf="@id/ivThing"
+			android:layout_marginBottom="10dip"></ImageView>
+			
+		<ImageView android:id="@+id/ivNumber"
+			android:layout_height="100sp" android:layout_width="100sp"
+			android:background="@drawable/box" android:layout_alignParentRight="true"
+			android:layout_alignParentBottom="true" android:layout_marginRight="10dip"
+			android:layout_marginBottom="10dip"></ImageView>
+			
+		<ImageView android:id="@+id/ivAnimal"
+			android:layout_height="100sp" android:layout_width="100sp"
+			android:background="@drawable/box" android:layout_centerInParent="true"></ImageView>
+	</RelativeLayout>
 	
-	<ImageView android:id="@+id/ImageView_theme1"
-		android:layout_height="100sp" android:layout_width="100sp"
-		android:background="@drawable/box" android:layout_alignParentTop="true" android:layout_marginLeft="10dip"
-		android:layout_marginTop="10dip" android:layout_alignParentLeft="true"></ImageView>
-		
-	<ImageView android:id="@+id/ImageView_theme2"
-		android:layout_height="100sp" android:layout_width="100sp"
-		android:background="@drawable/box" android:layout_alignParentTop="true" android:layout_marginRight="10dip"
-		android:layout_marginTop="10dip" android:layout_alignParentRight="true"></ImageView>
-		
-	<ImageView android:id="@+id/ImageView_theme3"
-		android:layout_height="100sp" android:layout_width="100sp"
-		android:background="@drawable/box" android:layout_alignParentLeft="true"
-		android:layout_alignParentBottom="true" android:layout_marginLeft="10dip"
-		android:layout_marginBottom="10dip"></ImageView>
-		
-	<ImageView android:id="@+id/ImageView_theme4"
-		android:layout_height="100sp" android:layout_width="100sp"
-		android:background="@drawable/box" android:layout_alignParentRight="true"
-		android:layout_alignParentBottom="true" android:layout_marginRight="10dip"
-		android:layout_marginBottom="10dip"></ImageView>
-		
-	<ImageView android:id="@+id/ImageView_center"
-		android:layout_height="100sp" android:layout_width="100sp"
-		android:background="@drawable/box" android:layout_centerInParent="true"></ImageView>
-</RelativeLayout>
+	<RelativeLayout 
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:id="@+id/intro_theme"
+		android:background="@drawable/intro"
+		android:visibility="visible">
+	</RelativeLayout>
+</FrameLayout>

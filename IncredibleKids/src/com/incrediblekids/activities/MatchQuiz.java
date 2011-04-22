@@ -218,7 +218,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private void init() {
 		Log.d(TAG, "init()");
 		
-		m_PopupIntent 		= new Intent(MatchQuiz.this, RetryPopupActivity.class);
+		m_PopupIntent 		= new Intent(MatchQuiz.this, PopupActivity.class);
 		m_ItemList			= new ArrayList<Item>(CARD_PAIR_COUNT);
 		
 		m_ItemImages 		= new ImageView[MAX_COUNT];
@@ -235,6 +235,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_LeftPosition		= 0;
 		m_TimeInterval		= 0;
 		m_AnimationTimeDuration	= ANIMATION_TIME_DURATION;
+		
+		m_PopupIntent.setAction(Const.MATCH_QUIZ);
 		
 		int firstItemValue	= R.id.ivItems1;
 		int questionValue	= R.id.ivQuestion1;
@@ -1065,7 +1067,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		super.onBackPressed();
 		Log.d(TAG, "onBackPressed()");
 		finish();
-		Intent intent = new Intent(MatchQuiz.this, MainThemeActivity.class);
+		Intent intent = new Intent(MatchQuiz.this, GameStatusActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
