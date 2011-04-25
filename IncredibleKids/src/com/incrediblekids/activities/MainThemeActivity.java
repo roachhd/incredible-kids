@@ -248,7 +248,7 @@ public class MainThemeActivity extends BaseGameActivity{
 					@Override
 					public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 						if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-							res.setTheme(Const.THEME_ANIMAL);
+							res.setTheme(Const.THEME_NUMBER);
 							m_Scene.clearTouchAreas();
 							m_Scene.setChildScene(m_GameModeScene, false, true, true);	
 						}

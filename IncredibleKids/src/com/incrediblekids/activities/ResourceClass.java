@@ -88,6 +88,17 @@ public class ResourceClass {
 			vItems.add(new Item("peach", R.drawable.img_peach, R.drawable.word_cat, R.drawable.card_img_cat, R.drawable.card_word_cat));			
 			vItems.add(new Item("banana", R.drawable.img_banana, R.drawable.word_pig, R.drawable.card_img_pig, R.drawable.card_word_pig));
 			vItems.add(new Item("cookie", R.drawable.img_cookie, R.drawable.word_frog, R.drawable.card_img_frog, R.drawable.card_word_frog));
+		}else if (_theme.equals(Const.THEME_NUMBER)) {
+			vItems.add(new Item("one", R.drawable.img_1, R.drawable.word_dog, R.drawable.card_img_dog, R.drawable.card_word_dog));
+			vItems.add(new Item("two", R.drawable.img_2, R.drawable.word_bear, R.drawable.card_img_bear, R.drawable.card_word_bear));			
+			vItems.add(new Item("three", R.drawable.img_3, R.drawable.word_fish, R.drawable.card_img_fish, R.drawable.card_word_fish));
+			vItems.add(new Item("four", R.drawable.img_4, R.drawable.word_snake, R.drawable.card_img_snake, R.drawable.card_word_snake));
+			vItems.add(new Item("five", R.drawable.img_5, R.drawable.word_duck, R.drawable.card_img_duck, R.drawable.card_word_duck));
+			vItems.add(new Item("six", R.drawable.img_6, R.drawable.word_mouse, R.drawable.card_img_mouse, R.drawable.card_word_mouse));
+			vItems.add(new Item("seven", R.drawable.img_7, R.drawable.word_monkey, R.drawable.card_img_monkey, R.drawable.card_word_monkey));
+			vItems.add(new Item("eight", R.drawable.img_8, R.drawable.word_cat, R.drawable.card_img_cat, R.drawable.card_word_cat));			
+			vItems.add(new Item("nine", R.drawable.img_9, R.drawable.word_pig, R.drawable.card_img_pig, R.drawable.card_word_pig));
+			vItems.add(new Item("ten", R.drawable.img_10, R.drawable.word_frog, R.drawable.card_img_frog, R.drawable.card_word_frog));
 		}
 	}
 	

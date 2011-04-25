@@ -288,7 +288,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	@Override
 	public Scene onLoadScene() {
 		Log.e(TAG, "onLoadScene()");
-
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
 		final Scene loadingScene = new Scene(1);
@@ -297,7 +296,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		//Load Help
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.btn_hint , 0, 0);
-		
 		this.m_Help = new Sprite(m_HelpTextureRegion.getWidth()/4, m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion){
 
 			@Override
