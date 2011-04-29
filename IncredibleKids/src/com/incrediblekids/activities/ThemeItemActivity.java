@@ -16,6 +16,7 @@ import org.anddev.andengine.engine.handler.timer.ITimerCallback;
 import org.anddev.andengine.engine.handler.timer.TimerHandler;
 import org.anddev.andengine.engine.options.EngineOptions;
 import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
+import org.anddev.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
 import org.anddev.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.anddev.andengine.entity.scene.CameraScene;
 import org.anddev.andengine.entity.scene.Scene;
@@ -43,6 +44,7 @@ import org.anddev.andengine.util.Debug;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -102,6 +104,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private TextureRegion m_PassTextureRegion;
 	private Sprite m_PassSprite;
 
+	//Loading
+	private Texture m_LoadingTexture;	
+	private TiledTextureRegion m_LoadingTextureRegion;
+	private AnimatedSprite m_LoadingSprite;
+	
 	//Pass
 	private Texture m_FailTexture;
 	private TextureRegion m_FailTextureRegion;
@@ -177,20 +184,36 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		this.randomX = new Random();
 		this.randomY = new Random();
+		
+		DisplayMetrics dm = new DisplayMetrics();
+		Display display = getWindowManager().getDefaultDisplay();
+		display.getMetrics(dm);
+		
+		Log.e(TAG, "getLCDWidth():"+getLCDWidth());
+		Log.e(TAG, "getLCDHeight():"+getLCDHeight());
+		Log.e(TAG, "densityDpi:"+dm.densityDpi);
 
-		this.CAMERA_WIDTH = getLCDWidth();
-		this.CAMERA_HEIGHT = getLCDHeight();
+		if (dm.densityDpi == DisplayMetrics.DENSITY_HIGH){
+			this.CAMERA_WIDTH = 800;
+			this.CAMERA_HEIGHT = 480;
+		}else if (dm.densityDpi == DisplayMetrics.DENSITY_MEDIUM){
+			this.CAMERA_WIDTH = 480;
+			this.CAMERA_HEIGHT = 320;
+		}
+		
+/*		this.CAMERA_WIDTH = getLCDWidth();
+		this.CAMERA_HEIGHT = getLCDHeight();*/
 		this.res = ResourceClass.getInstance();
 		this.m_ItemVector = res.getvItems();
 		this.m_strAlphabet = this.m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
 
 		this.m_iCurrentCollideBoxIdx = 0;
 		this.m_Camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-
+		
 		return new Engine(new EngineOptions(true, ScreenOrientation.LANDSCAPE,
-				new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), this.m_Camera).setNeedsMusic(true).setNeedsSound(true));
+				new FillResolutionPolicy(), this.m_Camera).setNeedsMusic(true).setNeedsSound(true));
 	}
-
+	//FillResolutionPolicy
 	@Override
 	public void onLoadResources() {
 		Log.e(TAG, "onLoadResources()");
@@ -231,12 +254,13 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);*/
 
 		//Darken BG
-		m_DarkenTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		m_DarkenTextureRegion = TextureRegionFactory.createFromResource(this.m_DarkenTexture, this, R.drawable.darken_bg, 0, 0);
+		//m_DarkenTexture = new Texture(2048, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		m_DarkenTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.darken_bg, 800, 0);
 
 		//Load Box
 		this.m_BoxTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_BoxTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_BoxTexture, this, R.drawable.box, 0, 0, 1, 1);
+		
 		this.m_ItemTexture = new Texture(1024, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
 		//Retry popup texture
@@ -293,6 +317,15 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		final Scene loadingScene = new Scene(1);
 		//Load Background
 
+		//Load Help
+		this.m_LoadingTexture = new Texture(128, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_LoadingTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_LoadingTexture, this, R.drawable.loading_sprite , 0, 0, 2, 1);
+		this.m_LoadingSprite = new AnimatedSprite(CAMERA_WIDTH/2, CAMERA_HEIGHT/2, this.m_LoadingTextureRegion);
+		
+		this.mEngine.getTextureManager().loadTexture(this.m_LoadingTexture);
+		
+		loadingScene.getLayer(BASE_LAYER).addEntity(m_LoadingSprite);
+		m_LoadingSprite.animate(200);
 		//Load Help
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.btn_hint , 0, 0);
@@ -375,6 +408,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		};
 		loadingScene.getLayer(BASE_LAYER).addEntity(m_Help);
 		
+		
 		//Skip 		
 		this.m_SkipTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_SkipTextureRegion = TextureRegionFactory.createFromResource(m_SkipTexture, this, R.drawable.btn_skip, 0, 0);
@@ -402,7 +436,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		};
 		loadingScene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);
 		
-		this.m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_BackgroundTexture = new Texture(2048, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
 		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
 		loadingScene.setBackground(new SpriteBackground(m_BackgroundSprite));
@@ -429,6 +463,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 				//Add all the entities
 				updateScene();
+				m_LoadingSprite.stopAnimation();
+				m_LoadingSprite.setVisible(false);
 				mEngine.setScene(m_playScene);
 			}
 		}));
@@ -577,7 +613,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryOkTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryCancelTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_DarkenTexture);
+		//this.mEngine.getTextureManager().loadTexture(this.m_DarkenTexture);
 		
 	}
 
