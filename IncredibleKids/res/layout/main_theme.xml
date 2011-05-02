@@ -5,7 +5,7 @@
 	<RelativeLayout 
 		android:layout_width="fill_parent" android:layout_height="fill_parent"
 		android:id="@+id/main_theme"
-		android:background="@drawable/theme_bg"
+		android:background="@drawable/bg_theme"
 		android:visibility="gone">
 		
 		<ImageView android:id="@+id/ivThing"
