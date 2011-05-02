@@ -99,6 +99,14 @@ public class ResourceClass {
 			vItems.add(new Item("eight", R.drawable.img_8, R.drawable.word_cat, R.drawable.card_img_cat, R.drawable.card_word_cat));			
 			vItems.add(new Item("nine", R.drawable.img_9, R.drawable.word_pig, R.drawable.card_img_pig, R.drawable.card_word_pig));
 			vItems.add(new Item("ten", R.drawable.img_10, R.drawable.word_frog, R.drawable.card_img_frog, R.drawable.card_word_frog));
+		}else if (_theme.equals(Const.THEME_COLOR)) {
+			vItems.add(new Item("red", R.drawable.img_red, R.drawable.word_dog, R.drawable.card_img_dog, R.drawable.card_word_dog));
+			vItems.add(new Item("blue", R.drawable.img_blue, R.drawable.word_bear, R.drawable.card_img_bear, R.drawable.card_word_bear));			
+			vItems.add(new Item("violet", R.drawable.img_violet, R.drawable.word_fish, R.drawable.card_img_fish, R.drawable.card_word_fish));
+			vItems.add(new Item("purple", R.drawable.img_purple, R.drawable.word_snake, R.drawable.card_img_snake, R.drawable.card_word_snake));
+			vItems.add(new Item("green", R.drawable.img_green, R.drawable.word_duck, R.drawable.card_img_duck, R.drawable.card_word_duck));
+			vItems.add(new Item("orange", R.drawable.img_orange, R.drawable.word_mouse, R.drawable.card_img_mouse, R.drawable.card_word_mouse));
+			vItems.add(new Item("yellow", R.drawable.img_yellow, R.drawable.word_monkey, R.drawable.card_img_monkey, R.drawable.card_word_monkey));
 		}
 	}
 	
