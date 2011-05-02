@@ -1,6 +1,7 @@
 package com.incrediblekids.activities;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -41,9 +42,12 @@ import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
 import org.anddev.andengine.util.Debug;
+
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Handler;
+import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -87,6 +91,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	// ===========================================================
 
 	private Camera m_Camera;
+	private ProgressDialog loadindDialog;
+	private Thread m_thread = null; 
 
 	//Background image
 	private Texture m_BackgroundTexture;
@@ -108,7 +114,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private Texture m_LoadingTexture;	
 	private TiledTextureRegion m_LoadingTextureRegion;
 	private AnimatedSprite m_LoadingSprite;
-	
+
 	//Pass
 	private Texture m_FailTexture;
 	private TextureRegion m_FailTextureRegion;
@@ -184,11 +190,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		this.randomX = new Random();
 		this.randomY = new Random();
-		
+
 		DisplayMetrics dm = new DisplayMetrics();
 		Display display = getWindowManager().getDefaultDisplay();
 		display.getMetrics(dm);
-		
+
 		Log.e(TAG, "getLCDWidth():"+getLCDWidth());
 		Log.e(TAG, "getLCDHeight():"+getLCDHeight());
 		Log.e(TAG, "densityDpi:"+dm.densityDpi);
@@ -200,8 +206,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			this.CAMERA_WIDTH = 480;
 			this.CAMERA_HEIGHT = 320;
 		}
-		
-/*		this.CAMERA_WIDTH = getLCDWidth();
+
+		/*		this.CAMERA_WIDTH = getLCDWidth();
 		this.CAMERA_HEIGHT = getLCDHeight();*/
 		this.res = ResourceClass.getInstance();
 		this.m_ItemVector = res.getvItems();
@@ -209,7 +215,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		this.m_iCurrentCollideBoxIdx = 0;
 		this.m_Camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-		
+
 		return new Engine(new EngineOptions(true, ScreenOrientation.LANDSCAPE,
 				new FillResolutionPolicy(), this.m_Camera).setNeedsMusic(true).setNeedsSound(true));
 	}
@@ -260,7 +266,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		//Load Box
 		this.m_BoxTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_BoxTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_BoxTexture, this, R.drawable.box, 0, 0, 1, 1);
-		
+
 		this.m_ItemTexture = new Texture(1024, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
 		//Retry popup texture
@@ -316,16 +322,22 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		final Scene loadingScene = new Scene(1);
 		//Load Background
+		this.m_BackgroundTexture = new Texture(2048, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
+		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
+		loadingScene.setBackground(new SpriteBackground(m_BackgroundSprite));
+		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
 
-		//Load Help
+		/*		//Load Help
 		this.m_LoadingTexture = new Texture(128, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_LoadingTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_LoadingTexture, this, R.drawable.loading_sprite , 0, 0, 2, 1);
 		this.m_LoadingSprite = new AnimatedSprite(CAMERA_WIDTH/2, CAMERA_HEIGHT/2, this.m_LoadingTextureRegion);
-		
+
 		this.mEngine.getTextureManager().loadTexture(this.m_LoadingTexture);
-		
+
 		loadingScene.getLayer(BASE_LAYER).addEntity(m_LoadingSprite);
-		m_LoadingSprite.animate(200);
+		m_LoadingSprite.animate(200);*/
+
 		//Load Help
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.btn_hint , 0, 0);
@@ -407,8 +419,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			}
 		};
 		loadingScene.getLayer(BASE_LAYER).addEntity(m_Help);
-		
-		
+
+
 		//Skip 		
 		this.m_SkipTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_SkipTextureRegion = TextureRegionFactory.createFromResource(m_SkipTexture, this, R.drawable.btn_skip, 0, 0);
@@ -434,23 +446,20 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 			}
 		};
-		loadingScene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);
-		
-		this.m_BackgroundTexture = new Texture(2048, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
-		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
-		loadingScene.setBackground(new SpriteBackground(m_BackgroundSprite));
+		loadingScene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);	
 
-		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_HelpTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_SkipTexture);
-		
+
 		//Make scene
 		this.m_playScene = new Scene(2);
-		loadingScene.registerUpdateHandler(new TimerHandler(1.0f, true, new ITimerCallback() {
-			@Override
-			public void onTimePassed(final TimerHandler pTimerHandler) {
-				loadingScene.unregisterUpdateHandler(pTimerHandler);
+
+		//m_LoadingSprite.stopAnimation();
+		//m_LoadingSprite.setVisible(false);
+
+		m_thread = new Thread(new Runnable() {
+			public void run(){
+
 				myLoadResources();
 
 				//Make retry scene
@@ -463,15 +472,20 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 				//Add all the entities
 				updateScene();
-				m_LoadingSprite.stopAnimation();
-				m_LoadingSprite.setVisible(false);
-				mEngine.setScene(m_playScene);
+				
+				handler.sendEmptyMessage(0);
 			}
-		}));
-
+		});
+		m_thread.start();
 		return loadingScene;
 	}
-
+	
+	private Handler handler = new Handler() {
+		public void handleMessage(Message msg) {
+			mEngine.setScene(m_playScene);
+		}
+	};
+	
 	private void composeRetryScene(){
 		final int OFFSET = m_RetryOkTextureRegion.getWidth()/2;	
 		final int width = this.m_RetryTextureRegion.getWidth();
@@ -607,14 +621,14 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	}
 	//Load fixed texture
 	private void loadBaseTexture(){
-		
+
 		this.mEngine.getTextureManager().loadTexture(this.m_PassTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_FailTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryOkTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_RetryCancelTexture);
 		//this.mEngine.getTextureManager().loadTexture(this.m_DarkenTexture);
-		
+
 	}
 
 	//Load changeable texture
