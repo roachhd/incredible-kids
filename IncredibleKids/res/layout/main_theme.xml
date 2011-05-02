@@ -3,54 +3,85 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent">
 	<RelativeLayout 
-		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent"
 		android:id="@+id/main_theme"
 		android:background="@drawable/bg_theme"
-		android:visibility="gone">
+		android:visibility="visible">
 		
 		<ImageView android:id="@+id/ivThing"
-			android:layout_height="100sp" android:layout_width="100sp"
-			android:background="@drawable/box" android:layout_alignParentTop="true" android:layout_marginLeft="10dip"
-			android:layout_marginTop="10dip" android:layout_alignParentLeft="true"></ImageView>
+			android:layout_height="120dp" 
+			android:layout_width="140dp"
+			android:background="@drawable/box" 
+			android:layout_alignParentTop="true" 
+			android:layout_alignParentLeft="true"
+			android:layout_marginLeft="15dp"
+			android:layout_marginTop="48dp"></ImageView>
 			
 		<ImageView android:id="@+id/ivStudy"
-			android:layout_height="100sp" android:layout_width="100sp"
-			android:background="@drawable/box" android:layout_alignParentTop="true" android:layout_marginLeft="10dip"
+			android:layout_height="32dp" 
+			android:layout_width="50dp"
+			android:background="@drawable/box" 
 			android:layout_toRightOf="@id/ivThing"
-			android:layout_marginTop="10dip"></ImageView>
 			
-		<ImageView android:id="@+id/ivColor"
-			android:layout_height="100sp" android:layout_width="100sp"
-			android:background="@drawable/box" android:layout_alignParentTop="true" android:layout_marginRight="10dip"
-			android:layout_marginTop="10dip" android:layout_alignParentRight="true"></ImageView>
-			
-		<ImageView android:id="@+id/ivFood"
-			android:layout_height="100sp" android:layout_width="100sp"
-			android:background="@drawable/box" android:layout_alignParentLeft="true"
-			android:layout_alignParentBottom="true" android:layout_marginLeft="10dip"
-			android:layout_marginBottom="10dip"></ImageView>
-			
-		<ImageView android:id="@+id/ivGame"
-			android:layout_height="100sp" android:layout_width="100sp"
-			android:background="@drawable/box" android:layout_alignParentBottom="true" android:layout_marginLeft="10dip"
-			android:layout_toRightOf="@id/ivThing"
-			android:layout_marginBottom="10dip"></ImageView>
-			
-		<ImageView android:id="@+id/ivNumber"
-			android:layout_height="100sp" android:layout_width="100sp"
-			android:background="@drawable/box" android:layout_alignParentRight="true"
-			android:layout_alignParentBottom="true" android:layout_marginRight="10dip"
-			android:layout_marginBottom="10dip"></ImageView>
+			android:layout_alignParentTop="true" 
+			android:layout_marginLeft="18dp"
+			android:layout_marginTop="5dp"></ImageView>
 			
 		<ImageView android:id="@+id/ivAnimal"
-			android:layout_height="100sp" android:layout_width="100sp"
-			android:background="@drawable/box" android:layout_centerInParent="true"></ImageView>
+			android:layout_height="120dp" 
+			android:layout_width="140dp"
+			android:background="@drawable/box" 
+			
+			android:layout_alignParentTop="true" 
+			android:layout_alignParentRight="true"
+			android:layout_marginRight="15dp"
+			android:layout_marginTop="48dp"></ImageView>
+			
+		<ImageView android:id="@+id/ivGame"
+			android:layout_height="32dp" 
+			android:layout_width="50dp"
+			android:background="@drawable/box" 
+			
+			android:layout_alignParentTop="true" 
+			android:layout_marginRight="2dp"
+			android:layout_toLeftOf="@id/ivAnimal"
+			android:layout_marginTop="5dp"></ImageView>
+			
+		<ImageView android:id="@+id/ivColor"
+			android:layout_height="120dp" 
+			android:layout_width="140dp"
+			android:background="@drawable/box" 
+			
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentBottom="true" 
+			android:layout_marginLeft="15dp"
+			android:layout_marginBottom="15dp"></ImageView>
+			
+			
+		<ImageView android:id="@+id/ivNumber"
+			android:layout_height="120dp" 
+			android:layout_width="140dp"
+			android:background="@drawable/box" 
+			
+			android:layout_alignParentRight="true"
+			android:layout_alignParentBottom="true" 
+			android:layout_marginRight="15dp"
+			android:layout_marginBottom="15dp"></ImageView>
+			
+		<ImageView android:id="@+id/ivFood"
+			android:layout_height="100dp" 
+			android:layout_width="90dp"
+			android:background="@drawable/box" 
+			android:layout_centerInParent="true"
+			
+			></ImageView>
 	</RelativeLayout>
 	
 	<RelativeLayout 
 		android:layout_width="fill_parent" android:layout_height="fill_parent"
 		android:id="@+id/intro_theme"
 		android:background="@drawable/intro"
-		android:visibility="visible">
+		android:visibility="gone">
 	</RelativeLayout>
 </FrameLayout>
