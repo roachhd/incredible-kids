@@ -79,7 +79,7 @@ public class ResourceClass {
 			vItems.add(new Item("eraser", R.drawable.img_eraser, R.drawable.word_tiger, R.drawable.card_img_tiger, R.drawable.card_word_tiger));
 		} else if (_theme.equals(Const.THEME_FOOD)) {
 			vItems.add(new Item("egg", R.drawable.img_egg, R.drawable.word_dog, R.drawable.card_img_dog, R.drawable.card_word_dog));
-			vItems.add(new Item("peer", R.drawable.img_peer, R.drawable.word_bear, R.drawable.card_img_bear, R.drawable.card_word_bear));			
+			vItems.add(new Item("pear", R.drawable.img_peer, R.drawable.word_bear, R.drawable.card_img_bear, R.drawable.card_word_bear));			
 			vItems.add(new Item("rice", R.drawable.img_rice, R.drawable.word_fish, R.drawable.card_img_fish, R.drawable.card_word_fish));
 			vItems.add(new Item("milk", R.drawable.img_milk, R.drawable.word_snake, R.drawable.card_img_snake, R.drawable.card_word_snake));
 			vItems.add(new Item("candy", R.drawable.img_candy, R.drawable.word_duck, R.drawable.card_img_duck, R.drawable.card_word_duck));
