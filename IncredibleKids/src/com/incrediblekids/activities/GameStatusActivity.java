@@ -3,7 +3,9 @@ package com.incrediblekids.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
 
 public class GameStatusActivity extends Activity {
 	
@@ -17,7 +19,16 @@ public class GameStatusActivity extends Activity {
 		
 		final Intent intent = new Intent(GameStatusActivity.this, ThemeItemActivity.class);
 		
-		Handler tempHandler = new Handler();
+		ImageButton ib = (ImageButton)findViewById(R.id.level_1);
+		ib.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				startActivity(intent);
+			}
+			
+		});
+		/*Handler tempHandler = new Handler();
 		
 		tempHandler.postDelayed(new Runnable() {
 			
@@ -25,7 +36,7 @@ public class GameStatusActivity extends Activity {
 			public void run() {
 				startActivity(intent);
 			}
-		}, 3000);
+		}, 3000);*/
 	}
 
 	@Override

@@ -2,6 +2,36 @@
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="fill_parent"
-  android:layout_height="fill_parent">
-    <TextView android:text="Under Construction" android:id="@+id/textView1" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+  android:layout_height="fill_parent"
+  android:orientation="horizontal"
+  android:gravity="center_vertical"
+  android:background="@drawable/match_quiz_bg">
+    <ImageButton
+    	android:id="@+id/level_1"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:layout_weight="1"
+    	android:src="@drawable/level_animal_1"
+    	/>
+    <ImageButton
+    	android:id="@+id/level_2"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:layout_weight="1"
+    	android:src="@drawable/level_animal_2"
+    	/>
+    <ImageButton
+    	android:id="@+id/level_3"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:layout_weight="1"
+    	android:src="@drawable/level_animal_3"
+    	/>
+    <ImageButton
+    	android:id="@+id/level_4"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:layout_weight="1"
+    	android:src="@drawable/level_animal_4"
+    	/>
 </LinearLayout>
