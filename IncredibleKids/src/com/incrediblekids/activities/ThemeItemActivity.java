@@ -1,7 +1,6 @@
 package com.incrediblekids.activities;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -13,12 +12,9 @@ import org.anddev.andengine.audio.sound.SoundFactory;
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.camera.Camera;
 import org.anddev.andengine.engine.handler.IUpdateHandler;
-import org.anddev.andengine.engine.handler.timer.ITimerCallback;
-import org.anddev.andengine.engine.handler.timer.TimerHandler;
 import org.anddev.andengine.engine.options.EngineOptions;
 import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.anddev.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
-import org.anddev.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.anddev.andengine.entity.scene.CameraScene;
 import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.scene.background.SpriteBackground;
@@ -42,12 +38,10 @@ import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
 import org.anddev.andengine.util.Debug;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Handler;
-import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -91,8 +85,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	// ===========================================================
 
 	private Camera m_Camera;
-	private ProgressDialog loadindDialog;
-	private Thread m_thread = null; 
 
 	//Background image
 	private Texture m_BackgroundTexture;
@@ -109,11 +101,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private Texture m_PassTexture;	
 	private TextureRegion m_PassTextureRegion;
 	private Sprite m_PassSprite;
-
-	//Loading
-	private Texture m_LoadingTexture;	
-	private TiledTextureRegion m_LoadingTextureRegion;
-	private AnimatedSprite m_LoadingSprite;
 
 	//Pass
 	private Texture m_FailTexture;
@@ -168,7 +155,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private Sound m_DropToBoxSound;
 	private Sound m_HelpSound;
 	private Sound m_FailToDropSound;
-	private Sound m_AlphabetSound;
+	private Sound [] m_AlphabetSound;
 
 	private Random randomX;
 	private Random randomY;
@@ -179,9 +166,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private ArrayList<Point> m_RandomPoint;
 
 	private boolean m_bFirstTouch = true;
-	
-	private int m_Idx;
-
 
 	@Override
 	public Engine onLoadEngine() {
@@ -210,7 +194,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			this.CAMERA_HEIGHT = 320;
 		}
 
-		/*		this.CAMERA_WIDTH = getLCDWidth();
+		/*		
+		this.CAMERA_WIDTH = getLCDWidth();
 		this.CAMERA_HEIGHT = getLCDHeight();*/
 		this.res = ResourceClass.getInstance();
 		this.m_ItemVector = res.getvItems();
@@ -226,7 +211,12 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	@Override
 	public void onLoadResources() {
 		Log.e(TAG, "onLoadResources()");
-
+		
+		//Load Background
+		this.m_BackgroundTexture = new Texture(2048, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
+		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
+		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
 	}
 
 	public void myLoadResources(){
@@ -322,24 +312,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	public Scene onLoadScene() {
 		Log.e(TAG, "onLoadScene()");
 		this.mEngine.registerUpdateHandler(new FPSLogger());
-
-		final Scene loadingScene = new Scene(1);
-		//Load Background
-		this.m_BackgroundTexture = new Texture(2048, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
-		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
-		loadingScene.setBackground(new SpriteBackground(m_BackgroundSprite));
-		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
-
-		/*		//Load Help
-		this.m_LoadingTexture = new Texture(128, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_LoadingTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_LoadingTexture, this, R.drawable.loading_sprite , 0, 0, 2, 1);
-		this.m_LoadingSprite = new AnimatedSprite(CAMERA_WIDTH/2, CAMERA_HEIGHT/2, this.m_LoadingTextureRegion);
-
-		this.mEngine.getTextureManager().loadTexture(this.m_LoadingTexture);
-
-		loadingScene.getLayer(BASE_LAYER).addEntity(m_LoadingSprite);
-		m_LoadingSprite.animate(200);*/
+		m_playScene = new Scene(2);
+		//final Scene loadingScene = new Scene(1);
 
 		//Load Help
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -421,8 +395,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				return true;
 			}
 		};
-		loadingScene.getLayer(BASE_LAYER).addEntity(m_Help);
-
+		m_playScene.getLayer(BASE_LAYER).addEntity(m_Help);
 
 		//Skip 		
 		this.m_SkipTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -446,49 +419,27 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					return true;
 				}
 				return false;
-
 			}
 		};
-		loadingScene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);	
+		m_playScene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);	
 
 		this.mEngine.getTextureManager().loadTexture(this.m_HelpTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_SkipTexture);
 
-		//Make scene
-		this.m_playScene = new Scene(2);
+		myLoadResources();
+		//Make retry scene
+		
+		m_RetryScene = new CameraScene(1, m_Camera);
+		m_RetryScene.setBackgroundEnabled(false);
+		composeRetryScene();
+		
+		createBaseSprite();
+		m_playScene.setBackground(new SpriteBackground(m_BackgroundSprite));//new ColorBackground(0.09804f, 0.6274f, 0.8784f));
+		updateScene();
 
-		//m_LoadingSprite.stopAnimation();
-		//m_LoadingSprite.setVisible(false);
-
-		m_thread = new Thread(new Runnable() {
-			public void run(){
-
-				myLoadResources();
-
-				//Make retry scene
-				m_RetryScene = new CameraScene(1, m_Camera);
-				composeRetryScene();
-				m_RetryScene.setBackgroundEnabled(false);
-
-				createBaseSprite();
-				m_playScene.setBackground(new SpriteBackground(m_BackgroundSprite));//new ColorBackground(0.09804f, 0.6274f, 0.8784f));
-
-				//Add all the entities
-				updateScene();
-				
-				handler.sendEmptyMessage(0);
-			}
-		});
-		m_thread.start();
-		return loadingScene;
+		return m_playScene;
 	}
-	
-	private Handler handler = new Handler() {
-		public void handleMessage(Message msg) {
-			mEngine.setScene(m_playScene);
-		}
-	};
-	
+
 	private void composeRetryScene(){
 		final int OFFSET = m_RetryOkTextureRegion.getWidth()/2;	
 		final int width = this.m_RetryTextureRegion.getWidth();
@@ -767,7 +718,18 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			this.m_arrAlphabetTexture[i].setCurrentTileIndex(0);
 		}
 
+		m_AlphabetSound = new Sound[m_strAlphabet.length()];
+
 		for(int m_Idx=0; m_Idx < m_strAlphabet.length(); m_Idx++){
+			try {
+				m_AlphabetSound[m_Idx] = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, this.m_strAlphabet.charAt(m_Idx)+".mp3");
+			} catch (IllegalStateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			/*m_arrAlphabetSprite[j] = new AlphabetSprite(m_RandomPoint.get(j).x,m_RandomPoint.get(j).y,
 					this.m_arrAlphabetTexture[j], j, m_strAlphabet.charAt(j)) */
 			m_arrAlphabetSprite[m_Idx] = new AlphabetSprite(0,0,
@@ -864,13 +826,10 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					//Set item size as 1.5times when user try to drag it.
 					else if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
 						m_CurrentTouchedAlphabetSprite = this;
-						try {
-							m_AlphabetSound = SoundFactory.createSoundFromAsset(mEngine.getSoundManager(), ThemeItemActivity.this, this.alphabet+".mp3");
-							m_AlphabetSound.setVolume(1.0f);
-							m_AlphabetSound.play();
-						} catch (final IOException e) {
-							Debug.e("Error", e);
-						}
+						Log.e(TAG, "alphabet:"+this.alphabet+".mp3");
+
+						m_AlphabetSound[this.sequence].setVolume(1.0f);
+						m_AlphabetSound[this.sequence].play();
 						this.setScale(1.5f);
 					}
 					//Dragging
@@ -953,11 +912,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	private void darkenBG(){
 		m_playScene.getLayer(ENTITIES_LAYER).addEntity(m_DarkenSprite);	
-	}
-
-	@Override
-	public void onLoadComplete() {
-
 	}
 
 	private boolean isAllBoxesFilled(AlphabetSprite [] sprites){
@@ -1047,6 +1001,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	@Override
 	public void onAnimationStart(Animation animation) {
+		// TODO Auto-generated method stub
+
+	}
+	@Override
+	public void onLoadComplete() {
 		// TODO Auto-generated method stub
 
 	}
