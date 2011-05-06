@@ -168,6 +168,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private Sound m_DropToBoxSound;
 	private Sound m_HelpSound;
 	private Sound m_FailToDropSound;
+	private Sound m_AlphabetSound;
 
 	private Random randomX;
 	private Random randomY;
@@ -178,6 +179,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private ArrayList<Point> m_RandomPoint;
 
 	private boolean m_bFirstTouch = true;
+	
+	private int m_Idx;
 
 
 	@Override
@@ -701,7 +704,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		m_playScene.registerTouchArea(m_SkipSprite);
 		//Load Sound
 		try {
-			this.m_ItemSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "bird.mp3");//m_strAlphabet+".mp3");
+			this.m_ItemSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, m_strAlphabet+".mp3");
 			this.m_ItemSound.setVolume(1.0f);
 		} catch (final IOException e) {
 			Debug.e("Error", e);
@@ -764,11 +767,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			this.m_arrAlphabetTexture[i].setCurrentTileIndex(0);
 		}
 
-		for(int j=0; j < m_strAlphabet.length(); j++){
+		for(int m_Idx=0; m_Idx < m_strAlphabet.length(); m_Idx++){
 			/*m_arrAlphabetSprite[j] = new AlphabetSprite(m_RandomPoint.get(j).x,m_RandomPoint.get(j).y,
 					this.m_arrAlphabetTexture[j], j, m_strAlphabet.charAt(j)) */
-			m_arrAlphabetSprite[j] = new AlphabetSprite(0,0,
-					this.m_arrAlphabetTexture[j], j, m_strAlphabet.charAt(j)) {
+			m_arrAlphabetSprite[m_Idx] = new AlphabetSprite(0,0,
+					this.m_arrAlphabetTexture[m_Idx], m_Idx, m_strAlphabet.charAt(m_Idx)) {
 				@Override
 				public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 					if (pSceneTouchEvent.getAction() == MotionEvent.ACTION_UP){
@@ -861,6 +864,13 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					//Set item size as 1.5times when user try to drag it.
 					else if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
 						m_CurrentTouchedAlphabetSprite = this;
+						try {
+							m_AlphabetSound = SoundFactory.createSoundFromAsset(mEngine.getSoundManager(), ThemeItemActivity.this, this.alphabet+".mp3");
+							m_AlphabetSound.setVolume(1.0f);
+							m_AlphabetSound.play();
+						} catch (final IOException e) {
+							Debug.e("Error", e);
+						}
 						this.setScale(1.5f);
 					}
 					//Dragging
