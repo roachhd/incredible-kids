@@ -54,7 +54,9 @@
 	    		  android:screenOrientation="landscape" />
 	    		  -->
 	    		  
-	    <activity android:name="GameStatusActivity"></activity>
+	    <activity android:name="GameStatusActivity"
+				  android:screenOrientation="landscape"
+				  android:configChanges="orientation|keyboardHidden"  />
 				  
 </application>
     <uses-sdk android:minSdkVersion="7" />

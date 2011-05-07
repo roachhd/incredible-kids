@@ -43,6 +43,7 @@ import org.anddev.andengine.util.Debug;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Point;
+import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -172,18 +173,25 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private ResourceClass m_ResourceClass;
 	
 	private String m_CurTheme;
+	
+	@Override
+	protected void onCreate(final Bundle pSavedInstanceState) {
+
+		Intent intent = getIntent();
+		m_currentLevel = intent.getIntExtra(Const.CUR_LEVEL, 0);
+		Log.e("WOORAM", "onCreate() m_currentLevel:"+m_currentLevel); 
+		super.onCreate(pSavedInstanceState);
+	}
 
 	@Override
-	public Engine onLoadEngine() {
-		Intent intent = getIntent();
+	public Engine onLoadEngine() {	
 		
-		m_currentLevel = intent.getIntExtra(Const.CUR_LEVEL, 0);
 		m_ResourceClass = ResourceClass.getInstance();	
 		m_CurTheme = m_ResourceClass.getCurrentTheme();		
 		
 		m_quizItemList = new ArrayList<Item>();
 
-		this.m_iCurrentItemNum = m_currentLevel-1 * 5;
+		this.m_iCurrentItemNum = (m_currentLevel-1) * 5;
 		this.m_bSoundOn = true;
 
 		this.randomX = new Random();
@@ -207,6 +215,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		this.res = ResourceClass.getInstance();
 		this.m_ItemVector = res.getvItems();
+		Log.e("WOORAM", "m_iCurrentItemNum:" + m_iCurrentItemNum);
 		this.m_strAlphabet = this.m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
 
 		this.m_iCurrentCollideBoxIdx = 0;
@@ -244,10 +253,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	public void myLoadResources(){
 		Log.e(TAG, "myLoadResources()");
-		m_playScene = new Scene(2);
-		//final Scene loadingScene = new Scene(1);
-
+		
 		m_playScene.setBackground(new SpriteBackground(m_BackgroundSprite));
+		//final Scene loadingScene = new Scene(1);		
 		//Load Help
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.btn_hint , 0, 0);
@@ -457,7 +465,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		loadingScene.registerUpdateHandler(new TimerHandler(1.0f, true, new ITimerCallback() {
 			@Override
 			public void onTimePassed(final TimerHandler pTimerHandler) {
-				
+				m_playScene = new Scene(2);
 				myLoadResources();
 				//Make retry scene
 				m_RetryScene = new CameraScene(1, m_Camera); 	
