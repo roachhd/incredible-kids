@@ -2,6 +2,7 @@ package com.incrediblekids.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -63,15 +64,37 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		m_GameMode.setOnClickListener(this);
 		m_StudyMode.setOnClickListener(this);
 		
-		
+
 		showIntro();
+		
+		updateScore();
 		
 		m_Res = ResourceClass.getInstance();
 		
 		MODE = MODE_STUDY;	// default Mode
 	}
 
-	private void showIntro() {
+	/**
+	 * update Theme's score
+	 */
+	private void updateScore() {
+	    
+		// Restore preferences
+		SharedPreferences settings = getSharedPreferences(Const.PREFERNCE, 0);
+		if(settings == null) {
+		    Log.e(TAG, "updateScore() null");
+		}
+		
+		int animal_val    = settings.getInt(Const.THEME_ANIMAL, 0);
+		int toy_val       = settings.getInt(Const.THEME_TOY, 0);
+		int food_val      = settings.getInt(Const.THEME_FOOD, 0);
+		int number_val    = settings.getInt(Const.THEME_NUMBER, 0);
+		int color_val     = settings.getInt(Const.THEME_COLOR, 0);
+        
+		//TODO: update View
+    }
+
+    private void showIntro() {
 		Handler handler = new Handler();
 		
 		handler.postDelayed(new Runnable() {

@@ -13,6 +13,7 @@ import java.util.Vector;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Matrix;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
@@ -26,11 +27,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
 
 import com.incrediblekids.util.Const;
@@ -204,11 +205,35 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			pauseAnimation();
 			m_TimeFrameAnimation.stop();
 			
+			updatePreference();
+			
 			startActivityForResult(m_PopupIntent, Const.RETRY_DIALOG_RESULT);
 		}
 	}
 
-	@Override
+	/**
+	 * update Current theme's score
+	 */
+	private void updatePreference() {
+	    String currentTheme = m_Res.getCurrentTheme();
+	    int currentVal = 0;
+	    
+	    // We need an Editor object to make preference changes.
+	    // All objects are from android.context.Context
+	    SharedPreferences settings = getSharedPreferences(Const.PREFERNCE, 0);
+	    
+	    currentVal = settings.getInt(currentTheme, 0);
+	    Log.d(TAG, "currentTheme: " + currentTheme);
+	    Log.d(TAG, "currentVal: " + currentVal);
+	    
+	    SharedPreferences.Editor editor = settings.edit();
+	    editor.putInt(currentTheme, ++currentVal);
+
+	    // Commit the edits!
+	    editor.commit();
+    }
+
+    @Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
 		Log.d(TAG, "onWindowFocusChanged()");
@@ -243,7 +268,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		int viewGroupValue	= R.id.flContainer1;
 		
 		for(int i = 0; i < MAX_COUNT; i++) {
-			m_ItemImages[i]	= (ImageView)findViewById(firstItemValue); // 占쎈뀓�뚳옙占�_-;
+			m_ItemImages[i]	= (ImageView)findViewById(firstItemValue); // �좎럥�볩옙�녹삕�좑옙_-;
 			m_ItemImages[i].setOnClickListener(this);
 			m_ItemImages[i].setTag(ITEM_DEFAULT);
 			m_ItemImages[i].setClickable(true);
@@ -252,7 +277,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			m_Questions[i].setOnClickListener(this);
 			m_Questions[i].setClickable(true);
 			
-			m_Containers[i]	= (ViewGroup)findViewById(viewGroupValue); // 占쎈뀓�뚳옙占�_-;
+			m_Containers[i]	= (ViewGroup)findViewById(viewGroupValue); // �좎럥�볩옙�녹삕�좑옙_-;
 			m_Containers[i].setPersistentDrawingCache(ViewGroup.PERSISTENT_ANIMATION_CACHE);
 			m_Containers[i].setTag(new ViewHolder(m_ItemImages[i], m_Questions[i]));
 			
@@ -296,7 +321,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	}
 	
 	/**
-	 * N 占쎌듌占쎌Ł占�占쎈쪋竊잛쮬��姨뷀쉪占쏀쉪吏뺧옙占쎈쨸占폪uestion 姨뷀쉪占쏀쉪吏뺧옙占쎈ゥ占쏙옙��옙�꿸텢吏쒗�.
+	 * N �좎럩�뚦뜝�뚂곩뜝占썲뜝�덉챾塋딆옕怡э옙占썲㎤酉�돦�좎��わ쭪類㏃삕�좎럥夷멨뜝�챬estion 冶⑤��ゅ뜝��돦筌욌벨�쇿뜝�덀궏�좎룞�숋옙占쎌삕占쎄옇��쭪�쀯옙.
 	 */
 	private void toggleImages() {
 		
@@ -462,8 +487,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	}
 	
 	/**
-	 * Random HashMap 吏㏆옙夷섓옙占�br />
-	 * Item姨붿㎣ 占쏀쉹占쎌㎏吏э옙占쏙옙沅깍옙吏㏉쉧泥⑺슀夷됱Ł吏쒗�.
+	 * Random HashMap 筌욁룇�쇿ㅇ�볦삕�좑옙br />
+	 * Item冶⑤뗄���좎��밧뜝�뚣럮筌왨띿삕�좎룞�숁쾮源띿삕筌욁룊�㏆㎗�븐�鸚룸맩흟筌욎뮉占�
 	 */
 	private void makeRandomHashMap() {
 		Log.d(TAG, "makeRandomHashMap()");
@@ -1117,5 +1142,4 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_PopupIntent 			= null;
 		
 	}
-
 }
