@@ -90,9 +90,9 @@ public class GameStatusActivity extends Activity {
 			ivLevel_3.setVisibility(View.VISIBLE);
 			ivLevel_4.setVisibility(View.VISIBLE);
 			ivLevel_1.setImageResource(R.drawable.level_animal_1);
-			ivLevel_1.setImageResource(R.drawable.level_locked_small);
-			ivLevel_1.setImageResource(R.drawable.level_locked_small);
-			ivLevel_1.setImageResource(R.drawable.level_locked_small);
+			ivLevel_2.setImageResource(R.drawable.level_locked_small);
+			ivLevel_3.setImageResource(R.drawable.level_locked_small);
+			ivLevel_4.setImageResource(R.drawable.level_locked_small);
 			
 			if(curLevel == 1)
 				ivLevel_2.setImageResource(R.drawable.level_animal_2);
@@ -111,9 +111,9 @@ public class GameStatusActivity extends Activity {
 			ivLevel_3.setVisibility(View.VISIBLE);
 			ivLevel_4.setVisibility(View.VISIBLE);
 			ivLevel_1.setImageResource(R.drawable.level_toy_1);
-			ivLevel_1.setImageResource(R.drawable.level_locked_small);
-			ivLevel_1.setImageResource(R.drawable.level_locked_small);
-			ivLevel_1.setImageResource(R.drawable.level_locked_small);
+			ivLevel_2.setImageResource(R.drawable.level_locked_small);
+			ivLevel_3.setImageResource(R.drawable.level_locked_small);
+			ivLevel_4.setImageResource(R.drawable.level_locked_small);
 			
 			if(curLevel == 1)
 				ivLevel_2.setImageResource(R.drawable.level_toy_2);

@@ -467,7 +467,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	@Override
 	protected void onResume(){
 		super.onResume();
-		if (!m_Music.isPlaying()){
+		if (m_Music != null && !m_Music.isPlaying()){
 			m_Music.play();
 		}
 	}
