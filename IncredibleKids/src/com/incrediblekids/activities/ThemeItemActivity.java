@@ -239,7 +239,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 					if (m_bFirstTouch == true)
 						return true;
-
+ 
 					//play sound
 					if (m_bSoundOn == true)
 						m_HelpSound.play();
