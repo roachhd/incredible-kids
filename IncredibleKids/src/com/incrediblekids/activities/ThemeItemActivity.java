@@ -226,6 +226,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		m_playScene = new Scene(2);
 		//final Scene loadingScene = new Scene(1);
 
+		m_playScene.setBackground(new SpriteBackground(m_BackgroundSprite));
 		//Load Help
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.btn_hint , 0, 0);
@@ -435,6 +436,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		loadingScene.registerUpdateHandler(new TimerHandler(1.0f, true, new ITimerCallback() {
 			@Override
 			public void onTimePassed(final TimerHandler pTimerHandler) {
+				
 				myLoadResources();
 				//Make retry scene
 				m_RetryScene = new CameraScene(1, m_Camera); 	
