@@ -135,6 +135,7 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		if(isValid)
 			launchActivity();
 		
+		
 //		if(isValid) {
 //			startActivityForResult(intent, Const.MODE_DIALOG_RESULT);
 //		}
