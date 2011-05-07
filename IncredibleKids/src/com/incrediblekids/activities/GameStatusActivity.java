@@ -2,7 +2,9 @@ package com.incrediblekids.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -18,6 +20,8 @@ public class GameStatusActivity extends Activity {
 	private ImageView ivLevel_3 = null;
 	private ImageView ivLevel_4 = null;
 	
+	private int curLevel = 0;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -25,9 +29,8 @@ public class GameStatusActivity extends Activity {
 		setContentView(R.layout.game_status);
 		
 		ResourceClass m_ResourceClass = ResourceClass.getInstance();
-		m_ResourceClass.vItems.size();
-	 
-		
+		m_ResourceClass.vItems.size();		
+	
 		ivLevel_1 = (ImageView)findViewById(R.id.level_1);
 		ivLevel_2 = (ImageView)findViewById(R.id.level_2);
 		ivLevel_3 = (ImageView)findViewById(R.id.level_3);
@@ -75,37 +78,79 @@ public class GameStatusActivity extends Activity {
 	}
 	
 	private void setImageResource(ResourceClass m_ResourceClass){
+		// Restore preferences
+		SharedPreferences settings = getSharedPreferences(Const.PREFERNCE, 0);
+		if(settings == null) {
+		    Log.e(TAG, "updateScore() null");
+		}
 		
 		if (m_ResourceClass.getCurrentTheme().equals(Const.THEME_ANIMAL)) 
 		{			
+			curLevel = settings.getInt(Const.THEME_ANIMAL, 0);
 			ivLevel_3.setVisibility(View.VISIBLE);
 			ivLevel_4.setVisibility(View.VISIBLE);
 			ivLevel_1.setImageResource(R.drawable.level_animal_1);
-			ivLevel_2.setImageResource(R.drawable.level_animal_2);
-			ivLevel_3.setImageResource(R.drawable.level_animal_3);
-			ivLevel_4.setImageResource(R.drawable.level_animal_4);
+			ivLevel_1.setImageResource(R.drawable.level_locked_small);
+			ivLevel_1.setImageResource(R.drawable.level_locked_small);
+			ivLevel_1.setImageResource(R.drawable.level_locked_small);
+			
+			if(curLevel == 1)
+				ivLevel_2.setImageResource(R.drawable.level_animal_2);
+			if(curLevel == 2){
+				ivLevel_2.setImageResource(R.drawable.level_animal_2);
+				ivLevel_3.setImageResource(R.drawable.level_animal_3);
+			}
+			if(curLevel == 3 || curLevel == 4){
+				ivLevel_2.setImageResource(R.drawable.level_animal_2);
+				ivLevel_3.setImageResource(R.drawable.level_animal_3);
+				ivLevel_4.setImageResource(R.drawable.level_animal_4);
+			}
+			
 		}else if(m_ResourceClass.getCurrentTheme().equals(Const.THEME_TOY)){
-			ivLevel_1.setImageResource(R.drawable.level_toy_1);
-			ivLevel_2.setImageResource(R.drawable.level_toy_2);
-			ivLevel_3.setImageResource(R.drawable.level_toy_3);
-			ivLevel_4.setImageResource(R.drawable.level_toy_4);
+			curLevel = settings.getInt(Const.THEME_TOY, 0);
 			ivLevel_3.setVisibility(View.VISIBLE);
 			ivLevel_4.setVisibility(View.VISIBLE);
+			ivLevel_1.setImageResource(R.drawable.level_toy_1);
+			ivLevel_1.setImageResource(R.drawable.level_locked_small);
+			ivLevel_1.setImageResource(R.drawable.level_locked_small);
+			ivLevel_1.setImageResource(R.drawable.level_locked_small);
+			
+			if(curLevel == 1)
+				ivLevel_2.setImageResource(R.drawable.level_toy_2);
+			if(curLevel == 2){
+				ivLevel_2.setImageResource(R.drawable.level_toy_2);
+				ivLevel_3.setImageResource(R.drawable.level_toy_3);
+			}
+			if(curLevel == 3 || curLevel == 4){
+				ivLevel_2.setImageResource(R.drawable.level_toy_2);
+				ivLevel_3.setImageResource(R.drawable.level_toy_3);
+				ivLevel_4.setImageResource(R.drawable.level_toy_4);
+			}
 		}else if(m_ResourceClass.getCurrentTheme().equals(Const.THEME_FOOD)){
+			curLevel = settings.getInt(Const.THEME_FOOD, 0);
 			ivLevel_1.setImageResource(R.drawable.level_food_1);
-			ivLevel_2.setImageResource(R.drawable.level_food_2);
+			ivLevel_2.setImageResource(R.drawable.level_locked_big);
 			ivLevel_3.setVisibility(View.GONE);
 			ivLevel_4.setVisibility(View.GONE);
+			if(curLevel == 1 || curLevel == 2)
+				ivLevel_2.setImageResource(R.drawable.level_food_2);
+			
 		}else if(m_ResourceClass.getCurrentTheme().equals(Const.THEME_NUMBER)){
+			curLevel = settings.getInt(Const.THEME_NUMBER, 0);
 			ivLevel_1.setImageResource(R.drawable.level_number_1);
-			ivLevel_2.setImageResource(R.drawable.level_number_2);
+			ivLevel_2.setImageResource(R.drawable.level_locked_big);
 			ivLevel_3.setVisibility(View.GONE);
 			ivLevel_4.setVisibility(View.GONE);
+			if(curLevel == 1 || curLevel == 2)
+				ivLevel_2.setImageResource(R.drawable.level_number_2);
 		}else if(m_ResourceClass.getCurrentTheme().equals(Const.THEME_COLOR)){
+			curLevel = settings.getInt(Const.THEME_COLOR, 0);
 			ivLevel_1.setImageResource(R.drawable.level_color_1);
-			ivLevel_2.setImageResource(R.drawable.level_color_2);
+			ivLevel_2.setImageResource(R.drawable.level_locked_big);
 			ivLevel_3.setVisibility(View.GONE);
 			ivLevel_4.setVisibility(View.GONE);
+			if(curLevel == 1 || curLevel == 2)
+				ivLevel_2.setImageResource(R.drawable.level_color_2);
 		}
 	}
 

@@ -454,6 +454,14 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			m_Music.pause();
 		}
 	}
+	
+	@Override
+	protected void onResume(){
+		super.onResume();
+		if (!m_Music.isPlaying()){
+			m_Music.play();
+		}
+	}
 
 	@Override
 	public Scene onLoadScene() {
@@ -678,10 +686,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	//Update scene with new entities.
 	private void updateScene(){
-		if (!m_Music.isPlaying()){
-			m_Music.play();
-		}
-
+		
 		m_RandomPoint = this.getAreaArray();
 
 		loadEntityTexture();
