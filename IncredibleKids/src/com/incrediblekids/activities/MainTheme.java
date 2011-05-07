@@ -49,6 +49,8 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate()");
 		
+		//TODO : bgm sound
+		
 		setContentView(R.layout.main_theme);
 		
 		m_MainTheme 	= (RelativeLayout)findViewById(R.id.main_theme);

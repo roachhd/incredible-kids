@@ -34,6 +34,9 @@ public class PopupActivity extends Activity {
 		m_Ok 	 = (ImageView)findViewById(R.id.ivOk);
 		m_Cancel = (ImageView)findViewById(R.id.ivCancel);
 		
+		m_Ok.setBackgroundResource(R.drawable.popup_game_ok);
+		m_Cancel.setBackgroundResource(R.drawable.popup_game_cancel);
+		
 		m_Ok.setOnClickListener(new View.OnClickListener() {
 			
 			@Override

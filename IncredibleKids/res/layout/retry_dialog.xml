@@ -32,7 +32,7 @@
 		  	android:layout_width="fill_parent"
 		  	android:layout_height="fill_parent"
 		  	android:layout_weight="1">
-			<ImageView android:src="@drawable/icon" android:id="@+id/ivOk"
+			<ImageView android:id="@+id/ivOk"
 				android:layout_height="wrap_content" android:layout_width="wrap_content"
 				android:layout_centerVertical="true"
 				android:layout_alignParentLeft="true"
@@ -44,7 +44,7 @@
 		  	android:layout_width="fill_parent"
 		  	android:layout_height="fill_parent"
 		  	android:layout_weight="1">
-			<ImageView android:src="@drawable/icon" android:id="@+id/ivCancel"
+			<ImageView android:id="@+id/ivCancel"
 				android:layout_height="wrap_content" android:layout_width="wrap_content"
 				android:layout_centerVertical="true"
 				android:layout_alignParentRight="true"

@@ -207,7 +207,13 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			
 			updatePreference();
 			
-			startActivityForResult(m_PopupIntent, Const.RETRY_DIALOG_RESULT);
+			finish();
+			Intent intent = new Intent(MatchQuiz.this, GameStatusActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+			//TODO: goto Main
+//			startActivityForResult(m_PopupIntent, Const.RETRY_DIALOG_RESULT);
 		}
 	}
 
@@ -217,20 +223,41 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private void updatePreference() {
 	    String currentTheme = m_Res.getCurrentTheme();
 	    int currentVal = 0;
+	    int previousScore = 0;
+	    int maxValue = 0;
 	    
 	    // We need an Editor object to make preference changes.
 	    // All objects are from android.context.Context
 	    SharedPreferences settings = getSharedPreferences(Const.PREFERNCE, 0);
 	    
 	    currentVal = settings.getInt(currentTheme, 0);
+	    previousScore = getIntent().getIntExtra(Const.CUR_LEVEL, 0);
+	    
 	    Log.d(TAG, "currentTheme: " + currentTheme);
 	    Log.d(TAG, "currentVal: " + currentVal);
+	    Log.d(TAG, "previousScore: " + previousScore);
 	    
-	    SharedPreferences.Editor editor = settings.edit();
-	    editor.putInt(currentTheme, ++currentVal);
+	    if(previousScore > currentVal) {
+	        // do nothing;
+	    }
+	    else {
+	        if(currentTheme == Const.THEME_ANIMAL || currentTheme == Const.THEME_TOY) {
+	            maxValue = 4;
+	        }
+	        else {
+	            maxValue = 2;
+	        }
+	        
+	        if(currentVal < maxValue) {
+	            currentVal++;
+	            SharedPreferences.Editor editor = settings.edit();
+	            editor.putInt(currentTheme, currentVal);
 
-	    // Commit the edits!
-	    editor.commit();
+	            // Commit the edits!
+	            editor.commit();
+	        }
+	        
+	    }
     }
 
     @Override
@@ -332,7 +359,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				for(int i = 0; i < MAX_COUNT; i++) {
 					m_ItemImages[i].setVisibility(View.GONE);
 					m_Questions[i].setVisibility(View.VISIBLE);
-					
 				}
 				//Test
 				if(m_TimeFrameImage == null)
