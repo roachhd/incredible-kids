@@ -171,6 +171,10 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				Log.d(TAG, "resultCode:" + "RESULT_CANCELED");
 				setResult(RESULT_OK);
 				finish();
+				Intent intent = new Intent(MatchQuiz.this, GameStatusActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
 			}
 		}
 	}
