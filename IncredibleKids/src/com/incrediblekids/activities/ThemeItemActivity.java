@@ -168,13 +168,22 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private ArrayList<Point> m_RandomPoint;
 
 	private boolean m_bFirstTouch = true;
+	private int m_currentLevel;
+	private ResourceClass m_ResourceClass;
+	
+	private String m_CurTheme;
 
 	@Override
 	public Engine onLoadEngine() {
-
+		Intent intent = getIntent();
+		
+		m_currentLevel = intent.getIntExtra(Const.CUR_LEVEL, 0);
+		m_ResourceClass = ResourceClass.getInstance();	
+		m_CurTheme = m_ResourceClass.getCurrentTheme();		
+		
 		m_quizItemList = new ArrayList<Item>();
 
-		this.m_iCurrentItemNum = 0;
+		this.m_iCurrentItemNum = m_currentLevel-1 * 5;
 		this.m_bSoundOn = true;
 
 		this.randomX = new Random();
@@ -196,9 +205,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			this.CAMERA_HEIGHT = 320;
 		}
 
-		/*		
-		this.CAMERA_WIDTH = getLCDWidth();
-		this.CAMERA_HEIGHT = getLCDHeight();*/
 		this.res = ResourceClass.getInstance();
 		this.m_ItemVector = res.getvItems();
 		this.m_strAlphabet = this.m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
@@ -216,7 +222,22 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		//Load Background
 		this.m_BackgroundTexture = new Texture(2048, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
+		
+		if(m_CurTheme.equals(Const.THEME_ANIMAL)){
+			this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
+		}
+		else if(m_CurTheme.equals(Const.THEME_COLOR)){
+			this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_color_play, 0, 0);
+		}
+		else if(m_CurTheme.equals(Const.THEME_FOOD)){
+			this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_food_play, 0, 0);
+		}
+		else if(m_CurTheme.equals(Const.THEME_NUMBER)){
+			this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
+		}
+		else if(m_CurTheme.equals(Const.THEME_TOY)){
+			this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
+		}
 		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
 		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
 	}
@@ -539,11 +560,12 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	//Reset Screen - Remove all the entities from scene.
 	private void resetScreen(){
-
+		
 		if (this.m_iCurrentItemNum % ITEM_NUM_PER_STAGE == 0){
 			m_quizItemList.clear();
 			m_quizItemList.addAll(this.m_ItemVector.subList(m_iCurrentItemNum - ITEM_NUM_PER_STAGE, m_iCurrentItemNum));
 			Intent intent = new Intent(this, MatchQuiz.class);
+			intent.putExtra(Const.CUR_LEVEL, m_currentLevel);
 			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, m_quizItemList);
 			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
 

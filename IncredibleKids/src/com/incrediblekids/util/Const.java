@@ -17,4 +17,11 @@ public class Const {
 	public final static int MATCH_QUIZ_RESULT 	= 1000;
 	public final static int MODE_DIALOG_RESULT 	= 2000;
 	public final static int RETRY_DIALOG_RESULT = 3000;
+	
+	public final static int LEVEL_1 = 1;
+	public final static int LEVEL_2 = 2;
+	public final static int LEVEL_3 = 3;
+	public final static int LEVEL_4 = 4;
+	
+	public final static String CUR_LEVEL = "com.incrediblekids.level";
 }
