@@ -12,6 +12,8 @@ import org.anddev.andengine.audio.sound.SoundFactory;
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.camera.Camera;
 import org.anddev.andengine.engine.handler.IUpdateHandler;
+import org.anddev.andengine.engine.handler.timer.ITimerCallback;
+import org.anddev.andengine.engine.handler.timer.TimerHandler;
 import org.anddev.andengine.engine.options.EngineOptions;
 import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.anddev.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
@@ -211,7 +213,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	@Override
 	public void onLoadResources() {
 		Log.e(TAG, "onLoadResources()");
-		
+
 		//Load Background
 		this.m_BackgroundTexture = new Texture(2048, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
@@ -220,6 +222,121 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	}
 
 	public void myLoadResources(){
+		Log.e(TAG, "myLoadResources()");
+		m_playScene = new Scene(2);
+		//final Scene loadingScene = new Scene(1);
+
+		//Load Help
+		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.btn_hint , 0, 0);
+		this.m_Help = new Sprite(m_HelpTextureRegion.getWidth()/4, m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion){
+
+			@Override
+			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+				Log.e(TAG, "onAreaTouched");
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+
+					if (m_bFirstTouch == true)
+						return true;
+
+					//play sound
+					if (m_bSoundOn == true)
+						m_HelpSound.play();
+
+					for (int i=0; i < m_arrAlphabetSprite.length; i++){
+
+						//Wrong alphabet is filled in box
+						if(m_arrBoxSprite[i].bFilled && !m_arrBoxSprite[i].bCorrect){
+
+							m_arrAlphabetSprite[m_arrBoxSprite[i].filledAlphabetIndex].addShapeModifier(new MoveModifier(1,
+									m_arrBoxSprite[i].getX(), m_RandomPoint.get(m_arrBoxSprite[i].filledAlphabetIndex).x,
+									m_arrBoxSprite[i].getY(), m_RandomPoint.get(m_arrBoxSprite[i].filledAlphabetIndex).y,
+									EaseExponentialOut.getInstance()));
+							m_arrAlphabetSprite[m_arrBoxSprite[i].filledAlphabetIndex].setCurrentTileIndex(0);
+							m_arrBoxSprite[i].bFilled = false;
+							m_arrBoxSprite[i].bCorrect = false;
+							m_arrBoxSprite[i].filledAlphabetIndex = -1;
+							m_arrBoxSprite[i].alphabetContainer = EMPTY_ALPHABET;
+						}
+
+						if(!m_arrBoxSprite[i].bFilled){
+							Log.e(TAG, "help work!!");
+							float boxX = m_arrBoxSprite[i].getX();
+							float boxY = m_arrBoxSprite[i].getY();
+							float boxWidth = m_arrBoxSprite[i].getWidth();
+							float boxHeight = m_arrBoxSprite[i].getHeight();
+							m_arrAlphabetSprite[i].addShapeModifier(new MoveModifier(2,
+									m_arrAlphabetSprite[i].getX(), boxX + (boxWidth/2 - m_arrAlphabetSprite[i].getWidth()/2),
+									m_arrAlphabetSprite[i].getY(), boxY + (boxHeight/2 - m_arrAlphabetSprite[i].getHeight()/2),
+									EaseElasticOut.getInstance()));
+							m_arrAlphabetSprite[i].setCurrentTileIndex(1);
+							for (int j=0; j < m_arrBoxSprite.length; j++){
+								if(m_arrBoxSprite[j].filledAlphabetIndex == i){
+									m_arrBoxSprite[j].bFilled = false;
+									m_arrBoxSprite[j].bCorrect = false;
+									m_arrBoxSprite[j].filledAlphabetIndex = -1;
+									m_arrBoxSprite[i].alphabetContainer = EMPTY_ALPHABET;
+								}
+							}
+
+							m_arrBoxSprite[i].bFilled = true;
+							m_arrBoxSprite[i].bCorrect = true;
+							m_arrBoxSprite[i].filledAlphabetIndex = i;
+							m_arrBoxSprite[i].alphabetContainer = m_arrAlphabetSprite[i].alphabet;
+
+							//reset screen to next item when user clear the stage
+							if(isAllBoxesFilled(m_arrBoxSprite)){
+								if(isStageCleared(m_arrBoxSprite)){
+									if (m_iCurrentItemNum < m_ItemVector.size()-1){
+										m_iCurrentItemNum++;
+										m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
+									}else{
+										m_iCurrentItemNum = 0;
+										m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
+									}
+									m_playScene.clearTouchAreas();
+									shakeAndResetSprite(m_Item);
+								}
+							}
+							m_CurrentTouchedAlphabetSprite = null;
+							break;
+						}
+					}
+				}
+				return true;
+			}
+		};
+		m_playScene.getLayer(BASE_LAYER).addEntity(m_Help);
+
+		//Skip 		
+		this.m_SkipTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_SkipTextureRegion = TextureRegionFactory.createFromResource(m_SkipTexture, this, R.drawable.btn_skip, 0, 0);
+
+		this.m_SkipSprite = new Sprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
+				m_SkipTextureRegion.getHeight()/4, this.m_SkipTextureRegion){
+			@Override 
+			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+
+					if (m_iCurrentItemNum < m_ItemVector.size()-1){
+						m_iCurrentItemNum++;
+						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
+					}else{
+						m_iCurrentItemNum = 0;
+						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
+					}
+					m_playScene.clearTouchAreas();			 
+					resetScreen();
+					return true;
+				}
+				return false;
+			}
+		};
+		m_playScene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);	
+
+		this.mEngine.getTextureManager().loadTexture(this.m_HelpTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_SkipTexture);
+
 		SoundFactory.setAssetBasePath("mfx/");
 
 		try {
@@ -312,132 +429,23 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	public Scene onLoadScene() {
 		Log.e(TAG, "onLoadScene()");
 		this.mEngine.registerUpdateHandler(new FPSLogger());
-		m_playScene = new Scene(2);
-		//final Scene loadingScene = new Scene(1);
-
-		//Load Help
-		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.btn_hint , 0, 0);
-		this.m_Help = new Sprite(m_HelpTextureRegion.getWidth()/4, m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion){
-
+		final Scene loadingScene = new Scene(1);
+		//loadingScene.getTopLayer().addEntity(this.m_BackgroundSprite);
+		loadingScene.setBackground(new SpriteBackground(m_BackgroundSprite));//new ColorBackground(0.09804f, 0.6274f, 0.8784f));
+		loadingScene.registerUpdateHandler(new TimerHandler(1.0f, true, new ITimerCallback() {
 			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				Log.e(TAG, "onAreaTouched");
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-
-					if (m_bFirstTouch == true)
-						return true;
-
-					//play sound
-					if (m_bSoundOn == true)
-						m_HelpSound.play();
-
-					for (int i=0; i < m_arrAlphabetSprite.length; i++){
-
-						//Wrong alphabet is filled in box
-						if(m_arrBoxSprite[i].bFilled && !m_arrBoxSprite[i].bCorrect){
-
-							m_arrAlphabetSprite[m_arrBoxSprite[i].filledAlphabetIndex].addShapeModifier(new MoveModifier(1,
-									m_arrBoxSprite[i].getX(), m_RandomPoint.get(m_arrBoxSprite[i].filledAlphabetIndex).x,
-									m_arrBoxSprite[i].getY(), m_RandomPoint.get(m_arrBoxSprite[i].filledAlphabetIndex).y,
-									EaseExponentialOut.getInstance()));
-							m_arrAlphabetSprite[m_arrBoxSprite[i].filledAlphabetIndex].setCurrentTileIndex(0);
-							m_arrBoxSprite[i].bFilled = false;
-							m_arrBoxSprite[i].bCorrect = false;
-							m_arrBoxSprite[i].filledAlphabetIndex = -1;
-							m_arrBoxSprite[i].alphabetContainer = EMPTY_ALPHABET;
-						}
-
-						if(!m_arrBoxSprite[i].bFilled){
-							Log.e(TAG, "help work!!");
-							float boxX = m_arrBoxSprite[i].getX();
-							float boxY = m_arrBoxSprite[i].getY();
-							float boxWidth = m_arrBoxSprite[i].getWidth();
-							float boxHeight = m_arrBoxSprite[i].getHeight();
-							m_arrAlphabetSprite[i].addShapeModifier(new MoveModifier(2,
-									m_arrAlphabetSprite[i].getX(), boxX + (boxWidth/2 - m_arrAlphabetSprite[i].getWidth()/2),
-									m_arrAlphabetSprite[i].getY(), boxY + (boxHeight/2 - m_arrAlphabetSprite[i].getHeight()/2),
-									EaseElasticOut.getInstance()));
-							m_arrAlphabetSprite[i].setCurrentTileIndex(1);
-							for (int j=0; j < m_arrBoxSprite.length; j++){
-								if(m_arrBoxSprite[j].filledAlphabetIndex == i){
-									m_arrBoxSprite[j].bFilled = false;
-									m_arrBoxSprite[j].bCorrect = false;
-									m_arrBoxSprite[j].filledAlphabetIndex = -1;
-									m_arrBoxSprite[i].alphabetContainer = EMPTY_ALPHABET;
-								}
-							}
-
-							m_arrBoxSprite[i].bFilled = true;
-							m_arrBoxSprite[i].bCorrect = true;
-							m_arrBoxSprite[i].filledAlphabetIndex = i;
-							m_arrBoxSprite[i].alphabetContainer = m_arrAlphabetSprite[i].alphabet;
-
-							//reset screen to next item when user clear the stage
-							if(isAllBoxesFilled(m_arrBoxSprite)){
-								if(isStageCleared(m_arrBoxSprite)){
-									if (m_iCurrentItemNum < m_ItemVector.size()-1){
-										m_iCurrentItemNum++;
-										m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
-									}else{
-										m_iCurrentItemNum = 0;
-										m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
-									}
-									m_playScene.clearTouchAreas();
-									shakeAndResetSprite(m_Item);
-								}
-							}
-							m_CurrentTouchedAlphabetSprite = null;
-							break;
-						}
-					}
-				}
-				return true;
+			public void onTimePassed(final TimerHandler pTimerHandler) {
+				myLoadResources();
+				//Make retry scene
+				m_RetryScene = new CameraScene(1, m_Camera); 	
+				m_RetryScene.setBackgroundEnabled(false);
+				composeRetryScene();
+				createBaseSprite();
+				updateScene();
+				mEngine.setScene(m_playScene);
 			}
-		};
-		m_playScene.getLayer(BASE_LAYER).addEntity(m_Help);
-
-		//Skip 		
-		this.m_SkipTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_SkipTextureRegion = TextureRegionFactory.createFromResource(m_SkipTexture, this, R.drawable.btn_skip, 0, 0);
-
-		this.m_SkipSprite = new Sprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
-				m_SkipTextureRegion.getHeight()/4, this.m_SkipTextureRegion){
-			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-
-					if (m_iCurrentItemNum < m_ItemVector.size()-1){
-						m_iCurrentItemNum++;
-						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
-					}else{
-						m_iCurrentItemNum = 0;
-						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
-					}
-					m_playScene.clearTouchAreas();			
-					resetScreen();
-					return true;
-				}
-				return false;
-			}
-		};
-		m_playScene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);	
-
-		this.mEngine.getTextureManager().loadTexture(this.m_HelpTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_SkipTexture);
-
-		myLoadResources();
-		//Make retry scene
-		
-		m_RetryScene = new CameraScene(1, m_Camera);
-		m_RetryScene.setBackgroundEnabled(false);
-		composeRetryScene();
-		
-		createBaseSprite();
-		m_playScene.setBackground(new SpriteBackground(m_BackgroundSprite));//new ColorBackground(0.09804f, 0.6274f, 0.8784f));
-		updateScene();
-
-		return m_playScene;
+		}));
+		return loadingScene;
 	}
 
 	private void composeRetryScene(){
