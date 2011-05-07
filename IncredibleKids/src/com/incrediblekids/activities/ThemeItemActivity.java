@@ -132,6 +132,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private Sprite m_SkipSprite;
 	private Texture  m_SkipTexture;
 	private TextureRegion m_SkipTextureRegion;
+	
+	//Loading Sprite
+	private Sprite m_LoadingSprite;
+	private Texture m_LoadingTexture;
+	private TextureRegion m_LoadingTextureRegion;
 
 	//Pause
 	private Scene m_playScene;
@@ -231,6 +236,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		//Load Background
 		this.m_BackgroundTexture = new Texture(2048, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		m_LoadingTexture = new Texture(1024,1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		m_LoadingTextureRegion = TextureRegionFactory.createFromResource(this.m_LoadingTexture, this, R.drawable.loading_sprite, 0, 0);
+		
 		
 		if(m_CurTheme.equals(Const.THEME_ANIMAL)){
 			this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
@@ -242,13 +250,14 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_food_play, 0, 0);
 		}
 		else if(m_CurTheme.equals(Const.THEME_NUMBER)){
-			this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
+			this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_number_play, 0, 0);
 		}
 		else if(m_CurTheme.equals(Const.THEME_TOY)){
-			this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
+			this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_toy_play, 0, 0);
 		}
 		this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);
 		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_LoadingTexture);
 	}
 
 	public void myLoadResources(){
@@ -468,8 +477,12 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		Log.e(TAG, "onLoadScene()");
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 		final Scene loadingScene = new Scene(1);
+		
 		//loadingScene.getTopLayer().addEntity(this.m_BackgroundSprite);
-		loadingScene.setBackground(new SpriteBackground(m_BackgroundSprite));//new ColorBackground(0.09804f, 0.6274f, 0.8784f));
+		loadingScene.setBackground(new SpriteBackground(m_BackgroundSprite));
+		m_LoadingSprite = new Sprite(0 ,0,this.m_LoadingTextureRegion);
+		loadingScene.getTopLayer().addEntity(m_LoadingSprite);
+		//new ColorBackground(0.09804f, 0.6274f, 0.8784f));
 		loadingScene.registerUpdateHandler(new TimerHandler(1.0f, true, new ITimerCallback() {
 			@Override
 			public void onTimePassed(final TimerHandler pTimerHandler) {
