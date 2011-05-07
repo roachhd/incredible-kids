@@ -15,7 +15,7 @@ public class Item implements Parcelable{
 		iItemImgId = _imgId;
 		iItemWordId = _wordId;
 		iCardImgId = _cardImgId;
-		iCardWordId = _cardWordId;			
+		iCardWordId = _cardWordId;
 	}
 	
 	public Item(Parcel src){
