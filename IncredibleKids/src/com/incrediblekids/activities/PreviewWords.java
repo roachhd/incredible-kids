@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -16,6 +17,8 @@ import org.xml.sax.SAXException;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BlurMaskFilter;
@@ -25,6 +28,9 @@ import android.graphics.Rect;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -62,7 +68,6 @@ import com.incrediblekids.util.Item;
 import com.incrediblekids.util.PreviewGallery;
 
 public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
-	
 	/********************************
 	 * Constants
 	 ********************************/
@@ -103,6 +108,11 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 	
 	private int[] IMAGE_SIZE=null; 
 			
+	private MediaPlayer m_QuizBGM;
+	
+	private SoundPool m_SoundEffect = null;
+	private int	m_SoundEffectId[] = null;
+	
 	public ResourceClass res;
 	
 	/* Test Frame Animation */
@@ -127,7 +137,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 		
 		/* Set content view */
 		setContentView(R.layout.preview_words);
-		
+
 		/* Get Display Size */
 		int mHeight = getWindowManager().getDefaultDisplay().getHeight();
 		int mWidth = getWindowManager().getDefaultDisplay().getWidth();
@@ -149,6 +159,12 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			m_RightImgVector.add(Bitmap.createBitmap(bit, bit.getWidth()/2, 0, bit.getWidth()/2, bit.getHeight()));
 		}
 		
+		m_QuizBGM	= MediaPlayer.create(this, R.raw.quizbgm);
+		m_QuizBGM.setLooping(true);
+		
+		m_SoundEffect = new SoundPool(m_ItemVector.size(), AudioManager.STREAM_MUSIC, 0);
+		m_SoundEffectId = new int[20];
+		
 		/* Get Thumbnail Image resource by thread */
 		m_ImgLoadingThread = new ImageLoadingThread();
 		m_ImgLoadingThread.start();
@@ -162,7 +178,6 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 				m_PictureImg.setImageBitmap(m_aBitmap[0]);
 			}
 		};
-		
 		
 		/* Create Photo Viewer Layout */
 		m_PictureViewerLayout = (LinearLayout)findViewById(R.id.linear);
@@ -270,6 +285,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 					} else { // Click
 						if(!m_WordImg.isShown()) {
 							if (DEBUG) Log.d(TAG, "Image Click");
+							m_SoundEffect.play(m_SoundEffectId[m_iSelectedItem], 1.0f, 1.0f, 0, 0, 1.0f);
 							m_QuizImg.setImageBitmap(m_RightImgVector.get(m_iSelectedItem));
 							m_WordImg.setAnimation(AnimationUtils.loadAnimation(PreviewWords.this, android.R.anim.fade_in));
 							m_WordImg.setVisibility(View.VISIBLE);
@@ -340,11 +356,33 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 		});
 	}
 	
-	
+	/********************************
+	 * onResume
+	 ********************************/
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		
+		if(!m_QuizBGM.isPlaying()) 
+			m_QuizBGM.start();
+	}
+
 	/********************************
 	 * onDestroy
 	 ********************************/
-	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		
+		if(m_QuizBGM != null) {
+			if(m_QuizBGM.isPlaying()) 
+				m_QuizBGM.pause();
+		}
+	}
+
+	/********************************
+	 * onDestroy
+	 ********************************/
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		m_LeftImgVector = null;
@@ -492,6 +530,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 	 * Image Loading Thread
 	 ********************************/
 	class ImageLoadingThread extends Thread {
+		AssetManager am = getResources().getAssets();
 		public void run() {
 			for(int i=5 ; i<m_ItemVector.size() ; ++i) {
 				if (DEBUG) Log.d(TAG, "ItemVector = " + i);
@@ -499,6 +538,15 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 				Bitmap bit = bd.getBitmap();
 				m_LeftImgVector.add(Bitmap.createBitmap(bit, 0, 0, bit.getWidth()/2, bit.getHeight()));
 				m_RightImgVector.add(Bitmap.createBitmap(bit, bit.getWidth()/2, 0, bit.getWidth()/2, bit.getHeight()));
+			}
+			
+			for(int i=0 ; i<m_ItemVector.size() ; ++i) {		
+				try {
+					m_SoundEffectId[i] = m_SoundEffect.load(am.openFd("mfx/"+m_ItemVector.get(i).strWordCharId+".mp3"), 1);
+				} catch (IOException e) {
+					Log.d(TAG, "Sound not found");
+					e.printStackTrace();
+				}
 			}
 		}
 	}

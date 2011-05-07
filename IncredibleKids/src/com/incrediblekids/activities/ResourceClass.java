@@ -10,7 +10,7 @@ import com.incrediblekids.util.Item;
 public class ResourceClass {
 	private final String TAG="PreviewWords";
 	private boolean bSound = true;
-	private String m_sCurrentTheme;
+	private String m_sCurrentTheme = null;
 	public static ResourceClass m_ResourceClass;
 	
 	public Vector<Item> vItems = new Vector<Item>();
