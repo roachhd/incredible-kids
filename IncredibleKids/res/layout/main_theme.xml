@@ -13,13 +13,12 @@
 			android:layout_height="61dp" 
 			android:layout_width="180dp"
 			android:layout_alignParentTop="true" 
-			android:layout_centerHorizontal="true"
-			>
+			android:layout_centerHorizontal="true">
 		
 		<ImageView android:id="@+id/ivGame"
 			android:layout_height="61dp" 
 			android:layout_width="65dp"
-			android:background="@drawable/btn_play" 
+			android:background="@drawable/btn_play_d" 
 			
 			android:layout_alignParentLeft="true"
 			
@@ -54,7 +53,7 @@
 					android:layout_marginTop="5dp"
 					android:layout_marginLeft="15dp">
 				</ImageView>
-				<ImageView android:id="@+id/ivThingStar"
+				<ImageView android:id="@+id/ivThingScore"
 					android:layout_height="35dp" 
 					android:layout_width="105dp"
 					
@@ -83,7 +82,7 @@
 				android:layout_marginRight="15dp"
 				android:background="@drawable/theme_item_animal_n">
 			</ImageView>
-			<ImageView android:id="@+id/ivAnimalStar"
+			<ImageView android:id="@+id/ivAnimalScore"
 				android:layout_height="35dp"
 				android:layout_width="105dp"
 				
@@ -113,7 +112,7 @@
 				android:layout_marginTop="15dp">
 			</ImageView>
 				
-			<ImageView android:id="@+id/ivColorStar"
+			<ImageView android:id="@+id/ivColorScore"
 				android:layout_height="35dp" 
 				android:layout_width="55dp"
 				
@@ -143,7 +142,7 @@
 				android:layout_marginRight="15dp"
 				android:layout_marginTop="27dp"></ImageView>
 				
-			<ImageView android:id="@+id/ivColorStar"
+			<ImageView android:id="@+id/ivNumberScore"
 				android:layout_height="35dp" 
 				android:layout_width="55dp"
 				
@@ -167,7 +166,7 @@
 				android:layout_alignParentTop="true">
 			</ImageView>
 			
-			<ImageView android:id="@+id/ivFoodStar"
+			<ImageView android:id="@+id/ivFoodScore"
 				android:layout_height="35dp" 
 				android:layout_width="55dp"
 				

@@ -268,7 +268,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		int viewGroupValue	= R.id.flContainer1;
 		
 		for(int i = 0; i < MAX_COUNT; i++) {
-			m_ItemImages[i]	= (ImageView)findViewById(firstItemValue); // �좎럥�볩옙�녹삕�좑옙_-;
+			m_ItemImages[i]	= (ImageView)findViewById(firstItemValue); // 占쎌쥙�ο옙蹂⑹삕占쎈끃�뺧옙醫묒삕_-;
 			m_ItemImages[i].setOnClickListener(this);
 			m_ItemImages[i].setTag(ITEM_DEFAULT);
 			m_ItemImages[i].setClickable(true);
@@ -277,7 +277,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			m_Questions[i].setOnClickListener(this);
 			m_Questions[i].setClickable(true);
 			
-			m_Containers[i]	= (ViewGroup)findViewById(viewGroupValue); // �좎럥�볩옙�녹삕�좑옙_-;
+			m_Containers[i]	= (ViewGroup)findViewById(viewGroupValue); // 占쎌쥙�ο옙蹂⑹삕占쎈끃�뺧옙醫묒삕_-;
 			m_Containers[i].setPersistentDrawingCache(ViewGroup.PERSISTENT_ANIMATION_CACHE);
 			m_Containers[i].setTag(new ViewHolder(m_ItemImages[i], m_Questions[i]));
 			
@@ -321,7 +321,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	}
 	
 	/**
-	 * N �좎럩�뚦뜝�뚂곩뜝占썲뜝�덉챾塋딆옕怡э옙占썲㎤酉�돦�좎��わ쭪類㏃삕�좎럥夷멨뜝�챬estion 冶⑤��ゅ뜝��돦筌욌벨�쇿뜝�덀궏�좎룞�숋옙占쎌삕占쎄옇��쭪�쀯옙.
+	 * N 占쎌쥙�⑼옙��쐻占쎈쉨怨⑸쐻�좎뜴�앾옙�됱굶櫻뗫봿�뺞���쇿뜝�꿔렎�됵옙��옙醫롳옙占썬굩彛わ쭚�껋굲占쎌쥙�εㅇ硫⑤쐻占쎌괵estion �뜯뫀占쏙옙�낅쐻占쏙옙��춯�뚮꺼占쎌눨�앾옙��텖占쎌쥙猷욑옙�뗭삕�좎럩�뺝뜝�꾩삀占쏙옙彛わ옙��삕.
 	 */
 	private void toggleImages() {
 		
@@ -367,18 +367,18 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			
 			if((flag % 2) == 0) {
 				
-//				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardImgId);
-//				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
-				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardImgId);
-				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
+				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardImgId);
+				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
+//				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardImgId);
+//				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
 //				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
 //				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 			}
 			else {
-//				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardWordId);
-//				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
-				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardWordId);
-				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
+				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardWordId);
+				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
+//				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardWordId);
+//				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
 //				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
 //				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 				vectorNum++;
@@ -487,8 +487,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	}
 	
 	/**
-	 * Random HashMap 筌욁룇�쇿ㅇ�볦삕�좑옙br />
-	 * Item冶⑤뗄���좎��밧뜝�뚣럮筌왨띿삕�좎룞�숁쾮源띿삕筌욁룊�㏆㎗�븐�鸚룸맩흟筌욎뮉占�
+	 * Random HashMap 嶺뚯쉧猷뉛옙�욍뀋占쎈낌�뺧옙醫묒삕br />
+	 * Item�뜯뫀�꾬옙占쏙옙醫롳옙占쎈갊�앾옙�ｋ윯嶺뚯솳�우굲占쎌쥙猷욑옙�곸쒜繹먮씮�뺟춯�곷즸占썬룇�쀯옙釉먲옙勇싲８留⑺씇嶺뚯쉸裕됧뜝占�
 	 */
 	private void makeRandomHashMap() {
 		Log.d(TAG, "makeRandomHashMap()");

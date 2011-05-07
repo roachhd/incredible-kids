@@ -19,7 +19,10 @@ public class MainTheme extends Activity implements View.OnClickListener {
 	private final int MODE_GAME 	= 10;
 	private final int MODE_STUDY 	= 11;
 	
-	private int MODE 				= 0;
+	private final int STAR_FOUR[]   = {R.drawable.star_4_0, R.drawable.star_4_1, R.drawable.star_4_2, R.drawable.star_4_3, R.drawable.star_4_4};
+	private final int STAR_TWO[]    = {R.drawable.star_2_0, R.drawable.star_2_1, R.drawable.star_2_2};
+	
+	private int m_Mode 				= 0;
 	
 	private RelativeLayout m_MainTheme;
 	private RelativeLayout m_IntroTheme;
@@ -30,6 +33,12 @@ public class MainTheme extends Activity implements View.OnClickListener {
 	private ImageView m_NumberTheme;
 	private ImageView m_AnimalTheme;
 	
+	private ImageView m_FoodScore;
+	private ImageView m_ColorScore;
+	private ImageView m_ThingScore;
+	private ImageView m_NumberScore;
+	private ImageView m_AnimalScore;
+	
 	private ImageView m_StudyMode;
 	private ImageView m_GameMode;
 	
@@ -37,12 +46,10 @@ public class MainTheme extends Activity implements View.OnClickListener {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate()");
 		
 		setContentView(R.layout.main_theme);
-		
 		
 		m_MainTheme 	= (RelativeLayout)findViewById(R.id.main_theme);
 		m_IntroTheme 	= (RelativeLayout)findViewById(R.id.intro_theme);
@@ -52,6 +59,12 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		m_ThingTheme 	= (ImageView)findViewById(R.id.ivThing);
 		m_ColorTheme 	= (ImageView)findViewById(R.id.ivColor);
 		m_FoodTheme 	= (ImageView)findViewById(R.id.ivFood);
+		
+		m_AnimalScore   = (ImageView)findViewById(R.id.ivAnimalScore);
+		m_NumberScore   = (ImageView)findViewById(R.id.ivNumberScore);
+		m_ThingScore    = (ImageView)findViewById(R.id.ivThingScore);
+		m_ColorScore    = (ImageView)findViewById(R.id.ivColorScore);
+		m_FoodScore     = (ImageView)findViewById(R.id.ivFoodScore);
 		
 		m_GameMode		= (ImageView)findViewById(R.id.ivGame);
 		m_StudyMode		= (ImageView)findViewById(R.id.ivStudy);
@@ -71,7 +84,7 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		
 		m_Res = ResourceClass.getInstance();
 		
-		MODE = MODE_STUDY;	// default Mode
+		m_Mode = MODE_STUDY;	// default Mode
 	}
 
 	/**
@@ -90,8 +103,13 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		int food_val      = settings.getInt(Const.THEME_FOOD, 0);
 		int number_val    = settings.getInt(Const.THEME_NUMBER, 0);
 		int color_val     = settings.getInt(Const.THEME_COLOR, 0);
-        
-		//TODO: update View
+		
+		m_AnimalScore.setBackgroundResource(STAR_FOUR[animal_val]);
+		m_ThingScore.setBackgroundResource(STAR_FOUR[toy_val]);
+		
+		m_FoodScore.setBackgroundResource(STAR_TWO[food_val]);
+		m_NumberScore.setBackgroundResource(STAR_TWO[number_val]);
+		m_ColorScore.setBackgroundResource(STAR_TWO[color_val]);
     }
 
     private void showIntro() {
@@ -113,61 +131,70 @@ public class MainTheme extends Activity implements View.OnClickListener {
 //		Intent intent = new Intent(MainTheme.this, PopupActivity.class);
 		boolean isValid = true;
 		
-		//TODO: resource load
 		switch(v.getId()) {
 		case R.id.ivAnimal:
-//			intent.putExtra(Const.ITEM_NAME, Const.THEME_ANIMAL);
 			m_Res.setTheme(Const.THEME_ANIMAL);
 			break;
 			
 		case R.id.ivNumber:
-//			intent.putExtra(Const.ITEM_NAME, Const.THEME_NUMBER);
 			m_Res.setTheme(Const.THEME_NUMBER);
 			break;
 			
 		case R.id.ivThing:
-//			intent.putExtra(Const.ITEM_NAME, Const.THEME_TOY);
 			m_Res.setTheme(Const.THEME_TOY);
 			break;
 			
 		case R.id.ivColor:
-//			intent.putExtra(Const.ITEM_NAME, Const.THEME_COLOR);
 			m_Res.setTheme(Const.THEME_COLOR);
 			break;
 			
 		case R.id.ivFood:
-//			intent.putExtra(Const.ITEM_NAME, Const.THEME_FOOD);
 			m_Res.setTheme(Const.THEME_FOOD);
 			break;
 			
 		case R.id.ivGame:
-			MODE = MODE_GAME;
+		    if(m_Mode != MODE_GAME) {
+		        m_Mode = MODE_GAME;
+		        updatePlayMode(m_Mode);
+		    }
 			isValid = false;
 			break;
 			
 		case R.id.ivStudy:
-			MODE = MODE_STUDY;
+		    if(m_Mode != MODE_STUDY) {
+		        m_Mode = MODE_STUDY;
+		        updatePlayMode(m_Mode);
+		    }
 			isValid = false;
 			break;
 			
 		default:
 			Log.e(TAG," onClick()");
-//			isValid = false;
 		}
 		
 		if(isValid)
 			launchActivity();
-		
-		
-//		if(isValid) {
-//			startActivityForResult(intent, Const.MODE_DIALOG_RESULT);
-//		}
 	}
 
-	private void launchActivity() {
+	/**
+	 * change play mode image
+	 * @param mMode
+	 */
+	private void updatePlayMode(int mMode) {
+	    if(mMode == MODE_STUDY) {
+	        m_StudyMode.setBackgroundResource(R.drawable.btn_study);
+	        m_GameMode.setBackgroundResource(R.drawable.btn_play_d);
+	    }
+	    else {
+	        m_GameMode.setBackgroundResource(R.drawable.btn_play);
+	        m_StudyMode.setBackgroundResource(R.drawable.btn_study_d);
+	    }
+    }
+
+    private void launchActivity() {
 		Intent intent;
 		
-		if(MODE == MODE_STUDY) {
+		if(m_Mode == MODE_STUDY) {
 			intent = new Intent(MainTheme.this, PreviewWords.class);
 		}
 		else {
@@ -218,8 +245,4 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		// TODO Auto-generated method stub
 		super.onDestroy();
 	}
-
-	
-	
-
 }
