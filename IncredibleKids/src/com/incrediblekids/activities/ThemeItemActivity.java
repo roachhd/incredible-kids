@@ -317,7 +317,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 									m_arrBoxSprite[i].alphabetContainer = EMPTY_ALPHABET;
 								}
 							}
-
+							
+							//m_arrAlphabetSprite[i].
 							m_arrBoxSprite[i].bFilled = true;
 							m_arrBoxSprite[i].bCorrect = true;
 							m_arrBoxSprite[i].filledAlphabetIndex = i;
@@ -380,10 +381,10 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		try {
 			this.m_DropToBoxSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "drop_to_box.ogg");//m_strAlphabet+".mp3");
-			this.m_DropToBoxSound.setVolume(0.7f);
+			this.m_DropToBoxSound.setVolume(0.3f);
 
 			this.m_HelpSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "help_drop.ogg");//m_strAlphabet+".mp3");
-			this.m_HelpSound.setVolume(1.0f);
+			this.m_HelpSound.setVolume(0.6f);
 
 			this.m_FailToDropSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "fail_to_drop.ogg");
 			this.m_FailToDropSound.setVolume(1.0f);
@@ -396,7 +397,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		try {
 			this.m_Music = MusicFactory.createMusicFromAsset(this.mEngine.getMusicManager(), this, "theme_animal.mp3");
 			this.m_Music.setLooping(true);
-			this.m_Music.setVolume(0.5f);
+			this.m_Music.setVolume(0.2f);
 		} catch (final IOException e) {
 			Debug.e("Error", e);
 		}
@@ -886,6 +887,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 						m_CurrentTouchedAlphabetSprite = this;
 						Log.e(TAG, "alphabet:"+this.alphabet+".mp3");
 
+						this.clearShapeModifiers();
 						m_AlphabetSound[this.sequence].setVolume(1.0f);
 						m_AlphabetSound[this.sequence].play();
 						this.setScale(1.5f);
