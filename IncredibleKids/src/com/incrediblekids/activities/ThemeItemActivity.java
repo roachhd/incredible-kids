@@ -259,13 +259,13 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.mEngine.getTextureManager().loadTexture(this.m_BackgroundTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_LoadingTexture);
 	}
+	
+	
 
 	public void myLoadResources(){
 		Log.e(TAG, "myLoadResources()");
 		
 		m_playScene.setBackground(new SpriteBackground(m_BackgroundSprite));
-		//final Scene loadingScene = new Scene(1);		
-		//Load Help
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.btn_hint , 0, 0);
 		this.m_Help = new Sprite(m_HelpTextureRegion.getWidth()/4, m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion){
@@ -329,7 +329,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 								if(isStageCleared(m_arrBoxSprite)){
 									if (m_iCurrentItemNum < m_ItemVector.size()-1){
 										m_iCurrentItemNum++;
-										m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
+										m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
 									}else{
 										m_iCurrentItemNum = 0;
 										m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
@@ -360,7 +360,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 					if (m_iCurrentItemNum < m_ItemVector.size()-1){
 						m_iCurrentItemNum++;
-						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
+						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
 					}else{
 						m_iCurrentItemNum = 0;
 						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
@@ -405,12 +405,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			m_Music.play();
 		}
 
-		/*//Load Background
-		this.m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);*/
-
-		//Darken BG
-		//m_DarkenTexture = new Texture(2048, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		m_DarkenTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.darken_bg, 800, 0);
 
 		//Load Box
@@ -478,12 +472,10 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		Log.e(TAG, "onLoadScene()");
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 		final Scene loadingScene = new Scene(1);
-		
-		//loadingScene.getTopLayer().addEntity(this.m_BackgroundSprite);
+
 		loadingScene.setBackground(new SpriteBackground(m_BackgroundSprite));
 		m_LoadingSprite = new Sprite(0 ,0,this.m_LoadingTextureRegion);
 		loadingScene.getTopLayer().addEntity(m_LoadingSprite);
-		//new ColorBackground(0.09804f, 0.6274f, 0.8784f));
 		loadingScene.registerUpdateHandler(new TimerHandler(1.0f, true, new ITimerCallback() {
 			@Override
 			public void onTimePassed(final TimerHandler pTimerHandler) {
@@ -586,6 +578,24 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				});
 			}
 		}
+		if(requestCode == Const.RETRY_DIALOG_RESULT) {
+			if(resultCode == RESULT_OK) {
+				Log.d(TAG, "resultCode:" + "RESULT_OK");
+				m_playScene.clearChildScene();
+				resetScreen();
+			}
+			else if(resultCode == RESULT_CANCELED) {
+				if (m_iCurrentItemNum < m_ItemVector.size()-1){
+					m_iCurrentItemNum++;
+					m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
+				}else{
+					m_iCurrentItemNum = 0;
+					m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
+				}
+				m_playScene.clearChildScene();
+				resetScreen();
+			}
+		}
 	}
 
 	//Reset Screen - Remove all the entities from scene.
@@ -658,8 +668,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		loadBaseTexture();
 
-		/*this.m_BackgroundSprite = new Sprite(0,0,this.m_BackgroundTextureRegion);*/
-
 		this.m_DarkenSprite = new Sprite(0,0,this.m_DarkenTextureRegion);
 
 		this.m_SkipSprite = new Sprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
@@ -670,7 +678,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 					if (m_iCurrentItemNum < m_ItemVector.size()-1){
 						m_iCurrentItemNum++;
-						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
+						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
 					}else{
 						m_iCurrentItemNum = 0;
 						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
@@ -709,8 +717,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		//re regist touch area for help and pause btn
 		m_playScene.registerTouchArea(m_Help);
-		/*		m_playScene.registerTouchArea(m_ShowPicSprite);*/
-		//		m_playScene.registerTouchArea(m_SoundSprite);
 		m_playScene.registerTouchArea(m_SkipSprite);
 		//Load Sound
 		try {
@@ -758,7 +764,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		int x = (CAMERA_WIDTH - w)/2;
 
 		for(int i=0; i < length; i++){			
-			m_arrBoxSprite[i] = new AlphabetSprite(x,//divWidth * i + (divWidth-m_BoxTextureRegion.getWidth())/2,
+			m_arrBoxSprite[i] = new AlphabetSprite(x,
 					CAMERA_HEIGHT-m_BoxTextureRegion.getHeight(), this.m_BoxTextureRegion, i, m_strAlphabet.charAt(i));
 			Log.e(TAG, "CAMERA_HEIGHT:"+CAMERA_HEIGHT+" m_BoxTexture.getWidth()"+m_BoxTexture.getWidth()+" CAMERA_HEIGHT/10:"+CAMERA_HEIGHT/10);
 			m_playScene.getLayer(ENTITIES_LAYER).addEntity(m_arrBoxSprite[i]);
@@ -789,8 +795,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			/*m_arrAlphabetSprite[j] = new AlphabetSprite(m_RandomPoint.get(j).x,m_RandomPoint.get(j).y,
-					this.m_arrAlphabetTexture[j], j, m_strAlphabet.charAt(j)) */
+
 			m_arrAlphabetSprite[m_Idx] = new AlphabetSprite(0,0,
 					this.m_arrAlphabetTexture[m_Idx], m_Idx, m_strAlphabet.charAt(m_Idx)) {
 				@Override
@@ -966,6 +971,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				m_FailSprite.setVisible(false);		
 				darkenBG();
 				m_playScene.setChildScene(m_RetryScene, false, true, true);
+/*				Intent popupIntent = new Intent(ThemeItemActivity.this, PopupActivity.class);
+				startActivityForResult(popupIntent, Const.RETRY_DIALOG_RESULT);*/
 			}
 		}, delayMS);
 	}

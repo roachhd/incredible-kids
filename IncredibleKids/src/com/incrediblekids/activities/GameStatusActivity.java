@@ -1,6 +1,7 @@
 package com.incrediblekids.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -79,7 +80,7 @@ public class GameStatusActivity extends Activity {
 	
 	private void setImageResource(ResourceClass m_ResourceClass){
 		// Restore preferences
-		SharedPreferences settings = getSharedPreferences(Const.PREFERNCE, 0);
+		SharedPreferences settings = getSharedPreferences(Const.PREFERNCE, Context.MODE_WORLD_READABLE);
 		if(settings == null) {
 		    Log.e(TAG, "updateScore() null");
 		}
@@ -87,6 +88,7 @@ public class GameStatusActivity extends Activity {
 		if (m_ResourceClass.getCurrentTheme().equals(Const.THEME_ANIMAL)) 
 		{			
 			curLevel = settings.getInt(Const.THEME_ANIMAL, 0);
+			Log.e("WOORAM","curLevel:"+curLevel);
 			ivLevel_3.setVisibility(View.VISIBLE);
 			ivLevel_4.setVisibility(View.VISIBLE);
 			ivLevel_1.setImageResource(R.drawable.level_animal_1);
@@ -156,13 +158,15 @@ public class GameStatusActivity extends Activity {
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
+		ResourceClass m_ResourceClass = ResourceClass.getInstance();
+		setImageResource(m_ResourceClass);
 		super.onResume();
 	}
 
 	@Override
 	protected void onNewIntent(Intent intent) {
-		// TODO DB update or preference
+/*		ResourceClass m_ResourceClass = ResourceClass.getInstance();
+		setImageResource(m_ResourceClass);*/
 		super.onNewIntent(intent);
 	}
 
