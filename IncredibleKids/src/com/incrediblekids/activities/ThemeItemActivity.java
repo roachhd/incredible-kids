@@ -342,8 +342,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 							break;
 						}
 					}
+					return true;
 				}
-				return true;
+				return false;
 			}
 		};
 		m_playScene.getLayer(BASE_LAYER).addEntity(m_Help);
@@ -381,10 +382,10 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		try {
 			this.m_DropToBoxSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "drop_to_box.ogg");//m_strAlphabet+".mp3");
-			this.m_DropToBoxSound.setVolume(0.3f);
+			this.m_DropToBoxSound.setVolume(0.1f);
 
 			this.m_HelpSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "help_drop.ogg");//m_strAlphabet+".mp3");
-			this.m_HelpSound.setVolume(0.6f);
+			this.m_HelpSound.setVolume(0.4f);
 
 			this.m_FailToDropSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "fail_to_drop.ogg");
 			this.m_FailToDropSound.setVolume(1.0f);
@@ -397,7 +398,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		try {
 			this.m_Music = MusicFactory.createMusicFromAsset(this.mEngine.getMusicManager(), this, "theme_animal.mp3");
 			this.m_Music.setLooping(true);
-			this.m_Music.setVolume(0.2f);
+			this.m_Music.setVolume(0.1f);
 		} catch (final IOException e) {
 			Debug.e("Error", e);
 		}
@@ -475,6 +476,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		loadingScene.setBackground(new SpriteBackground(m_BackgroundSprite));
 		m_LoadingSprite = new Sprite(0 ,0,this.m_LoadingTextureRegion);
+		//loadingScene.registerTouchArea(m_LoadingSprite);
 		loadingScene.getTopLayer().addEntity(m_LoadingSprite);
 		loadingScene.registerUpdateHandler(new TimerHandler(1.0f, true, new ITimerCallback() {
 			@Override
@@ -488,6 +490,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				createBaseSprite();
 				updateScene();
 				mEngine.setScene(m_playScene);
+				m_playScene.setTouchAreaBindingEnabled(true);
 			}
 		}));
 		return loadingScene;
@@ -517,8 +520,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					removeDarkenBG();
 					m_playScene.clearChildScene();					
 					resetScreen();
+					return true;
 				}
-				return true;
+				return false;				
 			}			
 
 		};
@@ -539,8 +543,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					removeDarkenBG();
 					m_playScene.clearChildScene();
 					resetScreen();
+					return true;
 				}
-				return true;
+				return false;
 			}	
 		};		
 
@@ -737,16 +742,18 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN && m_ItemSound!=null && m_bSoundOn == true && m_bFirstTouch == false)
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN && m_ItemSound!=null && m_bSoundOn == true && m_bFirstTouch == false){
 					m_ItemSound.play();
+					return true;
+				}					
 
 				if (pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN && m_bFirstTouch == true){
 					drawAlphabet(pSceneTouchEvent);
 					m_bFirstTouch = false;
 				}
-
-				return true;
+				return false;
 			}
+			
 		};
 
 		m_Item.setScale(1.3f);
@@ -896,13 +903,15 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 						m_AlphabetSound[this.sequence].setVolume(1.0f);
 						m_AlphabetSound[this.sequence].play();
 						this.setScale(1.5f);
+						return true;
 					}
 					//Dragging
 					else{				
 						m_CurrentTouchedAlphabetSprite = this;
 						this.setPosition(pSceneTouchEvent.getX() - this.getWidth() / 2, pSceneTouchEvent.getY() - this.getHeight() / 2);
+						return true;
 					}
-					return true;
+					return false;
 				}			
 			};	
 
@@ -913,7 +922,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		}
 
 		m_playScene.registerTouchArea(m_Item);	
-		m_playScene.setTouchAreaBindingEnabled(true);
+		//m_playScene.setTouchAreaBindingEnabled(true);
 
 		// The actual collision-checking.
 		m_playScene.registerUpdateHandler(new IUpdateHandler() {

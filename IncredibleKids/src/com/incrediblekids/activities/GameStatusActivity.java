@@ -8,8 +8,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-
 import com.incrediblekids.util.Const;
 
 public class GameStatusActivity extends Activity {
@@ -30,6 +33,11 @@ public class GameStatusActivity extends Activity {
 		setContentView(R.layout.game_status);
 		
 		ResourceClass m_ResourceClass = ResourceClass.getInstance();
+		final Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
+		final AnimationSet animSet = new AnimationSet(true); 
+		Animation sel_anim = AnimationUtils.loadAnimation(this, R.anim.sel_anim);
+		animSet.addAnimation(sel_anim);
+		
 		m_ResourceClass.vItems.size();		
 	
 		ivLevel_1 = (ImageView)findViewById(R.id.level_1);
@@ -44,17 +52,52 @@ public class GameStatusActivity extends Activity {
 			
 			@Override
 			public void onClick(View arg0) {
-				mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_1);
-				startActivity(mIntent);
+				ivLevel_1.startAnimation(animSet);
+				animSet.setAnimationListener(new AnimationListener(){
+
+					@Override
+					public void onAnimationEnd(Animation animation) {
+						ivLevel_1.setVisibility(View.INVISIBLE);
+						mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_1);
+						startActivity(mIntent);						
+					}
+
+					@Override
+					public void onAnimationRepeat(Animation animation) {						
+					}
+
+					@Override
+					public void onAnimationStart(Animation animation) {						
+					}					
+				});				
 			}
-			
 		});
 		ivLevel_2.setOnClickListener(new OnClickListener(){
 
 			@Override
 			public void onClick(View arg0) {
-				mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_2);
-				startActivity(mIntent);
+				if (curLevel >= 1){
+					animSet.setAnimationListener(new AnimationListener(){
+
+						@Override
+						public void onAnimationEnd(Animation animation) {
+							mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_2);
+							startActivity(mIntent);
+							
+						}
+
+						@Override
+						public void onAnimationRepeat(Animation animation) {						
+						}
+
+						@Override
+						public void onAnimationStart(Animation animation) {						
+						}					
+					});	
+					
+				}else{
+					ivLevel_2.startAnimation(shake);
+				}
 			}
 			
 		});
@@ -62,8 +105,27 @@ public class GameStatusActivity extends Activity {
 
 			@Override
 			public void onClick(View arg0) {
-				mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_3);
-				startActivity(mIntent);
+				if (curLevel >= 2){
+					animSet.setAnimationListener(new AnimationListener(){
+
+						@Override
+						public void onAnimationEnd(Animation animation) {
+							mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_3);
+							startActivity(mIntent);
+						}
+
+						@Override
+						public void onAnimationRepeat(Animation animation) {						
+						}
+
+						@Override
+						public void onAnimationStart(Animation animation) {						
+						}					
+					});	
+					
+				}else{
+					ivLevel_3.startAnimation(shake);
+				}
 			}
 			
 		});
@@ -71,8 +133,26 @@ public class GameStatusActivity extends Activity {
 
 			@Override
 			public void onClick(View arg0) {
-				mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_4);
-				startActivity(mIntent);
+				if (curLevel >= 3){
+					animSet.setAnimationListener(new AnimationListener(){
+
+						@Override
+						public void onAnimationEnd(Animation animation) {
+							mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_4);
+							startActivity(mIntent);
+						}
+
+						@Override
+						public void onAnimationRepeat(Animation animation) {						
+						}
+
+						@Override
+						public void onAnimationStart(Animation animation) {						
+						}					
+					});	
+				}else{
+					ivLevel_4.startAnimation(shake);
+				}
 			}
 			
 		});
@@ -89,6 +169,8 @@ public class GameStatusActivity extends Activity {
 		{			
 			curLevel = settings.getInt(Const.THEME_ANIMAL, 0);
 			Log.e("WOORAM","curLevel:"+curLevel);
+			ivLevel_1.setVisibility(View.VISIBLE);
+			ivLevel_2.setVisibility(View.VISIBLE);
 			ivLevel_3.setVisibility(View.VISIBLE);
 			ivLevel_4.setVisibility(View.VISIBLE);
 			ivLevel_1.setImageResource(R.drawable.level_animal_1);
@@ -98,6 +180,7 @@ public class GameStatusActivity extends Activity {
 			
 			if(curLevel == 1)
 				ivLevel_2.setImageResource(R.drawable.level_animal_2);
+
 			if(curLevel == 2){
 				ivLevel_2.setImageResource(R.drawable.level_animal_2);
 				ivLevel_3.setImageResource(R.drawable.level_animal_3);
