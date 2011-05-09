@@ -586,7 +586,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		if(requestCode == Const.RETRY_DIALOG_RESULT) {
 			if(resultCode == RESULT_OK) {
 				Log.d(TAG, "resultCode:" + "RESULT_OK");
-				m_playScene.clearChildScene();
+				//m_playScene.clearChildScene();
 				resetScreen();
 			}
 			else if(resultCode == RESULT_CANCELED) {
@@ -597,7 +597,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					m_iCurrentItemNum = 0;
 					m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
 				}
-				m_playScene.clearChildScene();
+				//m_playScene.clearChildScene();
 				resetScreen();
 			}
 		}
@@ -605,8 +605,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	//Reset Screen - Remove all the entities from scene.
 	private void resetScreen(){
+		Log.e(TAG, "resetScreen:m_iCurrentItemNum"+m_iCurrentItemNum);
 		
-		if (this.m_iCurrentItemNum % ITEM_NUM_PER_STAGE == 0){
+		if (m_iCurrentItemNum != 0 && this.m_iCurrentItemNum % ITEM_NUM_PER_STAGE == 0){
 			m_quizItemList.clear();
 			m_quizItemList.addAll(this.m_ItemVector.subList(m_iCurrentItemNum - ITEM_NUM_PER_STAGE, m_iCurrentItemNum));
 			Intent intent = new Intent(this, MatchQuiz.class);
@@ -978,10 +979,10 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			@Override
 			public void run() {
 				m_FailSprite.setVisible(false);		
-				darkenBG();
-				m_playScene.setChildScene(m_RetryScene, false, true, true);
-/*				Intent popupIntent = new Intent(ThemeItemActivity.this, PopupActivity.class);
-				startActivityForResult(popupIntent, Const.RETRY_DIALOG_RESULT);*/
+				/*darkenBG();
+				m_playScene.setChildScene(m_RetryScene, false, true, true);*/
+				Intent popupIntent = new Intent(ThemeItemActivity.this, PopupActivity.class);
+				startActivityForResult(popupIntent, Const.RETRY_DIALOG_RESULT);
 			}
 		}, delayMS);
 	}
