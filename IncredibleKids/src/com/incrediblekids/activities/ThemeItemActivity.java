@@ -238,7 +238,15 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.m_BackgroundTexture = new Texture(2048, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		m_LoadingTexture = new Texture(1024,1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		m_LoadingTextureRegion = TextureRegionFactory.createFromResource(this.m_LoadingTexture, this, R.drawable.loading_sprite, 0, 0);
-		
+
+		MusicFactory.setAssetBasePath("mfx/");		
+		try {
+			this.m_Music = MusicFactory.createMusicFromAsset(this.mEngine.getMusicManager(), this, "theme_animal.mp3");
+			this.m_Music.setLooping(true);
+			this.m_Music.setVolume(0.4f);
+		} catch (final IOException e) {
+			Debug.e("Error", e);
+		}
 		
 		if(m_CurTheme.equals(Const.THEME_ANIMAL)){
 			this.m_BackgroundTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.bg_animal_play, 0, 0);
@@ -394,17 +402,10 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			Debug.e("Error", e);
 		}
 
-		MusicFactory.setAssetBasePath("mfx/");		
-		try {
-			this.m_Music = MusicFactory.createMusicFromAsset(this.mEngine.getMusicManager(), this, "theme_animal.mp3");
-			this.m_Music.setLooping(true);
-			this.m_Music.setVolume(0.1f);
-		} catch (final IOException e) {
-			Debug.e("Error", e);
-		}
-		if(m_Music != null && !m_Music.isPlaying()) {
+/*		if(m_Music != null && !m_Music.isPlaying()) {
+			Log.e(TAG, "Music start play()");
 			m_Music.play();
-		}
+		}*/
 
 		m_DarkenTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.darken_bg, 800, 0);
 
@@ -462,9 +463,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	
 	@Override
 	protected void onResume(){
+		
 		super.onResume();
 		if (m_Music != null && !m_Music.isPlaying()){
-			m_Music.play();
+			Log.e(TAG, "onResume() Music start play()");
+			m_Music.resume();
 		}
 	}
 
@@ -490,7 +493,14 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				createBaseSprite();
 				updateScene();
 				mEngine.setScene(m_playScene);
+				Log.e(TAG, "registerUpdateHandler onTimePassed");
 				m_playScene.setTouchAreaBindingEnabled(true);
+				
+				//play sound
+				if(m_Music != null && !m_Music.isPlaying()) {
+					Log.e(TAG, "Music start play()");
+					m_Music.play();
+				}
 			}
 		}));
 		return loadingScene;

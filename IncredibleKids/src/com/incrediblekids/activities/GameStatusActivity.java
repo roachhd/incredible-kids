@@ -193,6 +193,8 @@ public class GameStatusActivity extends Activity {
 			
 		}else if(m_ResourceClass.getCurrentTheme().equals(Const.THEME_TOY)){
 			curLevel = settings.getInt(Const.THEME_TOY, 0);
+			ivLevel_1.setVisibility(View.VISIBLE);
+			ivLevel_2.setVisibility(View.VISIBLE);
 			ivLevel_3.setVisibility(View.VISIBLE);
 			ivLevel_4.setVisibility(View.VISIBLE);
 			ivLevel_1.setImageResource(R.drawable.level_toy_1);
@@ -213,6 +215,8 @@ public class GameStatusActivity extends Activity {
 			}
 		}else if(m_ResourceClass.getCurrentTheme().equals(Const.THEME_FOOD)){
 			curLevel = settings.getInt(Const.THEME_FOOD, 0);
+			ivLevel_1.setVisibility(View.VISIBLE);
+			ivLevel_2.setVisibility(View.VISIBLE);
 			ivLevel_1.setImageResource(R.drawable.level_food_1);
 			ivLevel_2.setImageResource(R.drawable.level_locked_big);
 			ivLevel_3.setVisibility(View.GONE);
@@ -222,6 +226,8 @@ public class GameStatusActivity extends Activity {
 			
 		}else if(m_ResourceClass.getCurrentTheme().equals(Const.THEME_NUMBER)){
 			curLevel = settings.getInt(Const.THEME_NUMBER, 0);
+			ivLevel_1.setVisibility(View.VISIBLE);
+			ivLevel_2.setVisibility(View.VISIBLE);
 			ivLevel_1.setImageResource(R.drawable.level_number_1);
 			ivLevel_2.setImageResource(R.drawable.level_locked_big);
 			ivLevel_3.setVisibility(View.GONE);
@@ -230,6 +236,8 @@ public class GameStatusActivity extends Activity {
 				ivLevel_2.setImageResource(R.drawable.level_number_2);
 		}else if(m_ResourceClass.getCurrentTheme().equals(Const.THEME_COLOR)){
 			curLevel = settings.getInt(Const.THEME_COLOR, 0);
+			ivLevel_1.setVisibility(View.VISIBLE);
+			ivLevel_2.setVisibility(View.VISIBLE);
 			ivLevel_1.setImageResource(R.drawable.level_color_1);
 			ivLevel_2.setImageResource(R.drawable.level_locked_big);
 			ivLevel_3.setVisibility(View.GONE);
@@ -241,6 +249,7 @@ public class GameStatusActivity extends Activity {
 
 	@Override
 	protected void onResume() {
+		Log.e(TAG, "onResume()");
 		ResourceClass m_ResourceClass = ResourceClass.getInstance();
 		setImageResource(m_ResourceClass);
 		super.onResume();
