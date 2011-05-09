@@ -198,6 +198,15 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		if (DEBUG) Log.d(TAG, "onPause()");
 		super.onPause();
 		
+		if (m_ImgLoadingThread != null && m_ImgLoadingThread.isAlive()) {
+			m_ImgLoadingThread.interrupt();
+			if (DEBUG) Log.d(TAG, "m_ImgLoadingThread.interrupted()");
+		}
+		
+		if (m_PhotoLoadingThread != null && m_PhotoLoadingThread.isAlive()) {
+			m_PhotoLoadingThread.interrupt();
+			if (DEBUG) Log.d(TAG, "m_PhotoLoadingThread.interrupted()");
+		}
 		if(m_StudyBGM != null) {
 			if(m_StudyBGM.isPlaying()) 
 				m_StudyBGM.pause();
@@ -619,24 +628,27 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		public void run() {
 			for(int i=5 ; i<m_ItemVector.size() ; ++i) {
 				if (DEBUG) Log.d(TAG, "ItemVector = " + i);
-				BitmapDrawable bd = (BitmapDrawable)getResources().getDrawable(m_ItemVector.get(i).iItemImgId);
-				Bitmap bit = bd.getBitmap();
-				m_LeftImgVector.add(Bitmap.createBitmap(bit, 0, 0, bit.getWidth()/2, bit.getHeight()));
-				m_RightImgVector.add(Bitmap.createBitmap(bit, bit.getWidth()/2, 0, bit.getWidth()/2, bit.getHeight()));
+				if(!Thread.currentThread().isInterrupted()) {
+					BitmapDrawable bd = (BitmapDrawable)getResources().getDrawable(m_ItemVector.get(i).iItemImgId);
+					Bitmap bit = bd.getBitmap();
+					m_LeftImgVector.add(Bitmap.createBitmap(bit, 0, 0, bit.getWidth()/2, bit.getHeight()));
+					m_RightImgVector.add(Bitmap.createBitmap(bit, bit.getWidth()/2, 0, bit.getWidth()/2, bit.getHeight()));
+				}				
 			}
 			
 			for(int i=0 ; i<m_ItemVector.size() ; ++i) {		
-				try {
-					m_SoundEffectId[i] = m_SoundEffect.load(am.openFd("mfx/"+m_ItemVector.get(i).strWordCharId+".mp3"), 1);
-				} catch (IOException e) {
-					Log.d(TAG, "Sound not found");
-					e.printStackTrace();
+				if(!Thread.currentThread().isInterrupted()) {
+					try {
+						m_SoundEffectId[i] = m_SoundEffect.load(am.openFd("mfx/"+m_ItemVector.get(i).strWordCharId+".mp3"), 1);
+					} catch (IOException e) {
+						Log.d(TAG, "Sound not found");
+						e.printStackTrace();
+					}
 				}
 			}
 		}
 	}
-	
-	
+
 	/********************************
 	 * Photo Loading Thread
 	 ********************************/
@@ -655,8 +667,10 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 			if (m_ImageUrlArr.size() != 0) { 
 				for (int count=0; count < m_ImageUrlArr.size(); count++){
 					if (DEBUG) Log.d(TAG, m_ImageUrlArr.get(count));
-					m_aBitmap[count] = Bitmap.createScaledBitmap(ImageManager.UrlToBitmap((m_ImageUrlArr.get(count))), 440, 380, false);
-					StoreByteImage(m_ItemVector.get(m_iSelectedItem).strWordCharId, count);
+					if(!Thread.currentThread().isInterrupted()) {
+						m_aBitmap[count] = Bitmap.createScaledBitmap(ImageManager.UrlToBitmap((m_ImageUrlArr.get(count))), 440, 380, false);
+						StoreByteImage(m_ItemVector.get(m_iSelectedItem).strWordCharId, count);
+					}
 				}
 				mHandler.sendEmptyMessage(0);
 			} else

@@ -110,7 +110,7 @@ public class ResourceClass {
 			vItems.add(new Item("ten", R.drawable.img_10, R.drawable.word_ten, R.drawable.card_img_10, R.drawable.card_word_10));
 		}else if (_theme.equals(Const.THEME_COLOR)) {
 			vItems.add(new Item("red", R.drawable.img_red, R.drawable.word_red, R.drawable.card_img_red, R.drawable.card_word_red));
-			vItems.add(new Item("pink", R.drawable.img_yellow, R.drawable.word_pink, R.drawable.card_img_pink, R.drawable.card_word_pink));
+			vItems.add(new Item("pink", R.drawable.img_pink, R.drawable.word_pink, R.drawable.card_img_pink, R.drawable.card_word_pink));
 			vItems.add(new Item("blue", R.drawable.img_blue, R.drawable.word_blue, R.drawable.card_img_blue, R.drawable.card_word_blue));			
 			vItems.add(new Item("gray", R.drawable.img_blue, R.drawable.word_gray, R.drawable.card_img_gray, R.drawable.card_word_gray));
 			vItems.add(new Item("green", R.drawable.img_green, R.drawable.word_green, R.drawable.card_img_green, R.drawable.card_word_green));
