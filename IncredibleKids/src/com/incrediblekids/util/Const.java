@@ -24,4 +24,6 @@ public class Const {
 	public final static int LEVEL_4 = 4;
 	
 	public final static String CUR_LEVEL = "com.incrediblekids.level";
+	
+	public final static String PHOTO_DOWNLOAD = "com.incrediblekids.download";
 }

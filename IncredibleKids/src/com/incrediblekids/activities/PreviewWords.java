@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -16,17 +15,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.content.DialogInterface.OnClickListener;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BlurMaskFilter;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.Bitmap.CompressFormat;
-import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -63,11 +60,12 @@ import com.aetrion.flickr.photos.PhotoList;
 import com.aetrion.flickr.photos.PhotosInterface;
 import com.aetrion.flickr.photos.SearchParameters;
 import com.incrediblekids.network.NetworkConnInfo;
+import com.incrediblekids.util.Const;
 import com.incrediblekids.util.ImageManager;
 import com.incrediblekids.util.Item;
 import com.incrediblekids.util.PreviewGallery;
 
-public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
+public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, OnClickListener{
 	/********************************
 	 * Constants
 	 ********************************/
@@ -80,165 +78,338 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 	/********************************
 	 * Member Variables
 	 ********************************/
-	private ImageAdapter m_PreviewImgAdapter;
-	private ImageView m_LeftBtn, m_RightBtn;
+	/* Main */
+	private ImageView m_LeftBtn, m_RightBtn, m_PhotoViewerBtn;
 	private ImageView m_WordImg, m_QuizImg;
-	private ImageView m_PictureViewerBtn, m_PictureImg;
-	
-	private Vector<Item> m_ItemVector;
-	private Vector<Bitmap> m_LeftImgVector, m_RightImgVector;
-	
-	private PreviewGallery m_PreviewImgGallery;
 	private WordImgAnimation m_WordImgAnimation;
 	private Timer m_QuizImgAnimationTimer;
+	private int m_Height, m_Width;
 	
-	private LinearLayout m_PictureViewerLayout;
-	private View m_PictureViewer;
-	private PopupWindow m_PictureViewerPopupWindow;
+	/* Gallery */
+	private PreviewGallery m_PreviewImgGallery;
+	private ImageAdapter m_PreviewImgAdapter;
+	private int[] IMAGE_SIZE=null; 
 	
+	/* PhotoViewer */
+	private LinearLayout m_PhotoViewerLayout;
+	private PopupWindow m_PhotoViewerPopupWindow;
+	private View m_PhotoViewer;
+	private ImageView m_PhotoImg;
+	private ProgressBar m_PhotoLoadingProgressBar;
+	
+	/* Photo Loading and Save */
+	private ArrayList <String> m_ImageUrlArr = null;
+	private File m_FileDirectory;
+	
+	/*Image Resource */
+	public ResourceClass res;
+	private Vector<Item> m_ItemVector;
+	private Vector<Bitmap> m_LeftImgVector, m_RightImgVector;
+	private Bitmap m_aBitmap[] = null;
+	
+	/* Thread */
 	private ImageLoadingThread m_ImgLoadingThread;
 	private PhotoLoadingThread m_PhotoLoadingThread;
 	
+	/* Handler */
 	private Handler m_Handler;
-	private int m_iSelectedItem=0, m_iPicture=0;
-	private float m_fPosX=0;
-	private static int repeat=0;
 	
-	private File m_FileDirectory;
-	
-	private int[] IMAGE_SIZE=null; 
-			
-	private MediaPlayer m_QuizBGM;
-	
+	/* Media */
+	private MediaPlayer m_StudyBGM;
 	private SoundPool m_SoundEffect = null;
 	private int	m_SoundEffectId[] = null;
 	
-	public ResourceClass res;
+	/* Variable for current state */
+	private int m_iSelectedItem=0, m_iPhoto=0;
+	private float m_fPosX=0;
+	private static int repeat=0;
+
 	
-	/* Test Frame Animation */
-	private ImageView m_FrameAnim;
-	private AnimationDrawable m_PictureViewerAnim;
-	
-	/* Test Flickr */
-	private Bitmap m_aBitmap[] = null;
-	private ArrayList <String> m_ImageUrlArr = null;
-	
-	private ProgressBar m_PhotoLoadingProgressBar;
-	
-	/********************************
+	/****************************************************************
 	 * onCreate
-	 ********************************/
+	 *  - HDPI / MDPI에 따라 Gallery에 표시되는 이미지 사이즈를 정한다. 
+	 *  - 
+	 ****************************************************************/
 	public void onCreate(Bundle savedInstanceState) {
+		if (DEBUG) Log.d(TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
-		
-		/* Get resrouce from ResourceClass */ 
-		res = ResourceClass.getInstance();
-		m_ItemVector = res.getvItems();
 		
 		/* Set content view */
 		setContentView(R.layout.preview_words);
 
+		/* Get Image, Sound Resource */
+		getResource();
+		
 		/* Get Display Size */
-		int mHeight = getWindowManager().getDefaultDisplay().getHeight();
-		int mWidth = getWindowManager().getDefaultDisplay().getWidth();
-		if (mWidth >= 800) { // HDPI
+		m_Height = getWindowManager().getDefaultDisplay().getHeight();
+		m_Width = getWindowManager().getDefaultDisplay().getWidth();
+		if (m_Width >= 800) { // HDPI
 			IMAGE_SIZE = new int[]{209, 171, 133, 95, 76, 57};
 		} else // MDPI
 			IMAGE_SIZE = new int[]{136, 102, 85, 68, 51, 34};
 		
+		/* Set Photo Viewer */
+		setPhotoViewerLayout();
+		setPhotoViewerListener();
 		
-		/* Get Thumbnail Image Resource */
-		m_LeftImgVector = new Vector<Bitmap>();
-		m_RightImgVector = new Vector<Bitmap>();
-		for(int i=0 ; i<5 ; ++i) {
-			if (DEBUG) Log.d(TAG, "ItemVector = " + i);
-			BitmapDrawable bd = (BitmapDrawable)getResources().getDrawable(m_ItemVector.get(i).iItemImgId);
-			Bitmap bit = bd.getBitmap();
-			Log.d(TAG, "bit.width = " + bit.getWidth() + " bit.height = " + bit.getHeight());
-			m_LeftImgVector.add(Bitmap.createBitmap(bit, 0, 0, bit.getWidth()/2, bit.getHeight()));
-			m_RightImgVector.add(Bitmap.createBitmap(bit, bit.getWidth()/2, 0, bit.getWidth()/2, bit.getHeight()));
-		}
+		/* Set Preview Gallery*/
+		setPreviewImageGallery();
 		
-		m_QuizBGM	= MediaPlayer.create(this, R.raw.quizbgm);
-		m_QuizBGM.setLooping(true);
-		
-		m_SoundEffect = new SoundPool(m_ItemVector.size(), AudioManager.STREAM_MUSIC, 0);
-		m_SoundEffectId = new int[20];
-		
-		/* Get Thumbnail Image resource by thread */
-		m_ImgLoadingThread = new ImageLoadingThread();
-		m_ImgLoadingThread.start();
+		setQuizImageListener();
 		
 		/* Create Handle to receive Image loading complete */
 		m_Handler = new Handler() {
 			public void handleMessage(Message msg) {
-				Log.d(TAG, "handlerMeesge = " + msg.what);
 				m_PhotoLoadingProgressBar.setVisibility(View.INVISIBLE);
-				m_FrameAnim.setVisibility(View.VISIBLE);
-				m_PictureImg.setImageBitmap(m_aBitmap[0]);
+				m_PhotoImg.setImageBitmap(m_aBitmap[0]);
 			}
 		};
-		
+	}
+	
+	/****************************************************************
+	 * Set Photo Viewer Layout
+	 *  - PopupWindow를 이용하여 Photo Viewer를 만듬.
+	 ****************************************************************/
+	public void setPhotoViewerLayout() {
 		/* Create Photo Viewer Layout */
-		m_PictureViewerLayout = (LinearLayout)findViewById(R.id.linear);
-		m_PictureViewer = View.inflate(this, R.layout.picture_viewer, null);
-		//m_PictureViewer = new PictureViewer(getApplicationContext());
-		m_PictureViewerPopupWindow = new PopupWindow(m_PictureViewer, mWidth/2, mHeight/2, true);
-		m_PhotoLoadingProgressBar = (ProgressBar)m_PictureViewer.findViewById(R.id.photo_loading_progress);
+		m_PhotoViewerLayout = (LinearLayout)findViewById(R.id.linear);
+		m_PhotoViewer = View.inflate(this, R.layout.picture_viewer, null);
+		m_PhotoViewerPopupWindow = new PopupWindow(m_PhotoViewer, m_Width, m_Height, true);
+		m_PhotoLoadingProgressBar = (ProgressBar)m_PhotoViewer.findViewById(R.id.photo_loading_progress);
+	}
+	
+	/********************************
+	 * onResume
+	 *  - BGM를 다시 시작.
+	 ********************************/
+	protected void onResume() {
+		if (DEBUG) Log.d(TAG, "onResume()");
+		super.onResume();
+		
+		if(!m_StudyBGM.isPlaying()) 
+			m_StudyBGM.start();
+	}
+
+	/********************************
+	 * onPause
+	 *  - BGM를 정지.
+	 ********************************/
+	protected void onPause() {
+		if (DEBUG) Log.d(TAG, "onPause()");
+		super.onPause();
+		
+		if(m_StudyBGM != null) {
+			if(m_StudyBGM.isPlaying()) 
+				m_StudyBGM.pause();
+		}
+	}
+
+	/****************************************************************
+	 * onDestroy
+	 *  - 할당 받은 Image를 Release.
+	 *  - Image Animation Timer를  Release.
+	 ****************************************************************/
+	protected void onDestroy() {
+		if (DEBUG) Log.d(TAG, "onDestroy()");
+		
+		m_LeftImgVector.clear();
+		m_LeftImgVector = null;
+		m_RightImgVector.clear();
+		m_RightImgVector = null;
+
+		if (m_QuizImgAnimationTimer != null)
+			m_QuizImgAnimationTimer.purge();
+		System.gc();
+		super.onDestroy();
+	}
+
+	
+	/****************************************************************
+	 * Main Activity onClick Method
+	 *  - 사진 다운로드시 3G 팝업 Dialog에 대한 Positive Click 처리
+	 ****************************************************************/
+	public void onClick(DialogInterface dialog, int which) {
+		if (DEBUG) Log.d(TAG, "onClick(), which = " + which);
+		SharedPreferences preference = getSharedPreferences(Const.PREFERNCE, 0);
+		SharedPreferences.Editor editor = preference.edit();
+		editor.putBoolean(Const.PHOTO_DOWNLOAD, true);
+		editor.commit();
+		onPhotoViewerClick();
+	}
+	
+
+	/****************************************************************
+	 * Set Left / Right Button Listener
+	 *  - 메인 Activity의 좌우 버튼에 대한 Listener 등록
+	 ****************************************************************/
+	public void setButtonOnClickListener() {
+		/* Setting Left Button */
+		m_LeftBtn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				if(m_iSelectedItem != 0)
+					m_PreviewImgGallery.setSelection(m_iSelectedItem-1);
+			}
+		});
+		/* Setting Right Button */
+		m_RightBtn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				if(m_iSelectedItem != m_PreviewImgGallery.getCount()-1)
+					m_PreviewImgGallery.setSelection(m_iSelectedItem+1);
+			}
+		});
+	}
+	
+	
+	/****************************************************************
+	 * Get Sound / Image Resource
+	 *  - ResourceClass로부터 테마에 해당되는 Vector 객체를 가져옴.
+	 *  - Main Activity에 있는 View Resource를 가져옴.
+	 *  - Image를 반으로 잘라서 저장해야 함. 
+	 *	   for()를 이용하여 5개 먼저 Load, 나머지는 Thread를 호출하여  Load.
+	 *  - Sound는 PreviewWord BGM을 위해서 MediaPlayer를 사용하고,
+	 *    단어 발음을 위해서 SoundPool에 Load.
+	 ****************************************************************/
+	public void getResource() {
+		/* Get resrouce from ResourceClass */ 
+		res = ResourceClass.getInstance();
+		m_ItemVector = res.getvItems();
 		
 		/* Assign from Resource */
 		m_QuizImg = (ImageView) findViewById(R.id.preview_center_image);
 		m_WordImg = (ImageView) findViewById(R.id.preview_word_image);
 		m_LeftBtn = (ImageView) findViewById(R.id.preview_leftbtn);
 		m_RightBtn = (ImageView) findViewById(R.id.preview_rightbtn);
-		m_PictureImg = (ImageView) m_PictureViewer.findViewById(R.id.picture);
-		m_PictureViewerBtn = (ImageView) findViewById(R.id.preview_picviewbtn);
+		m_PhotoViewerBtn = (ImageView) findViewById(R.id.preview_picviewbtn);
 		
+		/* Get Sound Resource */
+		m_StudyBGM	= MediaPlayer.create(this, R.raw.studybgm);
+		m_StudyBGM.setVolume(0.5f, 0.5f);
+		m_StudyBGM.setLooping(true);
+		m_SoundEffect = new SoundPool(m_ItemVector.size(), AudioManager.STREAM_MUSIC, 0);
+		m_SoundEffectId = new int[20];
 		
-		/* Test Frame Animation */
-		m_FrameAnim = (ImageView)m_PictureViewer.findViewById(R.id.picview_rightani);
-		m_FrameAnim.setBackgroundResource(R.drawable.arrow_right);
-		m_PictureViewerAnim = (AnimationDrawable)m_FrameAnim.getBackground();
-		m_FrameAnim.setOnTouchListener(new View.OnTouchListener() {
-			public boolean onTouch(View v, MotionEvent event) {
-				if (event.getAction() == MotionEvent.ACTION_UP) {
-					if (m_PictureViewerAnim.isRunning()) {
-						Log.d(TAG, "Running ~~~~");
-						m_PictureViewerAnim.stop();
-					} else {
-						Log.d(TAG, "Not Running ~~~~");
-						m_PictureViewerAnim.start();
-					}
+		/* Get Thumbnail Resource */
+		m_LeftImgVector = new Vector<Bitmap>();
+		m_RightImgVector = new Vector<Bitmap>();
+		for(int i=0 ; i<5 ; ++i) {
+			if (DEBUG) Log.d(TAG, "ItemVector = " + i);
+			BitmapDrawable bd = (BitmapDrawable)getResources().getDrawable(m_ItemVector.get(i).iItemImgId);
+			Bitmap bit = bd.getBitmap();
+			m_LeftImgVector.add(Bitmap.createBitmap(bit, 0, 0, bit.getWidth()/2, bit.getHeight()));
+			m_RightImgVector.add(Bitmap.createBitmap(bit, bit.getWidth()/2, 0, bit.getWidth()/2, bit.getHeight()));
+		}
+		
+		/* Get Thumbnail Image resource by thread */
+		m_ImgLoadingThread = new ImageLoadingThread();
+		m_ImgLoadingThread.start();
+	}
+	
+	
+	/****************************************************************
+	 * Set Photo Viewer Listener
+	 *  - Photo Viewer Button을 눌렀을 경우에, 
+	 *    Preference를 참조하여 Image 다운로드 여부를 물음.
+	 ****************************************************************/
+	public void setPhotoViewerListener() {
+		
+		m_PhotoImg = (ImageView) m_PhotoViewer.findViewById(R.id.photo);
+		
+		/* Setting Photo Viewer Button */
+		m_PhotoViewerBtn.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				SharedPreferences preference = getSharedPreferences(Const.PREFERNCE, 0);
+				if(preference == null) {
+				    Log.e(TAG, "settings null");
 				}
-				return true;
+				if (preference.getBoolean(Const.PHOTO_DOWNLOAD, false)) {
+					onPhotoViewerClick();
+				} else {
+					new AlertDialog.Builder(PreviewWords.this) 
+					.setTitle("알림")
+					.setMessage("사진을 다운로드 합니다. \n3G인 경우 통신요금이 부과될 수 있습니다. \n접속 하시겠습니까?")
+					.setIcon(R.drawable.icon)
+					.setPositiveButton("연결", PreviewWords.this)
+					.setNegativeButton("닫기", null)
+					.create()
+					.show();
+				}
 			}
 		});
 		
+		/* Setting Photo Image */
+		m_PhotoViewer.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				if (!v.equals(m_PhotoImg))
+					m_PhotoViewerPopupWindow.dismiss();
+			}
+		});
 		
-		/* Setting Picture Image */
-		m_PictureImg.setOnTouchListener(new View.OnTouchListener() {
+		/* Setting Photo Image */
+		m_PhotoImg.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
-				if (DEBUG) Log.d(TAG, "Picture image is touched, event = " + event.getAction());
+				if (DEBUG) Log.d(TAG, "Photo image is touched, event = " + event.getAction());
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					m_fPosX = event.getX();
 				} else if (event.getAction() == MotionEvent.ACTION_UP) {
 					if ((m_fPosX - event.getX()) < -50) { // Moving left
-						if (m_iPicture == 0)
-							m_iPicture = m_aBitmap.length;
-						m_PictureImg.setImageBitmap(m_aBitmap[--m_iPicture]);
-					} else if ((m_fPosX - event.getX()) > 50) { // Moving right
-						if (m_iPicture == m_aBitmap.length-1)
-							m_iPicture = -1;
-						m_PictureImg.setImageBitmap(m_aBitmap[++m_iPicture]);
-					} else { // Click
-						m_PictureViewerPopupWindow.dismiss();
-					}
+						if (m_iPhoto == 0)
+							m_iPhoto = m_aBitmap.length;
+						m_PhotoImg.setImageBitmap(m_aBitmap[--m_iPhoto]);
+					} else { // if ((m_fPosX - event.getX()) > 50) { // Moving right, click
+						if (m_iPhoto == m_aBitmap.length-1)
+							m_iPhoto = -1;
+						m_PhotoImg.setImageBitmap(m_aBitmap[++m_iPhoto]);
+					} 
 				}
 				return true;
 			}
 		});
-		
-		
+	}
+	
+	
+	/****************************************************************  
+	 * On Photo Viewer Click Method
+	 *  - setPhotoViewerListener()에서 다운로드를 선택하면 네트웍(3G, Wifi)와 SD 카드 유무를 검사.
+	 *  - 기존의 다운받은 사진이 있는지 확인.
+	 *  - 사진이 없을 경우, Thread 이용해서 사진 다운로드.
+	 ****************************************************************/
+	public void onPhotoViewerClick() {
+		if (!NetworkConnInfo.IsWifiAvailable(PreviewWords.this) && !NetworkConnInfo.Is3GAvailable(PreviewWords.this)) {
+			Toast.makeText(PreviewWords.this, "네트워크에 연결할 수 없습니다.", Toast.LENGTH_LONG).show();
+		} else {
+			if (!getFileDirectory())
+				Toast.makeText(PreviewWords.this, "사진을 저장할 SD 카드가 없습니다.", Toast.LENGTH_SHORT).show();
+			else {
+				/*
+				 * 이미지 이름 받아와서 체크하고, 모든 이미지가 있는지 확인!
+				 */
+				File mFile = new File(m_FileDirectory + "/frog_0.png");
+				if (mFile.exists()) {
+					m_aBitmap = new Bitmap[4];
+					for (int i=0 ; mFile.exists() ; ++i) {
+						m_aBitmap[i] = BitmapFactory.decodeFile(mFile.getPath().toString());
+						mFile = new File(m_FileDirectory + "/frog" + "_" + (i+1) + ".png");
+						Log.d(TAG, "mFile = " + mFile.getPath().toString() + " i = " + i);
+					}
+					m_Handler.sendEmptyMessage(0);
+				} else {
+					Toast.makeText(PreviewWords.this, "사진을 다운 받고 있습니다. \n sdcard/HelloWorldEnglish에 저장됩니다.", Toast.LENGTH_SHORT).show();
+					m_PhotoLoadingThread = new PhotoLoadingThread(m_Handler);
+					m_PhotoLoadingThread.start();
+					m_PhotoLoadingProgressBar.setVisibility(View.VISIBLE);
+				}
+				m_PhotoViewerPopupWindow.showAtLocation(m_PhotoViewerLayout, Gravity.CENTER, 0, 0);
+			}
+		}
+	}
+	
+	
+	/****************************************************************
+	 * Set Preview Image Gallery
+	 *  - 전체 이미지를 훑어 볼 수 있는 Gallery 추가 
+	 *    onItemSelectedListener를 이용해서 기존의 Animation Timer를 초기화
+	 ****************************************************************/
+	public void setPreviewImageGallery() {
 		/* Setting Preview Image Gallery */
 		m_PreviewImgAdapter = new ImageAdapter(this);
 		m_PreviewImgGallery = (PreviewGallery) findViewById(R.id.preview_gallery);
@@ -267,8 +438,14 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 			}
 			public void onNothingSelected(AdapterView<?> arg0) {if (DEBUG) Log.d(TAG, "onNothingSelected()");}
 		});
-		
-		
+	}
+	
+	
+	/****************************************************************
+	 * Set Quiz(Center) Image Listener
+	 *  - Main Activity의 중앙 Image를 선택하면 Animation을 보여주고, 해당 발음을 들려준다.
+	 ****************************************************************/
+	public void setQuizImageListener() {
 		/* Setting Quiz(Center) Image */
 		m_QuizImg.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
@@ -304,113 +481,21 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 				return true;
 			}
 		});
-		
-		
-		/* Setting Left Button */
-		m_LeftBtn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				if(m_iSelectedItem != 0)
-					m_PreviewImgGallery.setSelection(m_iSelectedItem-1);
-			}
-		});
-		
-		
-		/* Setting Right Button */
-		m_RightBtn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				if(m_iSelectedItem != m_PreviewImgGallery.getCount()-1)
-					m_PreviewImgGallery.setSelection(m_iSelectedItem+1);
-			}
-		});
-		
-		
-		/* Setting Picture Viewer Button */
-		m_PictureViewerBtn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				if (!NetworkConnInfo.IsWifiAvailable(PreviewWords.this) && !NetworkConnInfo.Is3GAvailable(PreviewWords.this))
-				{
-					Toast.makeText(PreviewWords.this, "��ũ��ũ�� ������ �� �����ϴ�.", Toast.LENGTH_LONG).show();
-				} else {
-					if (!getFileDirectory())
-						Toast.makeText(PreviewWords.this, "SD ī�带 �����Ͽ� �ֽʽÿ�.", Toast.LENGTH_SHORT).show();
-					else {
-						File mFile = new File(m_FileDirectory + "/frog_0.png");
-						if (mFile.exists()) {
-							m_aBitmap = new Bitmap[4];
-							for (int i=0 ; mFile.exists() ; ++i) {
-								m_aBitmap[i] = BitmapFactory.decodeFile(mFile.getPath().toString());
-								mFile = new File(m_FileDirectory + "/frog" + "_" + (i+1) + ".png");
-								Log.d(TAG, "mFile = " + mFile.getPath().toString() + " i = " + i);
-							}
-							m_Handler.sendEmptyMessage(0);
-						} else {
-							Toast.makeText(PreviewWords.this, "Image loading!", Toast.LENGTH_SHORT).show();
-							m_PhotoLoadingThread = new PhotoLoadingThread(m_Handler);
-							m_PhotoLoadingThread.start();
-							m_PhotoLoadingProgressBar.setVisibility(View.VISIBLE);
-						}
-						m_PictureViewerPopupWindow.showAtLocation(m_PictureViewerLayout, Gravity.CENTER, 0, 0);
-					}
-				}
-			}
-		});
 	}
 	
-	/********************************
-	 * onResume
-	 ********************************/
-	protected void onResume() {
-		// TODO Auto-generated method stub
-		super.onResume();
-		
-		if(!m_QuizBGM.isPlaying()) 
-			m_QuizBGM.start();
-	}
-
-	/********************************
-	 * onDestroy
-	 ********************************/
-	protected void onPause() {
-		// TODO Auto-generated method stub
-		super.onPause();
-		
-		if(m_QuizBGM != null) {
-			if(m_QuizBGM.isPlaying()) 
-				m_QuizBGM.pause();
-		}
-	}
-
-	/********************************
-	 * onDestroy
-	 ********************************/
-	protected void onDestroy() {
-		// TODO Auto-generated method stub
-		m_LeftImgVector = null;
-		m_RightImgVector = null;
-		if (m_QuizImgAnimationTimer != null)
-			m_QuizImgAnimationTimer.purge();
-		System.gc();
-		super.onDestroy();
-	}
-
 	
 	/********************************
 	 * Get file directory and Check mount state
 	 ********************************/
 	public boolean getFileDirectory() {
-		Log.d(TAG, "getFileDirectory()");
 		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
 			m_FileDirectory = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/HelloWorldEnglish");
-			Log.d(TAG, "m_FileDirectory = " + m_FileDirectory);
 			if (!m_FileDirectory.exists()) {
-				Log.d(TAG, "MakeDirectory");
 				m_FileDirectory.mkdir();
 			}
 			return true;
 		} else
 			m_FileDirectory = null;
-		
-		Log.d(TAG, "m_FileDirectory = " + m_FileDirectory);
 		return false;
 	}
 	
@@ -551,6 +636,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 		}
 	}
 	
+	
 	/********************************
 	 * Photo Loading Thread
 	 ********************************/
@@ -565,12 +651,16 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 		public void run() {
 			m_ImageUrlArr = getImageURLs("frog", 4, 1); //m_ItemVector.get(m_iSelectedItem).strWordCharId
 			m_aBitmap = new Bitmap[m_ImageUrlArr.size()];
-			for (int count=0; count < m_ImageUrlArr.size(); count++){
-				if (DEBUG) Log.d(TAG, m_ImageUrlArr.get(count));
-				m_aBitmap[count] = ImageManager.UrlToBitmap((m_ImageUrlArr.get(count)));
-				StoreByteImage(m_ItemVector.get(m_iSelectedItem).strWordCharId, count);
-			}
-			mHandler.sendEmptyMessage(0);
+
+			if (m_ImageUrlArr.size() != 0) { 
+				for (int count=0; count < m_ImageUrlArr.size(); count++){
+					if (DEBUG) Log.d(TAG, m_ImageUrlArr.get(count));
+					m_aBitmap[count] = Bitmap.createScaledBitmap(ImageManager.UrlToBitmap((m_ImageUrlArr.get(count))), 440, 380, false);
+					StoreByteImage(m_ItemVector.get(m_iSelectedItem).strWordCharId, count);
+				}
+				mHandler.sendEmptyMessage(0);
+			} else
+				Log.e(TAG, "Image Url Arr is 0");
 		}
 	}
 	
@@ -579,17 +669,10 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 	 * Store Photos
 	 ********************************/
 	public boolean StoreByteImage(String expName, int count) {      
-		Log.d(TAG, "StoreByteImage");
 	    FileOutputStream fileOutputStream = null;      
-	    try {   
-	  
-	        /*BitmapFactory.Options options=new BitmapFactory.Options();   
-	        options.inSampleSize = 5;   */
-	          
-	           
+	    try {            
 	        fileOutputStream = new FileOutputStream(m_FileDirectory + "/frog" + "_" + count + ".png");   
-	                           
-	  
+  
 	        BufferedOutputStream bos = new BufferedOutputStream(fileOutputStream);   
 	  
 	        m_aBitmap[count].compress(CompressFormat.PNG, 100, bos);   
@@ -597,12 +680,10 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 	        bos.flush();   
 	        bos.close();   
 	  
-	    } catch (FileNotFoundException e) {   
-	        // TODO Auto-generated catch block   
+	    } catch (FileNotFoundException e) {
 	    	Log.e(TAG, "FileNotFoundException");
 	        e.printStackTrace();   
-	    } catch (IOException e) {   
-	        // TODO Auto-generated catch block
+	    } catch (IOException e) {
 	    	Log.e(TAG, "IOException");
 	        e.printStackTrace();   
 	    }   
@@ -610,70 +691,6 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 	    return true;   
 	}  
 
-	/********************************
-	 * Picture Viewer
-	 ********************************/
-	class PictureViewer extends View {
-		Bitmap mPicture;
-		Context mContext;
-		
-		public PictureViewer(Context context) {
-			super(context);
-			if (DEBUG) Log.d(TAG, "PictureViewer Constructor");
-			
-			mContext = context;
-			//mPicture = BitmapFactory.decodeResource(context.getResources(), R.drawable.pic_dog_1);
-		}
-
-		
-		protected void onDraw(Canvas canvas) {
-			if (DEBUG) Log.d(TAG, "PictureViewer OnDraw()");
-			Paint mPaint = new Paint();
-			mPaint.setAntiAlias(true);
-			//canvas.drawColor(Color.WHITE);
-			BlurMaskFilter mBlur = new BlurMaskFilter(20, BlurMaskFilter.Blur.NORMAL);
-			mPaint.setMaskFilter(mBlur);
-			//canvas.drawBitmap(mPicture, null, new Rect(0, 0, 512, 256), mPaint);
-			canvas.drawBitmap(m_aBitmap[m_iPicture], null, new Rect(20, 10, 492, 246), mPaint);
-			super.onDraw(canvas);
-		}
-
-
-		public boolean onTouchEvent(MotionEvent event) {
-			if (DEBUG) Log.d(TAG, "PictureViewer onTouchEvent(), event = " + event.getAction());
-			if (event.getAction() == MotionEvent.ACTION_DOWN) {
-				m_fPosX = event.getX();
-			} else if (event.getAction() == MotionEvent.ACTION_UP) {
-				if ((m_fPosX - event.getX()) < -50) { // Moving left
-					if (m_iPicture == 0)
-						m_iPicture = m_aBitmap.length;
-					--m_iPicture;
-				} else if ((m_fPosX - event.getX()) > 50) { // Moving right
-					if (m_iPicture == m_aBitmap.length-1)
-						m_iPicture = -1;
-					++m_iPicture;
-				} else { // Click
-					m_PictureViewerPopupWindow.dismiss();
-				}
-				invalidate(); 
-				/*else if (event.getAction() == MotionEvent.ACTION_UP) {
-				if ((m_fPosX - event.getX()) < -50) { // Moving left
-					if (m_iPicture == 0)
-						m_iPicture = m_ItemVector.size()-1;
-					mPicture = BitmapFactory.decodeResource(mContext.getResources(), m_ItemVector.get(m_iPicture--).iCardImgId);
-				} else if ((m_fPosX - event.getX()) > 50) { // Moving right
-					if (m_ItemVector.size()-1 == m_iPicture)
-						m_iPicture = 0;
-					mPicture = BitmapFactory.decodeResource(mContext.getResources(), m_ItemVector.get(m_iPicture++).iCardImgId);
-				} else { // Click
-					m_PictureViewerPopupWindow.dismiss();
-				}
-				invalidate();*/
-			}
-			return super.onTouchEvent(event);
-		}
-	}
-	
 	
 	/********************************
 	 * Get Image URLs (from Wooram Jung)
@@ -705,8 +722,8 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory{
 				Log.e(TAG, "photo list is null");
 			}
 			Log.e(TAG, "getPhotosInterface() photoList.size = "+photoList.size());
-		} catch (ParserConfigurationException e1) {
-			e1.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
 		}  catch (SAXException e) {
 			e.printStackTrace();
 		} catch (FlickrException e) {
