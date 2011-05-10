@@ -114,10 +114,11 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	/* Handler */
 	private Handler m_Handler;
 	
-	/* Media */
+	/* Media Resource*/
 	private MediaPlayer m_StudyBGM;
 	private SoundPool m_SoundEffect = null;
 	private int	m_SoundEffectId[] = null;
+	private AssetManager m_AssetManager;
 	
 	/* Variable for current state */
 	private int m_iSelectedItem=0, m_iPhoto=0;
@@ -127,7 +128,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	
 	/****************************************************************
 	 * onCreate
-	 *  - HDPI / MDPI에 따라 Gallery에 표시되는 이미지 사이즈를 정한다. 
+	 *  - HDPI / MDPI에 따라 Gallery 에 표시되는 이미지 사이즈를 정한다. 
 	 *  - 
 	 ****************************************************************/
 	public void onCreate(Bundle savedInstanceState) {
@@ -157,6 +158,8 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		
 		setQuizImageListener();
 		
+		setButtonOnClickListener();
+		
 		/* Create Handle to receive Image loading complete */
 		m_Handler = new Handler() {
 			public void handleMessage(Message msg) {
@@ -168,7 +171,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	
 	/****************************************************************
 	 * Set Photo Viewer Layout
-	 *  - PopupWindow를 이용하여 Photo Viewer를 만듬.
+	 *  - PopupWindow를 이용하여 Photo Viewer 만듬.
 	 ****************************************************************/
 	public void setPhotoViewerLayout() {
 		/* Create Photo Viewer Layout */
@@ -215,12 +218,16 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 
 	/****************************************************************
 	 * onDestroy
-	 *  - 할당 받은 Image를 Release.
-	 *  - Image Animation Timer를  Release.
+	 *  - 할당 받은 Image 를 Release.
+	 *  - Image Animation Timer 를  Release.
 	 ****************************************************************/
 	protected void onDestroy() {
 		if (DEBUG) Log.d(TAG, "onDestroy()");
 		
+		for (int i=0 ; i < m_LeftImgVector.size() ; ++i) {
+			m_LeftImgVector.get(i).recycle();
+			m_RightImgVector.get(i).recycle();
+		}
 		m_LeftImgVector.clear();
 		m_LeftImgVector = null;
 		m_RightImgVector.clear();
@@ -228,6 +235,11 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 
 		if (m_QuizImgAnimationTimer != null)
 			m_QuizImgAnimationTimer.purge();
+		
+		m_StudyBGM.release();
+		m_SoundEffect.release();
+		m_SoundEffectId = null;
+		
 		System.gc();
 		super.onDestroy();
 	}
@@ -235,7 +247,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	
 	/****************************************************************
 	 * Main Activity onClick Method
-	 *  - 사진 다운로드시 3G 팝업 Dialog에 대한 Positive Click 처리
+	 *  - 사진 다운로드시 3G 팝업 Dialog 에 대한 Positive Click 처리
 	 ****************************************************************/
 	public void onClick(DialogInterface dialog, int which) {
 		if (DEBUG) Log.d(TAG, "onClick(), which = " + which);
@@ -249,7 +261,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 
 	/****************************************************************
 	 * Set Left / Right Button Listener
-	 *  - 메인 Activity의 좌우 버튼에 대한 Listener 등록
+	 *  - 메인 Activity 의 좌우 버튼에 대한 Listener 등록
 	 ****************************************************************/
 	public void setButtonOnClickListener() {
 		/* Setting Left Button */
@@ -272,12 +284,12 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	/****************************************************************
 	 * Get Sound / Image Resource
 	 *  - ResourceClass로부터 테마에 해당되는 Vector 객체를 가져옴.
-	 *  - Main Activity에 있는 View Resource를 가져옴.
-	 *  - Image를 반으로 잘라서 저장해야 함. 
-	 *	   for()를 이용하여 5개 먼저 Load, 나머지는 Thread를 호출하여  Load.
-	 *  - Sound는 PreviewWord BGM을 위해서 MediaPlayer를 사용하고,
+	 *  - Main Activity 에 있는 View Resource 를 가져옴.
+	 *  - Image 를 반으로 잘라서 저장해야 함. 
+	 *	   for()를 이용하여 5개 먼저 Load, 나머지는 Thread 를 호출하여  Load.
+	 *  - Sound 는 PreviewWord BGM을 위해서 MediaPlayer를 사용하고,
 	 *    단어 발음을 위해서 SoundPool에 Load.
-	 ****************************************************************/
+	 **************************************88888887777777777777777**************************/
 	public void getResource() {
 		/* Get resrouce from ResourceClass */ 
 		res = ResourceClass.getInstance();
@@ -291,13 +303,20 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		m_PhotoViewerBtn = (ImageView) findViewById(R.id.preview_picviewbtn);
 		
 		/* Get Sound Resource */
+		m_AssetManager = getResources().getAssets();
 		m_StudyBGM	= MediaPlayer.create(this, R.raw.studybgm);
 		m_StudyBGM.setVolume(0.5f, 0.5f);
 		m_StudyBGM.setLooping(true);
 		m_SoundEffect = new SoundPool(m_ItemVector.size(), AudioManager.STREAM_MUSIC, 0);
 		m_SoundEffectId = new int[20];
+		try {
+			m_SoundEffectId[0] = m_SoundEffect.load(m_AssetManager.openFd("mfx/"+m_ItemVector.get(0).strWordCharId+".mp3"), 1);
+		} catch (IOException e) {
+			Log.d(TAG, "Sound not found");
+			e.printStackTrace();
+		}
 		
-		/* Get Thumbnail Resource */
+		/* Get Image Resource */
 		m_LeftImgVector = new Vector<Bitmap>();
 		m_RightImgVector = new Vector<Bitmap>();
 		for(int i=0 ; i<5 ; ++i) {
@@ -316,8 +335,8 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	
 	/****************************************************************
 	 * Set Photo Viewer Listener
-	 *  - Photo Viewer Button을 눌렀을 경우에, 
-	 *    Preference를 참조하여 Image 다운로드 여부를 물음.
+	 *  - Photo Viewer Button 을 눌렀을 경우에, 
+	 *    Preference 를 참조하여 Image 다운로드 여부를 물음.
 	 ****************************************************************/
 	public void setPhotoViewerListener() {
 		
@@ -416,7 +435,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	/****************************************************************
 	 * Set Preview Image Gallery
 	 *  - 전체 이미지를 훑어 볼 수 있는 Gallery 추가 
-	 *    onItemSelectedListener를 이용해서 기존의 Animation Timer를 초기화
+	 *    onItemSelectedListener를 이용해서 기존의 Animation Timer 를 초기화
 	 ****************************************************************/
 	public void setPreviewImageGallery() {
 		/* Setting Preview Image Gallery */
@@ -452,7 +471,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	
 	/****************************************************************
 	 * Set Quiz(Center) Image Listener
-	 *  - Main Activity의 중앙 Image를 선택하면 Animation을 보여주고, 해당 발음을 들려준다.
+	 *  - Main Activity 의 중앙 Image 를 선택하면 Animation 을 보여주고, 해당 발음을 들려준다.
 	 ****************************************************************/
 	public void setQuizImageListener() {
 		/* Setting Quiz(Center) Image */
@@ -624,7 +643,6 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	 * Image Loading Thread
 	 ********************************/
 	class ImageLoadingThread extends Thread {
-		AssetManager am = getResources().getAssets();
 		public void run() {
 			for(int i=5 ; i<m_ItemVector.size() ; ++i) {
 				if (DEBUG) Log.d(TAG, "ItemVector = " + i);
@@ -636,10 +654,10 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 				}				
 			}
 			
-			for(int i=0 ; i<m_ItemVector.size() ; ++i) {		
+			for(int i=1 ; i<m_ItemVector.size() ; ++i) {		
 				if(!Thread.currentThread().isInterrupted()) {
 					try {
-						m_SoundEffectId[i] = m_SoundEffect.load(am.openFd("mfx/"+m_ItemVector.get(i).strWordCharId+".mp3"), 1);
+						m_SoundEffectId[i] = m_SoundEffect.load(m_AssetManager.openFd("mfx/"+m_ItemVector.get(i).strWordCharId+".mp3"), 1);
 					} catch (IOException e) {
 						Log.d(TAG, "Sound not found");
 						e.printStackTrace();

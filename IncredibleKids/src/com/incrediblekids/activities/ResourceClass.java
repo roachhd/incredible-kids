@@ -112,7 +112,7 @@ public class ResourceClass {
 			vItems.add(new Item("red", R.drawable.img_red, R.drawable.word_red, R.drawable.card_img_red, R.drawable.card_word_red));
 			vItems.add(new Item("pink", R.drawable.img_pink, R.drawable.word_pink, R.drawable.card_img_pink, R.drawable.card_word_pink));
 			vItems.add(new Item("blue", R.drawable.img_blue, R.drawable.word_blue, R.drawable.card_img_blue, R.drawable.card_word_blue));			
-			vItems.add(new Item("gray", R.drawable.img_blue, R.drawable.word_gray, R.drawable.card_img_gray, R.drawable.card_word_gray));
+			vItems.add(new Item("gray", R.drawable.img_gray, R.drawable.word_gray, R.drawable.card_img_gray, R.drawable.card_word_gray));
 			vItems.add(new Item("green", R.drawable.img_green, R.drawable.word_green, R.drawable.card_img_green, R.drawable.card_word_green));
 			
 			vItems.add(new Item("white", R.drawable.img_white, R.drawable.word_white, R.drawable.card_img_white, R.drawable.card_word_white));
