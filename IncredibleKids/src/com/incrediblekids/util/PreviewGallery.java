@@ -13,12 +13,6 @@ import android.view.animation.Transformation;
 import android.widget.Gallery;
 
 public class PreviewGallery extends Gallery{
-	
-	protected boolean checkLayoutParams(LayoutParams p) {
-		// TODO Auto-generated method stub
-		return super.checkLayoutParams(p);
-	}
-
 	@Override
 	protected int computeHorizontalScrollExtent() {
 		// TODO Auto-generated method stub
