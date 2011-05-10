@@ -195,6 +195,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 
 	/********************************
 	 * onPause
+	 *  - Thread 동작 확인해서 interrupt() 호출.
 	 *  - BGM를 정지.
 	 ********************************/
 	protected void onPause() {
@@ -220,6 +221,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	 * onDestroy
 	 *  - 할당 받은 Image 를 Release.
 	 *  - Image Animation Timer 를  Release.
+	 *  - 할당 받은 Sound 를 Release.
 	 ****************************************************************/
 	protected void onDestroy() {
 		if (DEBUG) Log.d(TAG, "onDestroy()");
