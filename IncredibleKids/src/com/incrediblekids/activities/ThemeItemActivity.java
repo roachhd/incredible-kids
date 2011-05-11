@@ -196,7 +196,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		
 		m_quizItemList = new ArrayList<Item>();
 
-		this.m_iCurrentItemNum = m_currentLevel * 5;
+		this.m_iCurrentItemNum = (m_currentLevel) * 5;
 		this.m_bSoundOn = true;
 
 		this.randomX = new Random();
@@ -371,8 +371,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 						m_iCurrentItemNum++;
 						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
 					}else{
-						m_iCurrentItemNum = 0;
-						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
+						m_iCurrentItemNum++;
 					}
 					m_playScene.clearTouchAreas();			 
 					resetScreen();
@@ -547,8 +546,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 						m_iCurrentItemNum++;
 						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
 					}else{
-						m_iCurrentItemNum = 0;
-						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
+						m_iCurrentItemNum++;
 					}
 					removeDarkenBG();
 					m_playScene.clearChildScene();
@@ -604,8 +602,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					m_iCurrentItemNum++;
 					m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
 				}else{
-					m_iCurrentItemNum = 0;
-					m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
+					m_iCurrentItemNum++;
 				}
 				//m_playScene.clearChildScene();
 				resetScreen();
@@ -620,8 +617,10 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		if (m_iCurrentItemNum != 0 && this.m_iCurrentItemNum % ITEM_NUM_PER_STAGE == 0){
 			m_quizItemList.clear();
 			m_quizItemList.addAll(this.m_ItemVector.subList(m_iCurrentItemNum - ITEM_NUM_PER_STAGE, m_iCurrentItemNum));
+			Log.e(TAG, "m_ItemVector.subList m_iCurrentItemNum:" + m_iCurrentItemNum);
 			Intent intent = new Intent(this, MatchQuiz.class);
 			intent.putExtra(Const.CUR_LEVEL, m_currentLevel);
+			Log.e(TAG, "resetScreen m_currentLevel:"+m_currentLevel);
 			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, m_quizItemList);
 			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
 			finish();
@@ -721,8 +720,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 						m_iCurrentItemNum++;
 						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
 					}else{
-						m_iCurrentItemNum = 0;
-						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
+						m_iCurrentItemNum++;
 					}
 					m_playScene.clearTouchAreas();			
 					resetScreen();
