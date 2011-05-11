@@ -196,7 +196,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		
 		m_quizItemList = new ArrayList<Item>();
 
-		this.m_iCurrentItemNum = (m_currentLevel-1) * 5;
+		this.m_iCurrentItemNum = m_currentLevel * 5;
 		this.m_bSoundOn = true;
 
 		this.randomX = new Random();
@@ -624,6 +624,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			intent.putExtra(Const.CUR_LEVEL, m_currentLevel);
 			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, m_quizItemList);
 			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
+			finish();
 
 		}else{ 
 			Log.e(TAG, "resetScreen()");
@@ -681,8 +682,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	
 	protected void onDestroy() {
 		//Background Music and sound
-		if (m_Music != null)
-			m_Music.release();
+/*		if (m_Music != null){
+			if (m_Music.isPlaying()){
+				m_Music.release();
+			}			
+		}*/
 		if (m_ItemSound != null)
 			m_ItemSound.release();
 		if (m_DropToBoxSound != null)
@@ -697,6 +701,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					m_AlphabetSound[i].release();
 			}
 		}
+		super.onDestroy();
 	}
 
 	//Create base object

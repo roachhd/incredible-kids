@@ -18,10 +18,10 @@ public class Const {
 	public final static int MODE_DIALOG_RESULT 	= 2000;
 	public final static int RETRY_DIALOG_RESULT = 3000;
 	
-	public final static int LEVEL_1 = 1;
-	public final static int LEVEL_2 = 2;
-	public final static int LEVEL_3 = 3;
-	public final static int LEVEL_4 = 4;
+	public final static int LEVEL_1 = 0;
+	public final static int LEVEL_2 = 1;
+	public final static int LEVEL_3 = 2;
+	public final static int LEVEL_4 = 3;
 	
 	public final static String CUR_LEVEL = "com.incrediblekids.level";
 	

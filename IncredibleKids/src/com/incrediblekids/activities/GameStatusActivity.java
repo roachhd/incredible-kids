@@ -52,6 +52,7 @@ public class GameStatusActivity extends Activity {
 			
 			@Override
 			public void onClick(View arg0) {
+				
 				ivLevel_1.startAnimation(animSet);
 				animSet.setAnimationListener(new AnimationListener(){
 
@@ -77,13 +78,14 @@ public class GameStatusActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				if (curLevel >= 1){
+					ivLevel_2.startAnimation(animSet);
 					animSet.setAnimationListener(new AnimationListener(){
 
 						@Override
 						public void onAnimationEnd(Animation animation) {
+							ivLevel_2.setVisibility(View.INVISIBLE);
 							mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_2);
-							startActivity(mIntent);
-							
+							startActivity(mIntent);							
 						}
 
 						@Override
@@ -106,10 +108,12 @@ public class GameStatusActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				if (curLevel >= 2){
+					ivLevel_3.startAnimation(animSet);
 					animSet.setAnimationListener(new AnimationListener(){
 
 						@Override
 						public void onAnimationEnd(Animation animation) {
+							ivLevel_3.setVisibility(View.INVISIBLE);
 							mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_3);
 							startActivity(mIntent);
 						}
@@ -134,10 +138,12 @@ public class GameStatusActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				if (curLevel >= 3){
+					ivLevel_4.startAnimation(animSet);
 					animSet.setAnimationListener(new AnimationListener(){
 
 						@Override
 						public void onAnimationEnd(Animation animation) {
+							ivLevel_4.setVisibility(View.INVISIBLE);
 							mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_4);
 							startActivity(mIntent);
 						}
@@ -159,6 +165,7 @@ public class GameStatusActivity extends Activity {
 	}
 	
 	private void setImageResource(ResourceClass m_ResourceClass){
+		
 		// Restore preferences
 		SharedPreferences settings = getSharedPreferences(Const.PREFERNCE, Context.MODE_WORLD_READABLE);
 		if(settings == null) {
@@ -245,6 +252,7 @@ public class GameStatusActivity extends Activity {
 			if(curLevel == 1 || curLevel == 2)
 				ivLevel_2.setImageResource(R.drawable.level_color_2);
 		}
+		Log.e(TAG, "setImageResource() curLevel:"+curLevel);
 	}
 
 	@Override
