@@ -12,6 +12,7 @@ import java.util.Vector;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Matrix;
@@ -23,16 +24,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
-import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 
 import com.incrediblekids.util.Const;
 import com.incrediblekids.util.Item;
@@ -67,6 +70,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private Vector<Item> m_ItemVector;
 	
 	private Intent 				m_PopupIntent;
+	private PopupWindow			m_PopupWindow;
+	private View				m_PopupLayoutView;
 	
 	/* FrameImage & Interpolator Animation */
 	private ImageView			m_TimeFrameImage;
@@ -211,6 +216,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			
 			updatePreference();
 			
+			// TODO : framgeImage
 			finish();
 			Intent intent = new Intent(MatchQuiz.this, GameStatusActivity.class);
 			intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -225,6 +231,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	 * update Current theme's score
 	 */
 	private void updatePreference() {
+		Log.d(TAG, "updatePreference()");
 	    String currentTheme = m_Res.getCurrentTheme();
 	    int currentVal = 0;
 	    int previousScore = 0;
@@ -260,8 +267,9 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	            // Commit the edits!
 	            editor.commit();
 	        }
-	        
 	    }
+	    
+	    Log.d(TAG, "after currentVal: " + currentVal);
     }
 
     @Override
@@ -324,6 +332,9 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_TimeFrameImage.setBackgroundResource(R.drawable.frame_transition);
 		
 		m_TimeFrameImageEnd	= (ImageView)findViewById(R.id.ivTimeFrameEnd);
+		
+		LayoutInflater inflater = (LayoutInflater)getSystemService (Context.LAYOUT_INFLATER_SERVICE);
+		m_PopupLayoutView	= inflater.inflate(R.layout.popup_great, null);
 		
 		m_SoundEffectId		= m_SoundEffect.load(this, R.raw.flipflop, 1);
 		m_Hint.setOnClickListener(this);
@@ -798,6 +809,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 
         public void onAnimationEnd(Animation animation) {
         	mParentView.post(new SwapViews(mParentView, mPosition, mIsToggle));
+        	Log.d(TAG, "Sound: " + m_SoundEffect.play(m_SoundEffectId, 1.0f, 1.0f, 0, 0, 1.0f));
         }
 
         public void onAnimationRepeat(Animation animation) {
@@ -863,8 +875,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 						m_Handler.sendEmptyMessage(ANIMATION_ENDED);
 					else
 						m_Handler.sendEmptyMessage(TOGGLE_ENDED);
-					
-					Log.d(TAG, "Sound: " + m_SoundEffect.play(m_SoundEffectId, 1.0f, 1.0f, 0, 0, 1.0f));
 				}
 			});
 

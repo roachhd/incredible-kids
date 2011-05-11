@@ -3,6 +3,10 @@ package com.incrediblekids.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -23,6 +27,7 @@ public class MainTheme extends Activity implements View.OnClickListener {
 	private final int STAR_TWO[]    = {R.drawable.star_2_0, R.drawable.star_2_1, R.drawable.star_2_2};
 	
 	private int m_Mode 				= 0;
+	private boolean m_IntroShow		= false;
 	
 	private RelativeLayout m_MainTheme;
 	private RelativeLayout m_IntroTheme;
@@ -43,6 +48,13 @@ public class MainTheme extends Activity implements View.OnClickListener {
 	private ImageView m_GameMode;
 	
 	private ResourceClass m_Res;
+	
+	/* BGM */
+	private MediaPlayer m_ThemeBGM;
+	
+	/* Sound Effect */
+	private SoundPool m_SoundEffect;
+	private int	m_SoundEffectId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +83,10 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		m_GameMode		= (ImageView)findViewById(R.id.ivGame);
 		m_StudyMode		= (ImageView)findViewById(R.id.ivStudy);
 		
+		m_ThemeBGM		= MediaPlayer.create(this, R.raw.main_theme_bgm); 
+		m_SoundEffect	= new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+		m_SoundEffectId	= m_SoundEffect.load(this, R.raw.mode_effect, 1);
+		
 		m_AnimalTheme.setOnClickListener(this);
 		m_NumberTheme.setOnClickListener(this);
 		m_ThingTheme.setOnClickListener(this);
@@ -79,6 +95,7 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		m_GameMode.setOnClickListener(this);
 		m_StudyMode.setOnClickListener(this);
 		
+		m_ThemeBGM.setLooping(true);
 
 		showIntro();
 		
@@ -88,11 +105,12 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		
 		m_Mode = MODE_STUDY;	// default Mode
 	}
-
+	
 	/**
 	 * update Theme's score
 	 */
 	private void updateScore() {
+		Log.d(TAG, "updateScore()");
 	    
 		// Restore preferences
 		SharedPreferences settings = getSharedPreferences(Const.PREFERNCE, 0);
@@ -123,9 +141,10 @@ public class MainTheme extends Activity implements View.OnClickListener {
 			public void run() {
 				m_IntroTheme.setVisibility(View.GONE);
 				m_MainTheme.setVisibility(View.VISIBLE);
+				m_ThemeBGM.start();
+				m_IntroShow = true;
 			}
 		},  INTRO_TIME);
-		
 	}
 	
 	@Override
@@ -191,6 +210,8 @@ public class MainTheme extends Activity implements View.OnClickListener {
 	        m_GameMode.setBackgroundResource(R.drawable.btn_play);
 	        m_StudyMode.setBackgroundResource(R.drawable.btn_study_d);
 	    }
+	    
+	    Log.d(TAG, "Sound: " + m_SoundEffect.play(m_SoundEffectId, 1.0f, 1.0f, 0, 0, 1.0f));
     }
 
     private void launchActivity() {
@@ -229,22 +250,52 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		}
 	}
 */
+    
+    
 
+    
 	@Override
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
+		if(m_ThemeBGM != null) {
+			if(m_ThemeBGM.isPlaying()) 
+				m_ThemeBGM.pause();
+		}
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		Log.d(TAG, "onConfigurationChanged()");
+	}
+
+	@Override
+	protected void onStart() {
+		// TODO Auto-generated method stub
+		super.onStart();
+		Log.d(TAG, "onStart()");
 	}
 
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
+		Log.d(TAG, "onResume()");
+		
+		if(m_IntroShow == true && !m_ThemeBGM.isPlaying()) 
+			m_ThemeBGM.start();
 	}
 	
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
+		
+		if(m_ThemeBGM.isPlaying()) 
+			m_ThemeBGM.release();
+		
+		m_SoundEffect.release();
+		m_SoundEffect = null;
 	}
 }
