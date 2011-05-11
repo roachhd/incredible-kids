@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
 import com.incrediblekids.util.Const;
@@ -70,8 +72,13 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private Vector<Item> m_ItemVector;
 	
 	private Intent 				m_PopupIntent;
+	
+	/* Great PopupWindow variable */
 	private PopupWindow			m_PopupWindow;
 	private View				m_PopupLayoutView;
+	private LinearLayout		m_PopupParentView;
+	private ImageView			m_GreatPopupView;
+	private AnimationDrawable 	m_GreatFrameAnimation;
 	
 	/* FrameImage & Interpolator Animation */
 	private ImageView			m_TimeFrameImage;
@@ -84,7 +91,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	
 	/* Sound Effect */
 	private SoundPool m_SoundEffect;
-	private int	m_SoundEffectId;
+	private int[] m_SoundEffectId;
+//	private int	m_SoundEffectId;
 	
 	/* BGM */
 	private MediaPlayer m_QuizBGM;
@@ -118,15 +126,37 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				Log.d(TAG,"TOGGLE_ENDED");
 				clickEnable(true);
 				break;
+				
+			case GREAT_POPUP_SHOW_S:
+				Log.d(TAG, "GREAT_POPUP_SHOW_S");
+				m_GreatFrameAnimation.start();
+				m_Handler.sendEmptyMessageDelayed(GREAT_POPUP_SHOW_M, 1500);
+				break;
+				
+			case GREAT_POPUP_SHOW_M:
+				Log.d(TAG, "GREAT_POPUP_SHOW_M");
+				//TODO: sound
+				m_Handler.sendEmptyMessageDelayed(GREAT_POPUP_SHOW_E, 1500);
+				Log.d(TAG, "Sound: " + m_SoundEffect.play(m_SoundEffectId[2], 1.0f, 1.0f, 0, 0, 1.0f));
+				break;
+				
+			case GREAT_POPUP_SHOW_E:
+				Log.d(TAG, "GREAT_POPUP_SHOW_M");
+				m_GreatFrameAnimation.stop();
+				m_PopupWindow.dismiss();
+				updateResult();
 			}
 		}
 	};
 
-	public static final int ITEM_DEFAULT 	= 0;
-	public static final int ITEM_MATCHED 	= 1;
-	public static final int ANIMATION_ENDED = 10;
-	public static final int TOGGLE_ENDED 	= 11;
-	public static final int RETRY_DIALOG 	= 20;
+	public static final int ITEM_DEFAULT 		= 0;
+	public static final int ITEM_MATCHED 		= 1;
+	public static final int ANIMATION_ENDED 	= 10;
+	public static final int TOGGLE_ENDED 		= 11;
+	public static final int RETRY_DIALOG 		= 20;
+	public static final int GREAT_POPUP_SHOW_S	= 21;
+	public static final int GREAT_POPUP_SHOW_M	= 22;
+	public static final int GREAT_POPUP_SHOW_E	= 23;
 	
 	public class ViewHolder {
 		
@@ -157,10 +187,29 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_IsInit = true;
 		
 		init();
+		setGreatPopupLayout();
 		toggleImages();
 		setItems();
 	}
 	
+
+	/* Get Display Size && Popup Setting */
+	private void setGreatPopupLayout() {
+		LayoutInflater inflater = (LayoutInflater)getSystemService (Context.LAYOUT_INFLATER_SERVICE);
+		
+		int popup_Height 	= getWindowManager().getDefaultDisplay().getHeight();
+		int popup_Width 	= getWindowManager().getDefaultDisplay().getWidth();
+		
+		m_PopupParentView	= (LinearLayout)findViewById(R.id.llQuizMain);
+		m_PopupLayoutView	= inflater.inflate(R.layout.popup_great, null);
+		m_PopupWindow		= new PopupWindow(m_PopupLayoutView, popup_Width, popup_Height, true);
+		
+		m_GreatPopupView 	= (ImageView)m_PopupLayoutView.findViewById(R.id.ivGreat);
+		m_GreatPopupView.setBackgroundResource(R.drawable.great_frame);
+		
+		m_GreatFrameAnimation 	= (AnimationDrawable)m_GreatPopupView.getBackground();
+	}
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d(TAG, "onActivityResult()");
@@ -214,23 +263,46 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			pauseAnimation();
 			m_TimeFrameAnimation.stop();
 			
-			updatePreference();
 			
-			// TODO : framgeImage
-			finish();
-			Intent intent = new Intent(MatchQuiz.this, GameStatusActivity.class);
-			intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(intent);
+			showGreatPopup();
 			//TODO: goto Main
 //			startActivityForResult(m_PopupIntent, Const.RETRY_DIALOG_RESULT);
 		}
 	}
 
+	private void showGreatPopup() {
+		Log.d(TAG, "showGreatPopup()");
+		m_PopupWindow.showAtLocation(m_PopupParentView, Gravity.CENTER, 0, 0);
+		m_Handler.sendEmptyMessage(GREAT_POPUP_SHOW_S);
+	}
+	
+	/**
+	 * update preference and start activity
+	 */
+	private void updateResult() {
+		Log.d(TAG, "updateResult()");
+		int result;
+		result = updatePreference();
+		
+		finish();
+		Intent intent;
+
+		if(result > 0) { // Game End
+			intent = new Intent(MatchQuiz.this, MainTheme.class);
+		}
+		else {			// has more Game
+			intent = new Intent(MatchQuiz.this, GameStatusActivity.class);
+		}
+
+		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
+	}
+
 	/**
 	 * update Current theme's score
 	 */
-	private void updatePreference() {
+	private int updatePreference() {
 		Log.d(TAG, "updatePreference()");
 	    String currentTheme = m_Res.getCurrentTheme();
 	    int currentVal = 0;
@@ -241,8 +313,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	    // All objects are from android.context.Context
 	    SharedPreferences settings = getSharedPreferences(Const.PREFERNCE, 0);
 	    
-	    currentVal = settings.getInt(currentTheme, 0);
-	    previousScore = getIntent().getIntExtra(Const.CUR_LEVEL, 0);
+	    previousScore = settings.getInt(currentTheme, 0);
+	    currentVal = getIntent().getIntExtra(Const.CUR_LEVEL, 0);
 	    
 	    Log.d(TAG, "currentTheme: " + currentTheme);
 	    Log.d(TAG, "currentVal: " + currentVal);
@@ -250,6 +322,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	    
 	    if(previousScore > currentVal) {
 	        // do nothing;
+	    	return 0;
 	    }
 	    else {
 	        if(currentTheme == Const.THEME_ANIMAL || currentTheme == Const.THEME_TOY) {
@@ -268,8 +341,14 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	            editor.commit();
 	        }
 	    }
-	    
 	    Log.d(TAG, "after currentVal: " + currentVal);
+	    
+	    if(currentVal == maxValue) {
+	    	return 1;
+	    }
+	    else {
+	    	return 0;
+	    }
     }
 
     @Override
@@ -277,6 +356,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		super.onWindowFocusChanged(hasFocus);
 		Log.d(TAG, "onWindowFocusChanged()");
 		setTimeAnimation(false);
+		
 	}
 
 	private void init() {
@@ -284,13 +364,14 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		
 		m_PopupIntent 		= new Intent(MatchQuiz.this, PopupActivity.class);
 		m_ItemList			= new ArrayList<Item>(CARD_PAIR_COUNT);
+		m_SoundEffectId		= new int[3];
 		
 		m_ItemImages 		= new ImageView[MAX_COUNT];
 		m_Questions			= new ImageView[MAX_COUNT];
 		m_Containers 		= new ViewGroup[MAX_COUNT];
 		
 		m_QuizBGM			= MediaPlayer.create(this, R.raw.quizbgm); 
-		m_SoundEffect		= new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+		m_SoundEffect		= new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
 		m_MatchManager		= MatchManager.getInstance();
 		m_Res 				= ResourceClass.getInstance();
 		
@@ -333,10 +414,11 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		
 		m_TimeFrameImageEnd	= (ImageView)findViewById(R.id.ivTimeFrameEnd);
 		
-		LayoutInflater inflater = (LayoutInflater)getSystemService (Context.LAYOUT_INFLATER_SERVICE);
-		m_PopupLayoutView	= inflater.inflate(R.layout.popup_great, null);
 		
-		m_SoundEffectId		= m_SoundEffect.load(this, R.raw.flipflop, 1);
+		m_SoundEffectId[0]	= m_SoundEffect.load(this, R.raw.flipflop, 1);
+		m_SoundEffectId[1]	= m_SoundEffect.load(this, R.raw.good, 1);
+		m_SoundEffectId[2]	= m_SoundEffect.load(this, R.raw.great, 1);
+		
 		m_Hint.setOnClickListener(this);
 		m_Hint.setClickable(false);
 		
@@ -384,6 +466,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				m_TimeFrameImage.startAnimation(m_TimeFlowAnimation);
 				clickEnable(true);
 				m_Hint.setClickable(true);
+				
 			}
 		};
 		
@@ -408,18 +491,18 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			
 			if((flag % 2) == 0) {
 				
-				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardImgId);
-				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
-//				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardImgId);
-//				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
+//				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardImgId);
+//				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
+				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardImgId);
+				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
 //				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
 //				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 			}
 			else {
-				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardWordId);
-				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
-//				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardWordId);
-//				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
+//				m_ItemImages[value].setImageResource(m_ItemVector.get(vectorNum).iCardWordId);
+//				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemVector.get(vectorNum).strWordCharId);
+				m_ItemImages[value].setImageResource(m_ItemList.get(vectorNum).iCardWordId);
+				m_MatchManager.addItem(getParentId(m_ItemImages[value].getId()), m_ItemList.get(vectorNum).strWordCharId);
 //				Log.d(TAG, "setItems() key: " +  getParentId(m_ItemImages[value].getId()));
 //				Log.d(TAG, "setItems() String: " +  m_ItemVector.get(vectorNum).strWordCharId);
 				vectorNum++;
@@ -444,6 +527,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			return;
 		}
 		
+		
 		rnd = new Random(System.currentTimeMillis());
 		
 		
@@ -459,6 +543,10 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				break;
 		}
 		
+		//TODO: delete Test
+		for(Item i: m_ItemList) {
+			Log.d(TAG, "i : " + i.strWordCharId);
+		}
 	}
 
 	/* Set TimeAnimation */
@@ -809,7 +897,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 
         public void onAnimationEnd(Animation animation) {
         	mParentView.post(new SwapViews(mParentView, mPosition, mIsToggle));
-        	Log.d(TAG, "Sound: " + m_SoundEffect.play(m_SoundEffectId, 1.0f, 1.0f, 0, 0, 1.0f));
+        	Log.d(TAG, "Sound: " + m_SoundEffect.play(m_SoundEffectId[0], 1.0f, 1.0f, 0, 0, 1.0f));
         }
 
         public void onAnimationRepeat(Animation animation) {
@@ -1176,6 +1264,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_SoundEffect			= null;
 		m_MatchManager			= null;
 		m_Res 					= null;
+		m_SoundEffectId			= null;
 		
 		m_ItemVector 			= null;
 		

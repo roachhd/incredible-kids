@@ -9,6 +9,7 @@ import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.Preference;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -49,19 +50,19 @@ public class MainTheme extends Activity implements View.OnClickListener {
 	
 	private ResourceClass m_Res;
 	
+	private SharedPreferences m_ScorePreference;
+	
 	/* BGM */
 	private MediaPlayer m_ThemeBGM;
 	
 	/* Sound Effect */
 	private SoundPool m_SoundEffect;
 	private int	m_SoundEffectId;
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate()");
-		
-		//TODO : bgm sound
 		
 		setContentView(R.layout.main_theme);
 		
@@ -83,9 +84,11 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		m_GameMode		= (ImageView)findViewById(R.id.ivGame);
 		m_StudyMode		= (ImageView)findViewById(R.id.ivStudy);
 		
-		m_ThemeBGM		= MediaPlayer.create(this, R.raw.main_theme_bgm); 
+		m_ThemeBGM		= MediaPlayer.create(this, R.raw.theme_bgm); 
 		m_SoundEffect	= new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
 		m_SoundEffectId	= m_SoundEffect.load(this, R.raw.mode_effect, 1);
+		
+		m_ScorePreference = getSharedPreferences(Const.PREFERNCE, 0);
 		
 		m_AnimalTheme.setOnClickListener(this);
 		m_NumberTheme.setOnClickListener(this);
@@ -99,7 +102,6 @@ public class MainTheme extends Activity implements View.OnClickListener {
 
 		showIntro();
 		
-		updateScore();
 		
 		m_Res = ResourceClass.getInstance();
 		
@@ -113,16 +115,15 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		Log.d(TAG, "updateScore()");
 	    
 		// Restore preferences
-		SharedPreferences settings = getSharedPreferences(Const.PREFERNCE, 0);
-		if(settings == null) {
+		if(m_ScorePreference == null) {
 		    Log.e(TAG, "updateScore() null");
 		}
 		
-		int animal_val    = settings.getInt(Const.THEME_ANIMAL, 0);
-		int toy_val       = settings.getInt(Const.THEME_TOY, 0);
-		int food_val      = settings.getInt(Const.THEME_FOOD, 0);
-		int number_val    = settings.getInt(Const.THEME_NUMBER, 0);
-		int color_val     = settings.getInt(Const.THEME_COLOR, 0);
+		int animal_val    = m_ScorePreference.getInt(Const.THEME_ANIMAL, 0);
+		int toy_val       = m_ScorePreference.getInt(Const.THEME_TOY, 0);
+		int food_val      = m_ScorePreference.getInt(Const.THEME_FOOD, 0);
+		int number_val    = m_ScorePreference.getInt(Const.THEME_NUMBER, 0);
+		int color_val     = m_ScorePreference.getInt(Const.THEME_COLOR, 0);
 		
 		m_AnimalScore.setBackgroundResource(STAR_FOUR[animal_val]);
 		m_ThingScore.setBackgroundResource(STAR_FOUR[toy_val]);
@@ -279,9 +280,10 @@ public class MainTheme extends Activity implements View.OnClickListener {
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 		Log.d(TAG, "onResume()");
+		
+		updateScore();
 		
 		if(m_IntroShow == true && !m_ThemeBGM.isPlaying()) 
 			m_ThemeBGM.start();
