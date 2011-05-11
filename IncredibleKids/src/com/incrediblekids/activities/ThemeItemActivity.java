@@ -57,7 +57,6 @@ import com.incrediblekids.util.Item;
 
 /**
  * @author Nicolas Gramlich
- * @since 15:13:46 - 15.06.2010
  */
 public class ThemeItemActivity extends BaseGameActivity implements AnimationListener{
 	// ===========================================================
@@ -615,12 +614,12 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		Log.e(TAG, "resetScreen:m_iCurrentItemNum"+m_iCurrentItemNum);
 		
 		if (m_iCurrentItemNum != 0 && this.m_iCurrentItemNum % ITEM_NUM_PER_STAGE == 0){
-			m_quizItemList.clear();
+			ArrayList<Item> m_quizItemList = new ArrayList<Item>();
 			m_quizItemList.addAll(this.m_ItemVector.subList(m_iCurrentItemNum - ITEM_NUM_PER_STAGE, m_iCurrentItemNum));
 			Log.e(TAG, "m_ItemVector.subList m_iCurrentItemNum:" + m_iCurrentItemNum);
+			Log.e(TAG, "m_quizItemList:"+ m_quizItemList.get(0).strWordCharId);
 			Intent intent = new Intent(this, MatchQuiz.class);
 			intent.putExtra(Const.CUR_LEVEL, m_currentLevel);
-			Log.e(TAG, "resetScreen m_currentLevel:"+m_currentLevel);
 			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, m_quizItemList);
 			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
 			finish();
