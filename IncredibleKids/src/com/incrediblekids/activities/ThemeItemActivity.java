@@ -678,6 +678,26 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.mEngine.getTextureManager().loadTexture(this.m_ItemTexture);	
 		this.mEngine.getTextureManager().loadTexture(this.m_BoxTexture);
 	}
+	
+	protected void onDestroy() {
+		//Background Music and sound
+		if (m_Music != null)
+			m_Music.release();
+		if (m_ItemSound != null)
+			m_ItemSound.release();
+		if (m_DropToBoxSound != null)
+			m_DropToBoxSound.release();
+		if (m_HelpSound != null)
+			m_HelpSound.release();
+		if (m_FailToDropSound != null)
+			m_FailToDropSound.release();
+		if (m_AlphabetSound != null && m_AlphabetSound.length > 0){
+			for(int i = 0; i < m_AlphabetSound.length; i++){
+				if (m_AlphabetSound[i] != null)
+					m_AlphabetSound[i].release();
+			}
+		}
+	}
 
 	//Create base object
 	private void createBaseSprite(){
