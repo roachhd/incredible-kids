@@ -49,7 +49,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private final int CARD_PAIR_COUNT 			 = 4;
 	private final int ANI_ROTATION_TIME_DURATION = 180;
 	private final int TOGGLE_INTERVAL 			 = 200;
-	private final long ANIMATION_TIME_DURATION 	 = 60 * 60 * 10;
+	private final long ANIMATION_TIME_DURATION 	 = 60 * 60 * 20;
 	private final long HINT_TIME_DURATION 		 = 60 * 60 * 1;
 	
 	/* sound effect variable */
