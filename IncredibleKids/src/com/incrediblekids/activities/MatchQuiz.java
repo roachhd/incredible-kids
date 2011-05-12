@@ -8,10 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
-import java.util.Vector;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -77,7 +75,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private HashMap<Integer, Integer> m_RandomHashMap;
 	
 	private ResourceClass m_Res;
-	private Vector<Item> m_ItemVector;
+//	private Vector<Item> m_ItemVector;
 	
 	private Intent 				m_PopupIntent;
 	
@@ -142,7 +140,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				
 			case GREAT_POPUP_SHOW_M:
 				Log.d(TAG, "GREAT_POPUP_SHOW_M");
-				//TODO: sound
 				m_Handler.sendEmptyMessageDelayed(GREAT_POPUP_SHOW_E, 1500);
 				playSound(SOUND_GREAT);
 				break;
@@ -272,13 +269,13 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			pauseAnimation();
 			m_TimeFrameAnimation.stop();
 			
-			
 			showGreatPopup();
-			//TODO: goto Main
-//			startActivityForResult(m_PopupIntent, Const.RETRY_DIALOG_RESULT);
 		}
 	}
 
+	/**
+	 * handler flow process;;;
+	 */
 	private void showGreatPopup() {
 		Log.d(TAG, "showGreatPopup()");
 		m_PopupWindow.showAtLocation(m_PopupParentView, Gravity.CENTER, 0, 0);
@@ -384,7 +381,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_MatchManager		= MatchManager.getInstance();
 		m_Res 				= ResourceClass.getInstance();
 		
-		m_ItemVector 		= m_Res.getvItems();
+//		m_ItemVector 		= m_Res.getvItems();
 		m_IsPause			= false;
 		m_LeftPosition		= 0;
 		m_TimeInterval		= 0;
@@ -539,9 +536,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			return;
 		}
 		
-		
 		rnd = new Random(System.currentTimeMillis());
-		
 		
 		while(true) {
 			tempNum = Math.abs(rnd.nextInt(oriItemList.size()));
@@ -553,11 +548,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			}
 			if(loopCount > 3)
 				break;
-		}
-		
-		//TODO: delete Test
-		for(Item i: m_ItemList) {
-			Log.d(TAG, "i : " + i.strWordCharId);
 		}
 	}
 
@@ -1167,7 +1157,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		/**
     	private void playSound(boolean b) {
     		Log.d(TAG, "playSound()");
-			// TODO Auto-generated method stub
 		}
 		**/
     	
@@ -1180,6 +1169,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     	}
     }
 	
+    /**
 	@Override
 	protected Dialog onCreateDialog(int id) {
 		Dialog dialog = null;
@@ -1200,6 +1190,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		
 		return dialog;
 	}
+	**/
 
 	@Override
 	protected void onResume() {
@@ -1235,8 +1226,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		}
 	}
 	
-	
-	
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
@@ -1261,6 +1250,10 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_TimeFrameImageEnd 	= null;
 		m_TimeFrameAnimation 	= null;
 		m_TimeFlowAnimation 	= null;
+		
+		m_PopupParentView		= null;
+		m_GreatPopupView		= null;
+		m_GreatFrameAnimation	= null;
 		
 		System.gc();
 	}
@@ -1288,9 +1281,10 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_Res 					= null;
 		m_SoundEffectId			= null;
 		
-		m_ItemVector 			= null;
+//		m_ItemVector 			= null;
 		
 		m_PopupIntent 			= null;
-		
+		m_PopupWindow			= null;
+		m_PopupLayoutView		= null;
 	}
 }
