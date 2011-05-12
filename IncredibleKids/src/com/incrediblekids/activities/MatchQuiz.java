@@ -53,11 +53,12 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private final long HINT_TIME_DURATION 		 = 60 * 60 * 1;
 	
 	/* sound effect variable */
-	private final int MAX_SOUND_POOL 	= 4;
+	private final int MAX_SOUND_POOL 	= 5;
 	private final int SOUND_FLOP		= 0;
 	private final int SOUND_SUCCESS		= 1;
 	private final int SOUND_FAIL		= 2;
 	private final int SOUND_GREAT		= 3;
+	private final int SOUND_HINT		= 4;
 	
 	private long m_TimeInterval;
 	private long m_AnimationTimeDuration;
@@ -423,10 +424,12 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_TimeFrameImageEnd	= (ImageView)findViewById(R.id.ivTimeFrameEnd);
 		
 		
+		/* set sound resources */
 		m_SoundEffectId[SOUND_FLOP]		= m_SoundEffect.load(this, R.raw.flipflop, 1);
 		m_SoundEffectId[SOUND_SUCCESS]	= m_SoundEffect.load(this, R.raw.match_success, 1);
 		m_SoundEffectId[SOUND_FAIL]		= m_SoundEffect.load(this, R.raw.match_fail, 1);
 		m_SoundEffectId[SOUND_GREAT]	= m_SoundEffect.load(this, R.raw.great, 1);
+		m_SoundEffectId[SOUND_HINT]		= m_SoundEffect.load(this, R.raw.help, 1);
 		
 		m_Hint.setOnClickListener(this);
 		m_Hint.setClickable(false);
@@ -677,6 +680,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     	m_MatchManager.setSolo(true);
     	m_MatchManager.clearPreClikedItemInfo();
     	clickEnable(false);
+    	
+    	playSound(SOUND_HINT);
     	
     	for(int i = 0; i < MAX_COUNT; i++) {
     		m_ItemImages[i].setVisibility(View.VISIBLE);
