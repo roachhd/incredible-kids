@@ -489,16 +489,16 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				m_RetryScene.setBackgroundEnabled(false);
 				composeRetryScene();
 				createBaseSprite();
-				updateScene();
-				mEngine.setScene(m_playScene);
-				Log.e(TAG, "registerUpdateHandler onTimePassed");
-				m_playScene.setTouchAreaBindingEnabled(true);
 				
 				//play sound
 				if(m_Music != null && !m_Music.isPlaying()) {
 					Log.e(TAG, "Music start play()");
 					m_Music.play();
 				}
+				
+				mEngine.setScene(m_playScene);
+				updateScene();
+				m_playScene.setTouchAreaBindingEnabled(true);
 			}
 		}));
 		return loadingScene;
@@ -781,8 +781,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				}					
 
 				if (pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN && m_bFirstTouch == true){
-					drawAlphabet(pSceneTouchEvent);
-					m_bFirstTouch = false;
+						m_ItemSound.play();
+						drawAlphabet(pSceneTouchEvent);
+						m_bFirstTouch = false;
 				}
 				return false;
 			}
@@ -790,7 +791,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		};
 
 		m_Item.setScale(1.3f);
-
 		m_playScene.getLayer(ENTITIES_LAYER).addEntity(m_Item);
 
 		//Load Box Sprite to scene.
@@ -954,7 +954,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			m_playScene.registerTouchArea(m_arrAlphabetSprite[k-1]);
 		}
 
-		m_playScene.registerTouchArea(m_Item);	
 		//m_playScene.setTouchAreaBindingEnabled(true);
 
 		// The actual collision-checking.
@@ -983,17 +982,18 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				}
 			}
 		});
+		m_playScene.registerTouchArea(m_Item);	
 	}
 
 	private void drawAlphabet(final TouchEvent touchEvent){
+		for(int l=0; l < m_strAlphabet.length(); l++){
+			m_playScene.getLayer(ENTITIES_LAYER).addEntity(m_arrAlphabetSprite[l]);
+		}
 		for(int j=0; j < m_strAlphabet.length(); j++){
 			m_arrAlphabetSprite[j].setPosition(touchEvent.getX(), touchEvent.getY());
 			m_arrAlphabetSprite[j].addShapeModifier(new ParallelShapeModifier(
 					new MoveModifier(1,touchEvent.getX(), m_RandomPoint.get(j).x, touchEvent.getY(), m_RandomPoint.get(j).y,EaseLinear.getInstance()),
 					new RotationModifier(1, 0, 360)));
-		}
-		for(int l=0; l < m_strAlphabet.length(); l++){
-			m_playScene.getLayer(ENTITIES_LAYER).addEntity(m_arrAlphabetSprite[l]);
 		}
 	}
 
