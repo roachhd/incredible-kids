@@ -52,6 +52,13 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private final long ANIMATION_TIME_DURATION 	 = 60 * 60 * 10;
 	private final long HINT_TIME_DURATION 		 = 60 * 60 * 1;
 	
+	/* sound effect variable */
+	private final int MAX_SOUND_POOL 	= 4;
+	private final int SOUND_FLOP		= 0;
+	private final int SOUND_SUCCESS		= 1;
+	private final int SOUND_FAIL		= 2;
+	private final int SOUND_GREAT		= 3;
+	
 	private long m_TimeInterval;
 	private long m_AnimationTimeDuration;
 	
@@ -92,7 +99,6 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	/* Sound Effect */
 	private SoundPool m_SoundEffect;
 	private int[] m_SoundEffectId;
-//	private int	m_SoundEffectId;
 	
 	/* BGM */
 	private MediaPlayer m_QuizBGM;
@@ -137,7 +143,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				Log.d(TAG, "GREAT_POPUP_SHOW_M");
 				//TODO: sound
 				m_Handler.sendEmptyMessageDelayed(GREAT_POPUP_SHOW_E, 1500);
-				Log.d(TAG, "Sound: " + m_SoundEffect.play(m_SoundEffectId[2], 1.0f, 1.0f, 0, 0, 1.0f));
+				playSound(SOUND_GREAT);
 				break;
 				
 			case GREAT_POPUP_SHOW_E:
@@ -235,20 +241,22 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 
 	private void analysisMatchResult() {
 		Log.d(TAG, "analysisMatchResult()");
-		if(m_MatchManager.isTouchedSameView()) {
+		if(m_MatchManager.isTouchedSameView()) {	//Touched SameView
 			m_MatchManager.setSolo(true);
 			m_MatchManager.setTouchedSameView(false);
 			return;
 		}
-		else { //Touched SameView
+		else { 
 			
 			if(!m_MatchManager.isSolo()) {
 				if(m_MatchManager.isMatched()) {
 					Log.d(TAG, "Matched!!");
 					clickDisable(m_MatchManager.getPreClickedId(), m_MatchManager.getCurClickedId());
+					playSound(SOUND_SUCCESS);
 				}
 				else {
 					toggleClickedItems(m_MatchManager.getPreClickedId(), m_MatchManager.getCurClickedId());
+					playSound(SOUND_FAIL);
 				}
 				m_MatchManager.setSolo(true);
 				m_MatchManager.clearPreClikedItemInfo();
@@ -364,14 +372,14 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		
 		m_PopupIntent 		= new Intent(MatchQuiz.this, PopupActivity.class);
 		m_ItemList			= new ArrayList<Item>(CARD_PAIR_COUNT);
-		m_SoundEffectId		= new int[3];
+		m_SoundEffectId		= new int[MAX_SOUND_POOL];
 		
 		m_ItemImages 		= new ImageView[MAX_COUNT];
 		m_Questions			= new ImageView[MAX_COUNT];
 		m_Containers 		= new ViewGroup[MAX_COUNT];
 		
 		m_QuizBGM			= MediaPlayer.create(this, R.raw.quizbgm); 
-		m_SoundEffect		= new SoundPool(3, AudioManager.STREAM_MUSIC, 0);
+		m_SoundEffect		= new SoundPool(MAX_SOUND_POOL, AudioManager.STREAM_MUSIC, 0);
 		m_MatchManager		= MatchManager.getInstance();
 		m_Res 				= ResourceClass.getInstance();
 		
@@ -415,9 +423,10 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_TimeFrameImageEnd	= (ImageView)findViewById(R.id.ivTimeFrameEnd);
 		
 		
-		m_SoundEffectId[0]	= m_SoundEffect.load(this, R.raw.flipflop, 1);
-		m_SoundEffectId[1]	= m_SoundEffect.load(this, R.raw.good, 1);
-		m_SoundEffectId[2]	= m_SoundEffect.load(this, R.raw.great, 1);
+		m_SoundEffectId[SOUND_FLOP]		= m_SoundEffect.load(this, R.raw.flipflop, 1);
+		m_SoundEffectId[SOUND_SUCCESS]	= m_SoundEffect.load(this, R.raw.match_success, 1);
+		m_SoundEffectId[SOUND_FAIL]		= m_SoundEffect.load(this, R.raw.match_fail, 1);
+		m_SoundEffectId[SOUND_GREAT]	= m_SoundEffect.load(this, R.raw.great, 1);
 		
 		m_Hint.setOnClickListener(this);
 		m_Hint.setClickable(false);
@@ -707,6 +716,12 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		
 		m_Handler.postDelayed(m_Runnable, HINT_TIME_DURATION);
 	}
+    
+    private void playSound(int type) {
+    	if(m_SoundEffect == null)
+    		Log.e(TAG, "playSound Error");
+		m_SoundEffect.play(m_SoundEffectId[type], 1.0f, 1.0f, 0, 0, 1.0f);
+    }
 
 
 	/**
@@ -897,7 +912,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 
         public void onAnimationEnd(Animation animation) {
         	mParentView.post(new SwapViews(mParentView, mPosition, mIsToggle));
-        	Log.d(TAG, "Sound: " + m_SoundEffect.play(m_SoundEffectId[0], 1.0f, 1.0f, 0, 0, 1.0f));
+        	playSound(SOUND_FLOP);
         }
 
         public void onAnimationRepeat(Animation animation) {
@@ -1038,11 +1053,11 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     			else {
     				if(isMatched(targetId)) {
     					moveItemsToMatched(targetId);
-    					playSound(true);
+//    					playSound(true);
     					checkAllMatched();
     				}
     				else {
-    					playSound(false);
+//    					playSound(false);
     				}
     			}
     		}
@@ -1144,10 +1159,12 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			return m_MatchedItems;
 		}
     	
+		/**
     	private void playSound(boolean b) {
     		Log.d(TAG, "playSound()");
 			// TODO Auto-generated method stub
 		}
+		**/
     	
     	/**
     	 * @param key: target parent view's id

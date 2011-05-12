@@ -12,7 +12,10 @@ public class Const {
 	public final static String STAGE_IDX = "com.incrediblekids.item.idx";
 	public final static String MATCH_QUIZ = "com.incrediblekids.item.matchquiz";
 	
+	public final static String PLAY_MODE = "maintheme.play.mode";
+	
 	public final static String PREFERNCE = "quiz.score.prefs";
+	public final static String PREFERNCE_MODE = "maintheme.mode.prefs";
 	
 	public final static int MATCH_QUIZ_RESULT 	= 1000;
 	public final static int MODE_DIALOG_RESULT 	= 2000;
