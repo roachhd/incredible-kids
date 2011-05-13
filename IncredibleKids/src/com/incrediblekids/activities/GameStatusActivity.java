@@ -1,9 +1,14 @@
 package com.incrediblekids.activities;
 
+import java.io.IOException;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -24,19 +29,25 @@ public class GameStatusActivity extends Activity {
 	private ImageView ivLevel_3 = null;
 	private ImageView ivLevel_4 = null;
 	
+	/* BGM */
+	private MediaPlayer m_ThemeBGM = null;
+	private ResourceClass m_ResourceClass = null;
+	
 	private int curLevel = 0;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		setContentView(R.layout.game_status);
-		
-		ResourceClass m_ResourceClass = ResourceClass.getInstance();
+	
 		final Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
 		final AnimationSet animSet = new AnimationSet(true); 
+		
 		Animation sel_anim = AnimationUtils.loadAnimation(this, R.anim.sel_anim);
 		animSet.addAnimation(sel_anim);
+		
+		//BGM Set
+		setBGM();
 		
 		m_ResourceClass.vItems.size();		
 	
@@ -164,6 +175,28 @@ public class GameStatusActivity extends Activity {
 		});
 	}
 	
+	private void setBGM(){
+		try {
+			m_ResourceClass = ResourceClass.getInstance();
+			AssetFileDescriptor fd = getAssets().openFd("mfx/theme_animal.mp3");
+			m_ThemeBGM = new MediaPlayer();	
+			m_ThemeBGM.setDataSource(fd.getFileDescriptor(), fd.getStartOffset(), fd.getLength());
+			m_ThemeBGM.setLooping(true);
+			m_ThemeBGM.prepare();
+			m_ThemeBGM.start();
+			fd.close();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
+	
 	private void setImageResource(ResourceClass m_ResourceClass){
 		
 		// Restore preferences
@@ -260,6 +293,8 @@ public class GameStatusActivity extends Activity {
 		Log.e(TAG, "onResume()");
 		ResourceClass m_ResourceClass = ResourceClass.getInstance();
 		setImageResource(m_ResourceClass);
+		if(m_ThemeBGM != null && !m_ThemeBGM.isPlaying())
+			m_ThemeBGM.start();
 		super.onResume();
 	}
 
@@ -272,7 +307,8 @@ public class GameStatusActivity extends Activity {
 
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
+		if(m_ThemeBGM != null && !m_ThemeBGM.isPlaying())
+			m_ThemeBGM.pause();
 		super.onPause();
 	}
 
@@ -284,7 +320,8 @@ public class GameStatusActivity extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		// TODO Auto-generated method stub
+		if(m_ThemeBGM != null && m_ThemeBGM.isPlaying()) 
+			m_ThemeBGM.release();
 		super.onDestroy();
 	}
 }
