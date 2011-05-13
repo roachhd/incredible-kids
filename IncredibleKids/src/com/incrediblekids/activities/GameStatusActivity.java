@@ -307,7 +307,7 @@ public class GameStatusActivity extends Activity {
 
 	@Override
 	protected void onPause() {
-		if(m_ThemeBGM != null && !m_ThemeBGM.isPlaying())
+		if(m_ThemeBGM != null && m_ThemeBGM.isPlaying())
 			m_ThemeBGM.pause();
 		super.onPause();
 	}
