@@ -17,9 +17,7 @@ import org.anddev.andengine.engine.handler.timer.TimerHandler;
 import org.anddev.andengine.engine.options.EngineOptions;
 import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.anddev.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
-import org.anddev.andengine.entity.scene.CameraScene;
 import org.anddev.andengine.entity.scene.Scene;
-import org.anddev.andengine.entity.scene.background.SpriteBackground;
 import org.anddev.andengine.entity.shape.modifier.AlphaModifier;
 import org.anddev.andengine.entity.shape.modifier.MoveModifier;
 import org.anddev.andengine.entity.shape.modifier.ParallelShapeModifier;
@@ -40,7 +38,6 @@ import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
 import org.anddev.andengine.util.Debug;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -100,11 +97,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private int m_iCurrentCollideBoxIdx;
 
 	//Pass
-	private Texture m_PassTexture;	
-	private TextureRegion m_PassTextureRegion;
-	private Sprite m_PassSprite;
-
-	//Pass
 	private Texture m_FailTexture;
 	private TextureRegion m_FailTextureRegion;
 	private Sprite m_FailSprite;
@@ -139,22 +131,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	//Pause
 	private Scene m_playScene;
-
 	private Boolean m_bSoundOn;
-
-	//Darken bg
-	private Texture m_DarkenTexture;
-	private TextureRegion m_DarkenTextureRegion;
-	private Sprite m_DarkenSprite;
-
-	//Retry 
-	private CameraScene m_RetryScene;
-	private Texture m_RetryTexture;
-	private TextureRegion m_RetryTextureRegion;
-	private Texture m_RetryOkTexture;
-	private TextureRegion m_RetryOkTextureRegion;
-	private Texture m_RetryCancelTexture;
-	private TextureRegion m_RetryCancelTextureRegion;
 
 	//Background Music and sound
 	private Music m_Music;
@@ -169,7 +146,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	private ResourceClass res;
 	private Vector<Item> m_ItemVector;
-	private ArrayList <Item> m_quizItemList;
 	private ArrayList<Point> m_RandomPoint;
 
 	private boolean m_bFirstTouch = true;
@@ -192,8 +168,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		
 		m_ResourceClass = ResourceClass.getInstance();	
 		m_CurTheme = m_ResourceClass.getCurrentTheme();		
-		
-		m_quizItemList = new ArrayList<Item>();
 
 		this.m_iCurrentItemNum = (m_currentLevel) * 5;
 		this.m_bSoundOn = true;
@@ -234,7 +208,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		Log.e(TAG, "onLoadResources()");
 
 		//Load Background
-		this.m_BackgroundTexture = new Texture(2048, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		m_LoadingTexture = new Texture(1024,1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		m_LoadingTextureRegion = TextureRegionFactory.createFromResource(this.m_LoadingTexture, this, R.drawable.loading_sprite, 0, 0);
 
@@ -271,8 +245,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	public void myLoadResources(){
 		Log.e(TAG, "myLoadResources()");
-		
-		m_playScene.setBackground(new SpriteBackground(m_BackgroundSprite));
+		m_playScene.getLayer(BASE_LAYER).addEntity(m_BackgroundSprite);
 		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.btn_hint , 0, 0);
 		this.m_Help = new Sprite(m_HelpTextureRegion.getWidth()/4, m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion){
@@ -400,33 +373,12 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			Debug.e("Error", e);
 		}
 
-/*		if(m_Music != null && !m_Music.isPlaying()) {
-			Log.e(TAG, "Music start play()");
-			m_Music.play();
-		}*/
-
-		m_DarkenTextureRegion = TextureRegionFactory.createFromResource(this.m_BackgroundTexture, this, R.drawable.darken_bg, 800, 0);
-
 		//Load Box
 		this.m_BoxTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_BoxTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_BoxTexture, this, R.drawable.box, 0, 0, 1, 1);
 
 		this.m_ItemTexture = new Texture(1024, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-
-		//Retry popup texture
-		this.m_RetryTexture = new Texture(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
-		this.m_RetryOkTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
-		this.m_RetryCancelTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);	
-
-		this.m_RetryTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryTexture, this, R.drawable.retry_popup_bg,0,0);
-		this.m_RetryOkTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryOkTexture, this, R.drawable.retry_ok_btn,0,0);
-		this.m_RetryCancelTextureRegion = TextureRegionFactory.createFromResource(this.m_RetryCancelTexture, this, R.drawable.retry_no_btn,0,0);
-
-
-		//Load pass texture
-		this.m_PassTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_PassTextureRegion = TextureRegionFactory.createFromResource(this.m_PassTexture, this, R.drawable.pass_128, 0, 0);
-
+		
 		//Load fail texture
 		this.m_FailTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_FailTextureRegion = TextureRegionFactory.createFromResource(this.m_FailTexture, this, R.drawable.fail_128, 0, 0);
@@ -474,20 +426,14 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		Log.e(TAG, "onLoadScene()");
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 		final Scene loadingScene = new Scene(1);
-
-		loadingScene.setBackground(new SpriteBackground(m_BackgroundSprite));
+		loadingScene.getTopLayer().addEntity(m_BackgroundSprite);
 		m_LoadingSprite = new Sprite(0 ,0,this.m_LoadingTextureRegion);
-		//loadingScene.registerTouchArea(m_LoadingSprite);
 		loadingScene.getTopLayer().addEntity(m_LoadingSprite);
 		loadingScene.registerUpdateHandler(new TimerHandler(1.0f, true, new ITimerCallback() {
 			@Override
 			public void onTimePassed(final TimerHandler pTimerHandler) {
 				m_playScene = new Scene(2);
 				myLoadResources();
-				//Make retry scene
-				m_RetryScene = new CameraScene(1, m_Camera); 	
-				m_RetryScene.setBackgroundEnabled(false);
-				composeRetryScene();
 				createBaseSprite();
 				
 				//play sound
@@ -502,65 +448,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			}
 		}));
 		return loadingScene;
-	}
-
-	private void composeRetryScene(){
-		final int OFFSET = m_RetryOkTextureRegion.getWidth()/2;	
-		final int width = this.m_RetryTextureRegion.getWidth();
-		final int height = this.m_RetryTextureRegion.getHeight();
-		final int okHeight = this.m_RetryOkTextureRegion.getHeight();
-		final int okWidth = this.m_RetryOkTextureRegion.getWidth();
-
-		final int x = CAMERA_WIDTH / 2 - width / 2;
-		final int y = CAMERA_HEIGHT / 2 - height / 2;
-
-		Log.e(TAG, "width="+width+" height="+height);
-
-		final Sprite retryBGSprite = new Sprite(x , y, this.m_RetryTextureRegion);
-
-		final Sprite retryOKSprite = new Sprite(x + OFFSET, y + height - okHeight/2, this.m_RetryOkTextureRegion){
-
-			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				Log.e(TAG, "onAreaTouched");
-
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-					removeDarkenBG();
-					m_playScene.clearChildScene();					
-					resetScreen();
-					return true;
-				}
-				return false;				
-			}			
-
-		};
-
-		final Sprite retryCancelSprite = new Sprite(x + width - okWidth - OFFSET, y + height - okHeight/2, this.m_RetryCancelTextureRegion){
-			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				Log.e(TAG, "onAreaTouched");
-
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-					if (m_iCurrentItemNum < m_ItemVector.size()-1){
-						m_iCurrentItemNum++;
-						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;//ARR_ANIMAL[m_iCurrentItemNum++];
-					}else{
-						m_iCurrentItemNum++;
-					}
-					removeDarkenBG();
-					m_playScene.clearChildScene();
-					resetScreen();
-					return true;
-				}
-				return false;
-			}	
-		};		
-
-		this.m_RetryScene.getTopLayer().addEntity(retryBGSprite);
-		this.m_RetryScene.getTopLayer().addEntity(retryOKSprite);
-		this.m_RetryScene.getTopLayer().addEntity(retryCancelSprite);
-		this.m_RetryScene.registerTouchArea(retryOKSprite);
-		this.m_RetryScene.registerTouchArea(retryCancelSprite);
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent intent){
@@ -593,7 +480,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		if(requestCode == Const.RETRY_DIALOG_RESULT) {
 			if(resultCode == RESULT_OK) {
 				Log.d(TAG, "resultCode:" + "RESULT_OK");
-				//m_playScene.clearChildScene();
 				resetScreen();
 			}
 			else if(resultCode == RESULT_CANCELED) {
@@ -603,7 +489,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				}else{
 					m_iCurrentItemNum++;
 				}
-				//m_playScene.clearChildScene();
 				resetScreen();
 			}
 		}
@@ -650,26 +535,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		}
 	}
 
-	//Reset Screen - Remove all the m_DarkenSprite from scene.
-	private void removeDarkenBG(){
-		Log.e(TAG, "removeDarkenBG()");
-		mEngine.runOnUpdateThread(new Runnable() {
-			@Override
-			public void run() {
-				m_playScene.getLayer(ENTITIES_LAYER).removeEntity(m_DarkenSprite);		
-			}        	
-		});
-	}
 	//Load fixed texture
 	private void loadBaseTexture(){
-
-		this.mEngine.getTextureManager().loadTexture(this.m_PassTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_FailTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_RetryTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_RetryOkTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_RetryCancelTexture);
-		//this.mEngine.getTextureManager().loadTexture(this.m_DarkenTexture);
-
 	}
 
 	//Load changeable texture
@@ -707,8 +575,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		loadBaseTexture();
 
-		this.m_DarkenSprite = new Sprite(0,0,this.m_DarkenTextureRegion);
-
 		this.m_SkipSprite = new Sprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
 				m_SkipTextureRegion.getHeight()/4, this.m_SkipTextureRegion){
 			@Override
@@ -731,11 +597,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		};
 		m_playScene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);
 
-		this.m_PassSprite = new Sprite(
-				CAMERA_WIDTH/2-(this.m_PassTextureRegion.getWidth()/2),
-				CAMERA_HEIGHT/2 - (this.m_PassTextureRegion.getHeight()/2),
-				this.m_PassTextureRegion);
-
 		this.m_FailSprite = new Sprite(
 				CAMERA_WIDTH/2-(this.m_FailTextureRegion.getWidth()/2),
 				CAMERA_HEIGHT/2 - (this.m_FailTextureRegion.getHeight()/2),
@@ -756,6 +617,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		//re regist touch area for help and pause btn
 		m_playScene.registerTouchArea(m_Help);
 		m_playScene.registerTouchArea(m_SkipSprite);
+		
 		//Load Sound
 		try {
 			this.m_ItemSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, m_strAlphabet+".mp3");
@@ -796,8 +658,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		//Load Box Sprite to scene.
 		int length = m_strAlphabet.length();
 		m_arrBoxSprite = new AlphabetSprite[m_strAlphabet.length()];
-		//int divWidth = CAMERA_WIDTH/length;
-
+		
 		int space = m_BoxTextureRegion.getWidth()/(length * length);
 		int boxWidth = m_BoxTextureRegion.getWidth();
 		int w = boxWidth * length + space*(length-1);
@@ -829,10 +690,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			try {
 				m_AlphabetSound[m_Idx] = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, this.m_strAlphabet.charAt(m_Idx)+".mp3");
 			} catch (IllegalStateException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -1011,18 +870,12 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			@Override
 			public void run() {
 				m_FailSprite.setVisible(false);		
-				/*darkenBG();
-				m_playScene.setChildScene(m_RetryScene, false, true, true);*/
 				Intent popupIntent = new Intent(ThemeItemActivity.this, PopupActivity.class);
 				startActivityForResult(popupIntent, Const.RETRY_DIALOG_RESULT);
 			}
 		}, delayMS);
 	}
-
-	private void darkenBG(){
-		m_playScene.getLayer(ENTITIES_LAYER).addEntity(m_DarkenSprite);	
-	}
-
+	
 	private boolean isAllBoxesFilled(AlphabetSprite [] sprites){
 		boolean result = true;
 		for(int i=0; i < sprites.length; i++){
