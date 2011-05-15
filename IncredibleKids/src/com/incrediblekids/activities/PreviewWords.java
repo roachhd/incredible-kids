@@ -14,6 +14,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import android.R.color;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -388,7 +389,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 				} else {
 					new AlertDialog.Builder(PreviewWords.this) 
 					.setTitle("알림")
-					.setMessage("사진을 다운로드 합니다. (다운 받은 사진은 재 다운로드 하지 않습니다.)\n3G인 경우 통신요금이 부과될 수 있습니다. \n접속 하시겠습니까?")
+					.setMessage("사진을 다운로드 합니다.\n3G인 경우 통신요금이 부과될 수 있습니다.\n접속 하시겠습니까?\n(다운 받은 사진은 재 다운로드 하지 않습니다.)")
 					.setIcon(R.drawable.icon)
 					.setPositiveButton("연결", PreviewWords.this)
 					.setNegativeButton("닫기", null)
@@ -479,6 +480,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		/* Setting Preview Image Gallery */
 		m_PreviewImgAdapter = new ImageAdapter(this);
 		m_PreviewImgGallery = (PreviewGallery) findViewById(R.id.preview_gallery);
+		//m_PreviewImgGallery.setBackgroundColor(color.white);
 		m_PreviewImgGallery.setAdapter(m_PreviewImgAdapter);
 		m_PreviewImgGallery.setCallbackDuringFling(true);
 		m_PreviewImgGallery.setFadingEdgeLength(100);
@@ -583,16 +585,12 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	 * ImageAdapter
 	 ********************************/
 	class ImageAdapter extends BaseAdapter {
-		public ResourceClass res;
-
-		private final String TAG="PreviewWords";
-		private Vector<Item> m_ItemVector;
 		private Context m_cContext;
 
 		public ImageAdapter(Context _context) {
 			m_cContext = _context;
-			res = ResourceClass.getInstance();
-			m_ItemVector = res.getvItems();
+			//res = ResourceClass.getInstance();
+			//m_ItemVector = res.getvItems();
 		}
 
 		public int getCount() {
