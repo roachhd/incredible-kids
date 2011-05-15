@@ -206,7 +206,7 @@ public class GameStatusActivity extends Activity {
 	
 	void setBGImage(){
 
-		LinearLayout layout = (LinearLayout)findViewById(R.layout.game_status);
+		LinearLayout layout = (LinearLayout)findViewById(R.id.level_layout);
 		
 		if(m_CurTheme.equals(Const.THEME_ANIMAL)){
 			layout.setBackgroundResource(R.drawable.bg_animal_play);
