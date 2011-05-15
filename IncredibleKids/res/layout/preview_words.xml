@@ -69,7 +69,6 @@
 			android:layout_height="wrap_content"
 			android:layout_alignParentBottom="true"
 			android:paddingBottom="10dip"
-			android:background="#00ffffff"
 		/>
 	</RelativeLayout>
 </LinearLayout>
