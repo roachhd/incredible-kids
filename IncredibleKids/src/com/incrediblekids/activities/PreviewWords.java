@@ -48,6 +48,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
@@ -74,6 +75,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	private final String FLICKR_KEY = "edce333ce82dfc77c47fce4bfb7a2803";
 	private final String FLICKR_SEC = "e48bbb5063ef5943";
 	private final String FLICKR_UID = "24882827@N04";
+	private final int m_ImgBG[] = {R.drawable.bg_animal_play, R.drawable.bg_color_play, R.drawable.bg_food_play, R.drawable.bg_number_play, R.drawable.bg_toy_play};
 	
 	/********************************
 	 * Member Variables
@@ -83,6 +85,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	private ImageView m_WordImg, m_QuizImg;
 	private WordImgAnimation m_WordImgAnimation;
 	private Timer m_QuizImgAnimationTimer;
+	private String m_Theme;
 	private int m_Height, m_Width;
 	
 	/* Gallery */
@@ -137,9 +140,12 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		
 		/* Set content view */
 		setContentView(R.layout.preview_words);
-
+		
 		/* Get Image, Sound Resource */
 		getResource();
+		
+		/* Set Background */
+		setThemeBackGround();
 		
 		/* Get Display Size */
 		m_Height = getWindowManager().getDefaultDisplay().getHeight();
@@ -169,6 +175,23 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		};
 	}
 	
+	public void setThemeBackGround() {
+		RelativeLayout mMainBG = (RelativeLayout) findViewById(R.id.preview_relative_layout);
+
+		if (m_Theme.equals(Const.THEME_ANIMAL)) {
+			mMainBG.setBackgroundResource(R.drawable.bg_animal_play);
+		} else if (m_Theme.equals(Const.THEME_COLOR)) {
+			mMainBG.setBackgroundResource(R.drawable.bg_color_play);
+		} else if (m_Theme.equals(Const.THEME_FOOD)) {
+			mMainBG.setBackgroundResource(R.drawable.bg_food_play);
+		} else if (m_Theme.equals(Const.THEME_NUMBER)) {
+			mMainBG.setBackgroundResource(R.drawable.bg_number_play);
+		} else if (m_Theme.equals(Const.THEME_TOY)) {
+			mMainBG.setBackgroundResource(R.drawable.bg_toy_play);
+		}
+			
+			
+	}
 	/****************************************************************
 	 * Set Photo Viewer Layout
 	 *  - PopupWindow를 이용하여 Photo Viewer 만듬.
@@ -304,6 +327,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		/* Get resrouce from ResourceClass */ 
 		res = ResourceClass.getInstance();
 		m_ItemVector = res.getvItems();
+		m_Theme = res.getCurrentTheme();
 		
 		/* Assign from Resource */
 		m_QuizImg = (ImageView) findViewById(R.id.preview_center_image);
@@ -364,7 +388,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 				} else {
 					new AlertDialog.Builder(PreviewWords.this) 
 					.setTitle("알림")
-					.setMessage("사진을 다운로드 합니다. \n3G인 경우 통신요금이 부과될 수 있습니다. \n접속 하시겠습니까?")
+					.setMessage("사진을 다운로드 합니다. (다운 받은 사진은 재 다운로드 하지 않습니다.)\n3G인 경우 통신요금이 부과될 수 있습니다. \n접속 하시겠습니까?")
 					.setIcon(R.drawable.icon)
 					.setPositiveButton("연결", PreviewWords.this)
 					.setNegativeButton("닫기", null)
