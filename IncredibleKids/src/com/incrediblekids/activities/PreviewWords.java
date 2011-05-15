@@ -242,6 +242,14 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		m_SoundEffect.release();
 		m_SoundEffectId = null;
 		
+		SharedPreferences preference = getSharedPreferences(Const.PREFERNCE, 0);
+		if(preference == null) {
+		    Log.e(TAG, "settings null");
+		} else {
+			SharedPreferences.Editor editor = preference.edit();
+			editor.putBoolean(Const.PHOTO_DOWNLOAD, false);
+			editor.commit();
+		}
 		System.gc();
 		super.onDestroy();
 	}
@@ -257,7 +265,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		SharedPreferences.Editor editor = preference.edit();
 		editor.putBoolean(Const.PHOTO_DOWNLOAD, true);
 		editor.commit();
-		onPhotoViewerClick();
+		onPhotoViewerClick(m_ItemVector.get(m_iSelectedItem).strWordCharId);
 	}
 	
 
@@ -291,7 +299,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	 *	   for()를 이용하여 5개 먼저 Load, 나머지는 Thread 를 호출하여  Load.
 	 *  - Sound 는 PreviewWord BGM을 위해서 MediaPlayer를 사용하고,
 	 *    단어 발음을 위해서 SoundPool에 Load.
-	 **************************************88888887777777777777777**************************/
+	 ****************************************************************/
 	public void getResource() {
 		/* Get resrouce from ResourceClass */ 
 		res = ResourceClass.getInstance();
@@ -352,7 +360,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 				    Log.e(TAG, "settings null");
 				}
 				if (preference.getBoolean(Const.PHOTO_DOWNLOAD, false)) {
-					onPhotoViewerClick();
+					onPhotoViewerClick(m_ItemVector.get(m_iSelectedItem).strWordCharId);
 				} else {
 					new AlertDialog.Builder(PreviewWords.this) 
 					.setTitle("알림")
@@ -370,6 +378,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		m_PhotoViewer.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if (!v.equals(m_PhotoImg))
+					m_PhotoImg.setImageResource(R.drawable.photo_loading);
 					m_PhotoViewerPopupWindow.dismiss();
 			}
 		});
@@ -403,28 +412,31 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	 *  - 기존의 다운받은 사진이 있는지 확인.
 	 *  - 사진이 없을 경우, Thread 이용해서 사진 다운로드.
 	 ****************************************************************/
-	public void onPhotoViewerClick() {
+	public void onPhotoViewerClick(String expName) {
 		if (!NetworkConnInfo.IsWifiAvailable(PreviewWords.this) && !NetworkConnInfo.Is3GAvailable(PreviewWords.this)) {
 			Toast.makeText(PreviewWords.this, "네트워크에 연결할 수 없습니다.", Toast.LENGTH_LONG).show();
 		} else {
 			if (!getFileDirectory())
 				Toast.makeText(PreviewWords.this, "사진을 저장할 SD 카드가 없습니다.", Toast.LENGTH_SHORT).show();
 			else {
-				/*
-				 * 이미지 이름 받아와서 체크하고, 모든 이미지가 있는지 확인!
-				 */
-				File mFile = new File(m_FileDirectory + "/frog_0.png");
-				if (mFile.exists()) {
-					m_aBitmap = new Bitmap[4];
-					for (int i=0 ; mFile.exists() ; ++i) {
+				int i=0;
+				File mFile = new File(m_FileDirectory + "/" + expName + "_" + i + ".png");
+				while (mFile.exists()) {
+					++i;
+					mFile = new File(m_FileDirectory + "/" + expName + "_" + i + ".png");
+				}
+				
+				if (i == 3) { // 이미지 3장 모두 저장확인.
+					m_aBitmap = new Bitmap[3];
+					for (i=0 ; i<3 ; ++i) {
+						mFile = new File(m_FileDirectory + "/" + expName + "_" + i + ".png");
 						m_aBitmap[i] = BitmapFactory.decodeFile(mFile.getPath().toString());
-						mFile = new File(m_FileDirectory + "/frog" + "_" + (i+1) + ".png");
 						Log.d(TAG, "mFile = " + mFile.getPath().toString() + " i = " + i);
 					}
 					m_Handler.sendEmptyMessage(0);
 				} else {
 					Toast.makeText(PreviewWords.this, "사진을 다운 받고 있습니다. \n sdcard/HelloWorldEnglish에 저장됩니다.", Toast.LENGTH_SHORT).show();
-					m_PhotoLoadingThread = new PhotoLoadingThread(m_Handler);
+					m_PhotoLoadingThread = new PhotoLoadingThread(m_Handler, expName);
 					m_PhotoLoadingThread.start();
 					m_PhotoLoadingProgressBar.setVisibility(View.VISIBLE);
 				}
@@ -674,14 +686,16 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	 ********************************/
 	class PhotoLoadingThread extends Thread {
 		private Handler mHandler;
-				
-		public PhotoLoadingThread(Handler handler) {
+		private String expName;
+		
+		public PhotoLoadingThread(Handler _mHandler, String _expName) {
 			if (DEBUG) Log.d(TAG, "ImageLoadingThread Contructor");	
-			mHandler = handler;
+			mHandler = _mHandler;
+			expName = _expName;
 		}
 		
 		public void run() {
-			m_ImageUrlArr = getImageURLs("frog", 4, 1); //m_ItemVector.get(m_iSelectedItem).strWordCharId
+			m_ImageUrlArr = getImageURLs(expName, 3, 1); //m_ItemVector.get(m_iSelectedItem).strWordCharId
 			m_aBitmap = new Bitmap[m_ImageUrlArr.size()];
 
 			if (m_ImageUrlArr.size() != 0) { 
@@ -689,7 +703,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 					if (DEBUG) Log.d(TAG, m_ImageUrlArr.get(count));
 					if(!Thread.currentThread().isInterrupted()) {
 						m_aBitmap[count] = Bitmap.createScaledBitmap(ImageManager.UrlToBitmap((m_ImageUrlArr.get(count))), 440, 380, false);
-						StoreByteImage(m_ItemVector.get(m_iSelectedItem).strWordCharId, count);
+						StoreByteImage(expName, count);
 					}
 				}
 				mHandler.sendEmptyMessage(0);
@@ -703,11 +717,15 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	 * Store Photos
 	 ********************************/
 	public boolean StoreByteImage(String expName, int count) {      
-	    FileOutputStream fileOutputStream = null;      
+	    FileOutputStream fileOutputStream = null;
+	    File mFile = new File(m_FileDirectory + "/" + expName + "_" + count + ".png");
+	    if (mFile.exists())
+	    	return true;
+	    
 	    try {            
-	        fileOutputStream = new FileOutputStream(m_FileDirectory + "/frog" + "_" + count + ".png");   
+	        fileOutputStream = new FileOutputStream(m_FileDirectory + "/" + expName + "_" + count + ".png");   
   
-	        BufferedOutputStream bos = new BufferedOutputStream(fileOutputStream);   
+	        BufferedOutputStream bos = new BufferedOutputStream(fileOutputStream);
 	  
 	        m_aBitmap[count].compress(CompressFormat.PNG, 100, bos);   
 	  
