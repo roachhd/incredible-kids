@@ -125,11 +125,13 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			case ANIMATION_ENDED:
 				analysisMatchResult();
 				clickEnable(true);
+        		m_Hint.setClickable(true);
 				break;
 				
 			case TOGGLE_ENDED:
 				Log.d(TAG,"TOGGLE_ENDED");
 				clickEnable(true);
+        		m_Hint.setClickable(true);
 				break;
 				
 			case GREAT_POPUP_SHOW_S:
@@ -795,6 +797,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		**/
 		
 		clickEnable(false);
+		m_Hint.setClickable(false);
         applyRotation(parentView, flag, 0, 90, isToggle);
 	}
 
