@@ -7,9 +7,9 @@
     android:background="#ffffffff"
     > 
 	<RelativeLayout 
+		android:id="@+id/preview_relative_layout"
 		android:layout_width="fill_parent"
 	   	android:layout_height="fill_parent"
-	   	android:background="@drawable/bg_animal_study"
 	   	>
 	   	<ImageView
 	   		android:id="@+id/preview_soundbtn"
