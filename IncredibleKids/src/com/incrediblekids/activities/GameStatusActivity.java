@@ -2,6 +2,8 @@ package com.incrediblekids.activities;
 
 import java.io.IOException;
 
+import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +20,8 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+
 import com.incrediblekids.util.Const;
 
 public class GameStatusActivity extends Activity {
@@ -34,6 +38,7 @@ public class GameStatusActivity extends Activity {
 	private ResourceClass m_ResourceClass = null;
 	
 	private int curLevel = 0;
+	private String m_CurTheme = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +51,15 @@ public class GameStatusActivity extends Activity {
 		Animation sel_anim = AnimationUtils.loadAnimation(this, R.anim.sel_anim);
 		animSet.addAnimation(sel_anim);
 		
+		m_ResourceClass = ResourceClass.getInstance();
+		m_ResourceClass.vItems.size();		
+		m_CurTheme = m_ResourceClass.getCurrentTheme();
+		
 		//BGM Set
 		setBGM();
 		
-		m_ResourceClass.vItems.size();		
+		//set BG Image
+		setBGImage();
 	
 		ivLevel_1 = (ImageView)findViewById(R.id.level_1);
 		ivLevel_2 = (ImageView)findViewById(R.id.level_2);
@@ -177,7 +187,7 @@ public class GameStatusActivity extends Activity {
 	
 	private void setBGM(){
 		try {
-			m_ResourceClass = ResourceClass.getInstance();
+			
 			AssetFileDescriptor fd = getAssets().openFd("mfx/theme_animal.mp3");
 			m_ThemeBGM = new MediaPlayer();	
 			m_ThemeBGM.setDataSource(fd.getFileDescriptor(), fd.getStartOffset(), fd.getLength());
@@ -197,6 +207,27 @@ public class GameStatusActivity extends Activity {
 		}		
 	}
 	
+	void setBGImage(){
+
+		LinearLayout layout = (LinearLayout)findViewById(R.layout.game_status);
+		
+		if(m_CurTheme.equals(Const.THEME_ANIMAL)){
+			layout.setBackgroundResource(R.drawable.bg_animal_play);
+		}
+		else if(m_CurTheme.equals(Const.THEME_COLOR)){
+			layout.setBackgroundResource(R.drawable.bg_color_play);
+		}
+		else if(m_CurTheme.equals(Const.THEME_FOOD)){
+			layout.setBackgroundResource(R.drawable.bg_food_play);
+		}
+		else if(m_CurTheme.equals(Const.THEME_NUMBER)){
+			layout.setBackgroundResource(R.drawable.bg_number_play);
+		}
+		else if(m_CurTheme.equals(Const.THEME_TOY)){
+			layout.setBackgroundResource(R.drawable.bg_toy_play);
+		}
+	}
+	
 	private void setImageResource(ResourceClass m_ResourceClass){
 		
 		// Restore preferences
@@ -205,7 +236,7 @@ public class GameStatusActivity extends Activity {
 		    Log.e(TAG, "updateScore() null");
 		}
 		
-		if (m_ResourceClass.getCurrentTheme().equals(Const.THEME_ANIMAL)) 
+		if (m_CurTheme.equals(Const.THEME_ANIMAL)) 
 		{			
 			curLevel = settings.getInt(Const.THEME_ANIMAL, 0);
 			Log.e("WOORAM","curLevel:"+curLevel);
@@ -231,7 +262,7 @@ public class GameStatusActivity extends Activity {
 				ivLevel_4.setImageResource(R.drawable.level_animal_4);
 			}
 			
-		}else if(m_ResourceClass.getCurrentTheme().equals(Const.THEME_TOY)){
+		}else if(m_CurTheme.equals(Const.THEME_TOY)){
 			curLevel = settings.getInt(Const.THEME_TOY, 0);
 			ivLevel_1.setVisibility(View.VISIBLE);
 			ivLevel_2.setVisibility(View.VISIBLE);
@@ -253,7 +284,7 @@ public class GameStatusActivity extends Activity {
 				ivLevel_3.setImageResource(R.drawable.level_toy_3);
 				ivLevel_4.setImageResource(R.drawable.level_toy_4);
 			}
-		}else if(m_ResourceClass.getCurrentTheme().equals(Const.THEME_FOOD)){
+		}else if(m_CurTheme.equals(Const.THEME_FOOD)){
 			curLevel = settings.getInt(Const.THEME_FOOD, 0);
 			ivLevel_1.setVisibility(View.VISIBLE);
 			ivLevel_2.setVisibility(View.VISIBLE);
@@ -264,7 +295,7 @@ public class GameStatusActivity extends Activity {
 			if(curLevel == 1 || curLevel == 2)
 				ivLevel_2.setImageResource(R.drawable.level_food_2);
 			
-		}else if(m_ResourceClass.getCurrentTheme().equals(Const.THEME_NUMBER)){
+		}else if(m_CurTheme.equals(Const.THEME_NUMBER)){
 			curLevel = settings.getInt(Const.THEME_NUMBER, 0);
 			ivLevel_1.setVisibility(View.VISIBLE);
 			ivLevel_2.setVisibility(View.VISIBLE);
@@ -274,7 +305,7 @@ public class GameStatusActivity extends Activity {
 			ivLevel_4.setVisibility(View.GONE);
 			if(curLevel == 1 || curLevel == 2)
 				ivLevel_2.setImageResource(R.drawable.level_number_2);
-		}else if(m_ResourceClass.getCurrentTheme().equals(Const.THEME_COLOR)){
+		}else if(m_CurTheme.equals(Const.THEME_COLOR)){
 			curLevel = settings.getInt(Const.THEME_COLOR, 0);
 			ivLevel_1.setVisibility(View.VISIBLE);
 			ivLevel_2.setVisibility(View.VISIBLE);

@@ -813,15 +813,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			m_playScene.registerTouchArea(m_arrAlphabetSprite[k-1]);
 		}
 
-		//m_playScene.setTouchAreaBindingEnabled(true);
-
 		// The actual collision-checking.
 		m_playScene.registerUpdateHandler(new IUpdateHandler() {
 
-			@Override
 			public void reset() { }
 
-			@Override
 			public void onUpdate(final float pSecondsElapsed) {
 				for(int i=0; i < m_arrBoxSprite.length; i++ ){
 					if (m_CurrentTouchedAlphabetSprite == null){
@@ -867,7 +863,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private void popupAfterDelay(int delayMS){
 		Handler mHandler = new Handler();
 		mHandler.postDelayed(new Runnable() {
-			@Override
 			public void run() {
 				m_FailSprite.setVisible(false);		
 				Intent popupIntent = new Intent(ThemeItemActivity.this, PopupActivity.class);
