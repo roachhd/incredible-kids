@@ -380,7 +380,7 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		
 		if(intent != null) {
 			startActivity(intent);
-            overridePendingTransition(R.anim.fade, R.anim.hold);
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 		}
 	}
     

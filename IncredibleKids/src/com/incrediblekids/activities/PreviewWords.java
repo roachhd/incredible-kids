@@ -286,7 +286,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	@Override
 	public void onBackPressed() {
 		finish();
-		overridePendingTransition(R.anim.fade, R.anim.hold);
+		overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 		super.onBackPressed();
 	}
 
