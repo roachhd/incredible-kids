@@ -25,73 +25,58 @@ import android.widget.LinearLayout;
 import com.incrediblekids.util.Const;
 
 public class GameStatusActivity extends Activity {
-	
+
 	private final String TAG = "GameStatusActivity";
 	private Intent mIntent = null;
 	private ImageView ivLevel_1 = null;
 	private ImageView ivLevel_2 = null;
 	private ImageView ivLevel_3 = null;
 	private ImageView ivLevel_4 = null;
-	
+
 	/* BGM */
 	private MediaPlayer m_ThemeBGM = null;
 	private ResourceClass m_ResourceClass = null;
-	
+
 	private int curLevel = 0;
 	private String m_CurTheme = null;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.game_status);
-	
+
 		final Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
 		final AnimationSet animSet = new AnimationSet(true); 
-		
+
 		Animation sel_anim = AnimationUtils.loadAnimation(this, R.anim.sel_anim);
 		animSet.addAnimation(sel_anim);
-		
+
 		m_ResourceClass = ResourceClass.getInstance();
 		m_ResourceClass.vItems.size();		
 		m_CurTheme = m_ResourceClass.getCurrentTheme();
-		
+
 		//BGM Set
 		setBGM();
-		
+
 		//set BG Image
 		setBGImage();
-	
+
 		ivLevel_1 = (ImageView)findViewById(R.id.level_1);
 		ivLevel_2 = (ImageView)findViewById(R.id.level_2);
 		ivLevel_3 = (ImageView)findViewById(R.id.level_3);
 		ivLevel_4 = (ImageView)findViewById(R.id.level_4);
-		
+
 		setImageResource(m_ResourceClass);
 
 		mIntent = new Intent(GameStatusActivity.this, ThemeItemActivity.class);		
 		ivLevel_1.setOnClickListener(new OnClickListener(){
-			
+
 			@Override
 			public void onClick(View arg0) {
-				
-				ivLevel_1.startAnimation(animSet);
-				animSet.setAnimationListener(new AnimationListener(){
-
-					@Override
-					public void onAnimationEnd(Animation animation) {
-						ivLevel_1.setVisibility(View.INVISIBLE);
-						mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_1);
-						startActivity(mIntent);						
-					}
-
-					@Override
-					public void onAnimationRepeat(Animation animation) {						
-					}
-
-					@Override
-					public void onAnimationStart(Animation animation) {						
-					}					
-				});				
+				ivLevel_1.setVisibility(View.INVISIBLE);
+				mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_1);
+				startActivity(mIntent);		
+				overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 			}
 		});
 		ivLevel_2.setOnClickListener(new OnClickListener(){
@@ -99,95 +84,61 @@ public class GameStatusActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				if (curLevel >= 1){
-					ivLevel_2.startAnimation(animSet);
-					animSet.setAnimationListener(new AnimationListener(){
-
-						@Override
-						public void onAnimationEnd(Animation animation) {
-							ivLevel_2.setVisibility(View.INVISIBLE);
-							mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_2);
-							startActivity(mIntent);							
-						}
-
-						@Override
-						public void onAnimationRepeat(Animation animation) {						
-						}
-
-						@Override
-						public void onAnimationStart(Animation animation) {						
-						}					
-					});	
-					
+					ivLevel_2.setVisibility(View.INVISIBLE);
+					mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_2);
+					startActivity(mIntent);	
+					overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 				}else{
 					ivLevel_2.startAnimation(shake);
 				}
 			}
-			
 		});
 		ivLevel_3.setOnClickListener(new OnClickListener(){
 
 			@Override
 			public void onClick(View arg0) {
 				if (curLevel >= 2){
-					ivLevel_3.startAnimation(animSet);
-					animSet.setAnimationListener(new AnimationListener(){
-
-						@Override
-						public void onAnimationEnd(Animation animation) {
-							ivLevel_3.setVisibility(View.INVISIBLE);
-							mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_3);
-							startActivity(mIntent);
-						}
-
-						@Override
-						public void onAnimationRepeat(Animation animation) {						
-						}
-
-						@Override
-						public void onAnimationStart(Animation animation) {						
-						}					
-					});	
-					
+					ivLevel_3.setVisibility(View.INVISIBLE);
+					mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_3);
+					startActivity(mIntent);
+					overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 				}else{
 					ivLevel_3.startAnimation(shake);
 				}
 			}
-			
 		});
 		ivLevel_4.setOnClickListener(new OnClickListener(){
 
 			@Override
 			public void onClick(View arg0) {
 				if (curLevel >= 3){
-					ivLevel_4.startAnimation(animSet);
-					animSet.setAnimationListener(new AnimationListener(){
-
-						@Override
-						public void onAnimationEnd(Animation animation) {
-							ivLevel_4.setVisibility(View.INVISIBLE);
-							mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_4);
-							startActivity(mIntent);
-						}
-
-						@Override
-						public void onAnimationRepeat(Animation animation) {						
-						}
-
-						@Override
-						public void onAnimationStart(Animation animation) {						
-						}					
-					});	
+					ivLevel_4.setVisibility(View.INVISIBLE);
+					mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_4);
+					startActivity(mIntent);
+					overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 				}else{
 					ivLevel_4.startAnimation(shake);
 				}
 			}
-			
+
 		});
 	}
 	
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		Log.d(TAG, "onBackPressed()");
+		finish();
+		Intent intent = new Intent(this, MainTheme.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
+		overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+	}
+
 	private void setBGM(){
 		try {
-			
+
 			AssetFileDescriptor fd = getAssets().openFd("mfx/theme_animal.mp3");
 			m_ThemeBGM = new MediaPlayer();	
 			m_ThemeBGM.setDataSource(fd.getFileDescriptor(), fd.getStartOffset(), fd.getLength());
@@ -203,11 +154,11 @@ public class GameStatusActivity extends Activity {
 			e.printStackTrace();
 		}		
 	}
-	
+
 	void setBGImage(){
 
 		LinearLayout layout = (LinearLayout)findViewById(R.id.level_layout);
-		
+
 		if(m_CurTheme.equals(Const.THEME_ANIMAL)){
 			layout.setBackgroundResource(R.drawable.bg_animal_play);
 		}
@@ -224,15 +175,15 @@ public class GameStatusActivity extends Activity {
 			layout.setBackgroundResource(R.drawable.bg_toy_play);
 		}
 	}
-	
+
 	private void setImageResource(ResourceClass m_ResourceClass){
-		
+
 		// Restore preferences
 		SharedPreferences settings = getSharedPreferences(Const.PREFERNCE, Context.MODE_WORLD_READABLE);
 		if(settings == null) {
-		    Log.e(TAG, "updateScore() null");
+			Log.e(TAG, "updateScore() null");
 		}
-		
+
 		if (m_CurTheme.equals(Const.THEME_ANIMAL)) 
 		{			
 			curLevel = settings.getInt(Const.THEME_ANIMAL, 0);
@@ -245,7 +196,7 @@ public class GameStatusActivity extends Activity {
 			ivLevel_2.setImageResource(R.drawable.level_locked_small);
 			ivLevel_3.setImageResource(R.drawable.level_locked_small);
 			ivLevel_4.setImageResource(R.drawable.level_locked_small);
-			
+
 			if(curLevel == 1)
 				ivLevel_2.setImageResource(R.drawable.level_animal_2);
 
@@ -258,7 +209,7 @@ public class GameStatusActivity extends Activity {
 				ivLevel_3.setImageResource(R.drawable.level_animal_3);
 				ivLevel_4.setImageResource(R.drawable.level_animal_4);
 			}
-			
+
 		}else if(m_CurTheme.equals(Const.THEME_TOY)){
 			curLevel = settings.getInt(Const.THEME_TOY, 0);
 			ivLevel_1.setVisibility(View.VISIBLE);
@@ -269,7 +220,7 @@ public class GameStatusActivity extends Activity {
 			ivLevel_2.setImageResource(R.drawable.level_locked_small);
 			ivLevel_3.setImageResource(R.drawable.level_locked_small);
 			ivLevel_4.setImageResource(R.drawable.level_locked_small);
-			
+
 			if(curLevel == 1)
 				ivLevel_2.setImageResource(R.drawable.level_toy_2);
 			if(curLevel == 2){
@@ -291,7 +242,7 @@ public class GameStatusActivity extends Activity {
 			ivLevel_4.setVisibility(View.GONE);
 			if(curLevel == 1 || curLevel == 2)
 				ivLevel_2.setImageResource(R.drawable.level_food_2);
-			
+
 		}else if(m_CurTheme.equals(Const.THEME_NUMBER)){
 			curLevel = settings.getInt(Const.THEME_NUMBER, 0);
 			ivLevel_1.setVisibility(View.VISIBLE);
@@ -328,7 +279,7 @@ public class GameStatusActivity extends Activity {
 
 	@Override
 	protected void onNewIntent(Intent intent) {
-/*		ResourceClass m_ResourceClass = ResourceClass.getInstance();
+		/*		ResourceClass m_ResourceClass = ResourceClass.getInstance();
 		setImageResource(m_ResourceClass);*/
 		super.onNewIntent(intent);
 	}

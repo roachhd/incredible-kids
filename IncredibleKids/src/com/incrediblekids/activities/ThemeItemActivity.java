@@ -449,6 +449,18 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		}));
 		return loadingScene;
 	}
+	
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		Log.d(TAG, "onBackPressed()");
+		finish();
+		Intent intent = new Intent(this, GameStatusActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
+		overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent intent){
 		super.onActivityResult(requestCode, resultCode, intent);
@@ -507,6 +519,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			intent.putExtra(Const.CUR_LEVEL, m_currentLevel);
 			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, m_quizItemList);
 			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
+			overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 			finish();
 
 		}else{ 
@@ -867,6 +880,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				m_FailSprite.setVisible(false);		
 				Intent popupIntent = new Intent(ThemeItemActivity.this, PopupActivity.class);
 				startActivityForResult(popupIntent, Const.RETRY_DIALOG_RESULT);
+				
 			}
 		}, delayMS);
 	}
