@@ -9,174 +9,136 @@
 		android:background="@drawable/bg_theme"
 		android:visibility="gone">
 		
-		<RelativeLayout 
-			android:layout_height="61dp" 
-			android:layout_width="180dp"
-			android:layout_alignParentTop="true" 
-			android:layout_centerHorizontal="true">
-		
-		<ImageView android:id="@+id/ivGame"
-			android:layout_height="61dp" 
-			android:layout_width="65dp"
-			android:background="@drawable/btn_play_d" 
+		<!-- Theme Menu Item -->
+		<LinearLayout
+			android:layout_width="140dp" 
+			android:layout_height="fill_parent"
+			
+			android:orientation="vertical"
 			
 			android:layout_alignParentLeft="true"
+			android:layout_marginLeft="7dp" >
 			
-			android:layout_marginTop="8dp">
-		</ImageView>
+			<ImageView
+				android:id="@+id/ivThemeObject"
+				android:layout_width="140dp" 
+				android:layout_height="53dp"
+				
+				android:background="@drawable/theme_item_object_n"
+				
+				android:layout_marginTop="20dp"
+				android:layout_gravity="center">
+			</ImageView>
 			
-		<ImageView android:id="@+id/ivStudy"
-			android:layout_height="61dp" 
-			android:layout_width="65dp"
-			android:background="@drawable/btn_study" 
+			<ImageView
+				android:id="@+id/ivThemeAnimal"
+				android:layout_width="133dp" 
+				android:layout_height="25dp"
+				
+				android:background="@drawable/theme_item_animal_n"
+				
+				android:layout_marginTop="13dp"
+				android:layout_gravity="center">
+			</ImageView>
+			
+			<ImageView
+				android:id="@+id/ivThemeFood"
+				android:layout_width="140dp" 
+				android:layout_height="51dp"
+				
+				android:background="@drawable/theme_item_food_n"
+				
+				android:layout_marginTop="10dp"
+				android:layout_gravity="center">
+			</ImageView>
+			
+			<ImageView
+				android:id="@+id/ivThemeColor"
+				android:layout_width="134dp" 
+				android:layout_height="34dp"
+				
+				android:background="@drawable/theme_item_color_n"
+				
+				android:layout_marginTop="12dp"
+				android:layout_gravity="center">
+			</ImageView>
+			
+			<ImageView
+				android:id="@+id/ivThemeNumber"
+				android:layout_width="140dp" 
+				android:layout_height="47dp"
+				
+				android:background="@drawable/theme_item_number_n"
+				
+				android:layout_marginTop="6dp"
+				android:layout_gravity="center">
+			</ImageView>
+			
+		</LinearLayout>
+		
+		<!-- Play Mode & Character Ani-->
+		<RelativeLayout
+			android:id="@+id/themeCharacterLayout"
+			android:layout_width="327dp" 
+			android:layout_height="fill_parent"
 			
 			android:layout_alignParentRight="true"
 			
-			android:layout_marginTop="8dp">
-		</ImageView>
-		</RelativeLayout>
-		
-		<RelativeLayout 
-			android:layout_height="120dp" 
-			android:layout_width="140dp" 
-			android:layout_alignParentTop="true" 
-			android:layout_alignParentLeft="true"
-			android:layout_marginLeft="15dp"
-			android:layout_marginTop="48dp" >
-		
-				<ImageView android:id="@+id/ivThing"
-					android:layout_height="wrap_content" 
-					android:layout_width="wrap_content"
-					android:background="@drawable/theme_item_thing_n" 
-					
-					android:layout_alignParentTop="true"
-					android:layout_marginTop="5dp"
-					android:layout_marginLeft="15dp">
-				</ImageView>
-				<ImageView android:id="@+id/ivThingScore"
-					android:layout_height="35dp" 
-					android:layout_width="105dp"
-					
-					android:layout_alignParentLeft="true"
-					android:layout_alignParentBottom="true"
-					android:background="@drawable/star_4_0">
-				</ImageView>
-		</RelativeLayout>
+			android:visibility="invisible" >
 			
-		<RelativeLayout 
-			android:layout_height="120dp" 
-			android:layout_width="140dp" 
-			android:layout_alignParentTop="true" 
-			android:layout_alignParentRight="true"
-			android:layout_marginRight="15dp"
-			android:layout_marginTop="48dp" >
-			
-			<ImageView android:id="@+id/ivAnimal"
-				android:layout_height="wrap_content" 
-				android:layout_width="wrap_content"
+			<!-- character -->
+			<RelativeLayout
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content" >
+			<ImageView
+				android:id="@+id/ivCharacter"
+				android:layout_width="271dp" 
+				android:layout_height="271dp"
 				
-				android:layout_alignParentTop="true"
-				android:layout_alignParentRight="true"
-				
-				android:layout_marginTop="15dp"
-				android:layout_marginRight="15dp"
-				android:background="@drawable/theme_item_animal_n">
-			</ImageView>
-			<ImageView android:id="@+id/ivAnimalScore"
-				android:layout_height="35dp"
-				android:layout_width="105dp"
+				android:background="@drawable/theme_character_animal"
 				
 				android:layout_alignParentRight="true"
-				android:layout_alignParentBottom="true"
-				android:background="@drawable/star_4_0">
+				android:layout_alignParentBottom="true">
 			</ImageView>
+			</RelativeLayout>
+			
+			<!-- play mode -->
+			<RelativeLayout
+				android:layout_width="314dp" 
+				android:layout_height="124dp"
 				
-		</RelativeLayout>
-			
-			
-		<RelativeLayout 
-			android:layout_height="120dp" 
-			android:layout_width="140dp" 
-			android:layout_alignParentBottom="true" 
-			android:layout_alignParentLeft="true"
-			android:layout_marginLeft="15dp"
-			android:layout_marginBottom="15dp" >
-			
-			<ImageView android:id="@+id/ivColor"
-				android:layout_height="wrap_content" 
-				android:layout_width="wrap_content"
-				android:background="@drawable/theme_item_color_n" 
-				
+				android:background="@drawable/theme_mode_bg"
 				android:layout_alignParentTop="true" 
-				android:layout_marginLeft="15dp"
-				android:layout_marginTop="15dp">
-			</ImageView>
-				
-			<ImageView android:id="@+id/ivColorScore"
-				android:layout_height="35dp" 
-				android:layout_width="55dp"
-				
-				android:layout_alignParentLeft="true"
-				android:layout_alignParentBottom="true"
-				android:background="@drawable/star_2_0">
-			</ImageView>
-				
+				android:layout_alignParentRight="true" >
+				<ImageView
+					android:id="@+id/ivModeGame"
+					android:layout_width="111dp" 
+					android:layout_height="27dp" 
+					
+					android:background="@drawable/btn_play_n"
+					android:layout_alignParentLeft="true" 
+					android:layout_marginTop="20dp"
+					android:layout_marginLeft="20dp"
+					>
+				</ImageView>
+				<ImageView
+					android:id="@+id/ivModeStudy"
+					android:layout_width="111dp" 
+					android:layout_height="27dp" 
+					
+					android:background="@drawable/btn_study_n"
+					
+					android:layout_marginTop="20dp"
+					android:layout_marginRight="20dp"
+					android:layout_alignParentRight="true" >
+				</ImageView>
+			</RelativeLayout>
+			
 		</RelativeLayout>
-			
-			
-		<RelativeLayout 
-			android:layout_height="120dp" 
-			android:layout_width="140dp" 
-			android:layout_alignParentBottom="true" 
-			android:layout_alignParentRight="true"
-			android:layout_marginRight="15dp"
-			android:layout_marginBottom="15dp" >
-			
-			<ImageView android:id="@+id/ivNumber"
-				android:layout_height="wrap_content" 
-				android:layout_width="wrap_content"
-				android:background="@drawable/theme_item_number_n" 
-				
-				android:layout_alignParentRight="true"
-				android:layout_alignParentTop="true" 
-				android:layout_marginRight="15dp"
-				android:layout_marginTop="27dp"></ImageView>
-				
-			<ImageView android:id="@+id/ivNumberScore"
-				android:layout_height="35dp" 
-				android:layout_width="55dp"
-				
-				android:layout_alignParentRight="true"
-				android:layout_alignParentBottom="true"
-				
-				android:layout_marginRight="3dp"
-				android:background="@drawable/star_2_0">
-			</ImageView>
-		</RelativeLayout>
-			
-		<RelativeLayout 
-			android:layout_height="170dp" 
-			android:layout_width="90dp" 
-			android:layout_centerInParent="true"
-			android:paddingTop="30dp">
-			<ImageView android:id="@+id/ivFood"
-				android:layout_height="wrap_content" 
-				android:layout_width="wrap_content"
-				android:background="@drawable/theme_item_food_n" 
-				android:layout_alignParentTop="true">
-			</ImageView>
-			
-			<ImageView android:id="@+id/ivFoodScore"
-				android:layout_height="35dp" 
-				android:layout_width="55dp"
-				
-				android:layout_alignParentBottom="true"
-				android:layout_centerHorizontal="true"
-				android:background="@drawable/star_2_0">
-			</ImageView>
-		</RelativeLayout>
+		
 	</RelativeLayout>
 	
+	<!-- Intro -->
 	<RelativeLayout 
 		android:layout_width="fill_parent" android:layout_height="fill_parent"
 		android:id="@+id/intro_theme"

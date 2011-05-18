@@ -1,15 +1,21 @@
 package com.incrediblekids.activities;
 
+import java.util.HashMap;
+
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -22,34 +28,34 @@ public class MainTheme extends Activity implements View.OnClickListener {
 	private final int MODE_GAME 	= 10;
 	private final int MODE_STUDY 	= 11;
 	
-	private final int STAR_FOUR[]   = {R.drawable.star_4_0, R.drawable.star_4_1, R.drawable.star_4_2, R.drawable.star_4_3, R.drawable.star_4_4};
-	private final int STAR_TWO[]    = {R.drawable.star_2_0, R.drawable.star_2_1, R.drawable.star_2_2};
-	
 	private int m_Mode 				= 0;
+	private int m_CurrentTheme		= 0;
 	private boolean m_IntroShow		= false;
 	
 	private RelativeLayout m_MainTheme;
 	private RelativeLayout m_IntroTheme;
+	private RelativeLayout m_rlThemeChar;
 	
-	private ImageView m_FoodTheme;
-	private ImageView m_ColorTheme;
-	private ImageView m_ThingTheme;
-	private ImageView m_NumberTheme;
-	private ImageView m_AnimalTheme;
+	private ImageView m_ThemeFood;
+	private ImageView m_ThemeColor;
+	private ImageView m_ThemeObject;
+	private ImageView m_ThemeNumber;
+	private ImageView m_ThemeAnimal;
 	
-	private ImageView m_FoodScore;
-	private ImageView m_ColorScore;
-	private ImageView m_ThingScore;
-	private ImageView m_NumberScore;
-	private ImageView m_AnimalScore;
+	private ImageView m_Character;
 	
-	private ImageView m_StudyMode;
-	private ImageView m_GameMode;
+	private HashMap<Integer, Integer> 	m_ThemeItemChar;
+	private HashMap<ImageView, Integer> m_ThemeItemSelBg;
+	
+	private ImageView m_ModeStudy;
+	private ImageView m_ModeGame;
 	
 	private ResourceClass m_Res;
 	
-	private SharedPreferences m_ScorePreference;
-	private SharedPreferences m_ModePreference;
+//	private SharedPreferences m_ScorePreference;
+	
+	private Animation m_CharacterOutAni;
+	private Animation m_CharacterInAni;
 	
 	/* BGM */
 	private MediaPlayer m_ThemeBGM;
@@ -57,6 +63,23 @@ public class MainTheme extends Activity implements View.OnClickListener {
 	/* Sound Effect */
 	private SoundPool m_SoundEffect;
 	private int	m_SoundEffectId;
+	
+	public static final int HANDLER_MSG_ANIMATION_ENDED = 0;
+	
+	private Handler m_Handler = new Handler() {
+
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			
+			switch(msg.what) {
+			case HANDLER_MSG_ANIMATION_ENDED:
+				showCharacterLayout();
+				break;
+			}
+		}
+		
+	};
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,58 +90,75 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		
 		m_MainTheme 	= (RelativeLayout)findViewById(R.id.main_theme);
 		m_IntroTheme 	= (RelativeLayout)findViewById(R.id.intro_theme);
+		m_rlThemeChar	= (RelativeLayout)findViewById(R.id.themeCharacterLayout);
 		
-		m_AnimalTheme 	= (ImageView)findViewById(R.id.ivAnimal);
-		m_NumberTheme 	= (ImageView)findViewById(R.id.ivNumber);
-		m_ThingTheme 	= (ImageView)findViewById(R.id.ivThing);
-		m_ColorTheme 	= (ImageView)findViewById(R.id.ivColor);
-		m_FoodTheme 	= (ImageView)findViewById(R.id.ivFood);
+		m_ThemeAnimal 	= (ImageView)findViewById(R.id.ivThemeAnimal);
+		m_ThemeNumber 	= (ImageView)findViewById(R.id.ivThemeNumber);
+		m_ThemeObject 	= (ImageView)findViewById(R.id.ivThemeObject);
+		m_ThemeColor 	= (ImageView)findViewById(R.id.ivThemeColor);
+		m_ThemeFood 	= (ImageView)findViewById(R.id.ivThemeFood);
 		
-		m_AnimalScore   = (ImageView)findViewById(R.id.ivAnimalScore);
-		m_NumberScore   = (ImageView)findViewById(R.id.ivNumberScore);
-		m_ThingScore    = (ImageView)findViewById(R.id.ivThingScore);
-		m_ColorScore    = (ImageView)findViewById(R.id.ivColorScore);
-		m_FoodScore     = (ImageView)findViewById(R.id.ivFoodScore);
+		m_Character		= (ImageView)findViewById(R.id.ivCharacter);
 		
-		m_GameMode		= (ImageView)findViewById(R.id.ivGame);
-		m_StudyMode		= (ImageView)findViewById(R.id.ivStudy);
+		m_ModeGame		= (ImageView)findViewById(R.id.ivModeGame);
+		m_ModeStudy		= (ImageView)findViewById(R.id.ivModeStudy);
 		
 		m_ThemeBGM		= MediaPlayer.create(this, R.raw.theme_bgm); 
 		m_SoundEffect	= new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
 		m_SoundEffectId	= m_SoundEffect.load(this, R.raw.mode_effect, 1);
 		
-		m_ScorePreference 	= getSharedPreferences(Const.PREFERNCE, 0);
-		m_ModePreference 	= getSharedPreferences(Const.PREFERNCE_MODE, 0);
 		
-		m_AnimalTheme.setOnClickListener(this);
-		m_NumberTheme.setOnClickListener(this);
-		m_ThingTheme.setOnClickListener(this);
-		m_ColorTheme.setOnClickListener(this);
-		m_FoodTheme.setOnClickListener(this);
-		m_GameMode.setOnClickListener(this);
-		m_StudyMode.setOnClickListener(this);
+		m_ThemeItemChar		= new HashMap<Integer, Integer>();
+		m_ThemeItemSelBg	= new HashMap<ImageView, Integer>();
+		
+//		m_ScorePreference 	= getSharedPreferences(Const.PREFERNCE, 0);
+		
+		m_ThemeAnimal.setOnClickListener(this);
+		m_ThemeNumber.setOnClickListener(this);
+		m_ThemeObject.setOnClickListener(this);
+		m_ThemeColor.setOnClickListener(this);
+		m_ThemeFood.setOnClickListener(this);
+		
+		m_ModeGame.setOnClickListener(this);
+		m_ModeStudy.setOnClickListener(this);
+		
 		
 		m_ThemeBGM.setLooping(true);
 		
 		m_Res 	= ResourceClass.getInstance();
-		m_Mode 	= getPlayMode();	// default Mode
 		
 		showIntro();
+		initThemeHashMap();
+		setAnimation();
 	}
 	
+
+
 	/**
-	 * @return PLAY MODE from preference
+	 * make ThemeItem Hashmap via View's ID and character's drawable resources
+	 * make ThemeItemSelBg Hashmap via View and selected drawable images
 	 */
-	private int getPlayMode() {
-		int mode = m_ModePreference.getInt(Const.PLAY_MODE, MODE_STUDY);
+	private void initThemeHashMap() {
+		//TODO: fix m_ThemeItem
+		m_ThemeItemChar.put(R.id.ivThemeAnimal, R.drawable.theme_character_animal);
+		m_ThemeItemChar.put(R.id.ivThemeNumber, R.drawable.theme_character_animal);
+		m_ThemeItemChar.put(R.id.ivThemeObject, R.drawable.theme_character_animal);
+		m_ThemeItemChar.put(R.id.ivThemeColor, R.drawable.theme_character_animal);
+		m_ThemeItemChar.put(R.id.ivThemeFood, R.drawable.theme_character_animal);
 		
-		return mode;
+		m_ThemeItemSelBg.put(m_ThemeAnimal, R.drawable.theme_item_animal_s);
+		m_ThemeItemSelBg.put(m_ThemeNumber, R.drawable.theme_item_number_s);
+		m_ThemeItemSelBg.put(m_ThemeObject, R.drawable.theme_item_object_s);
+		m_ThemeItemSelBg.put(m_ThemeColor, R.drawable.theme_item_color_s);
+		m_ThemeItemSelBg.put(m_ThemeFood, R.drawable.theme_item_food_s);
 	}
 
 	/**
 	 * update Theme's score
 	 */
+	/*
 	private void updateScore() {
+	//TODO :delete
 		Log.d(TAG, "updateScore()");
 	    
 		// Restore preferences
@@ -131,14 +171,8 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		int food_val      = m_ScorePreference.getInt(Const.THEME_FOOD, 0);
 		int number_val    = m_ScorePreference.getInt(Const.THEME_NUMBER, 0);
 		int color_val     = m_ScorePreference.getInt(Const.THEME_COLOR, 0);
-		
-		m_AnimalScore.setBackgroundResource(STAR_FOUR[animal_val]);
-		m_ThingScore.setBackgroundResource(STAR_FOUR[toy_val]);
-		
-		m_FoodScore.setBackgroundResource(STAR_TWO[food_val]);
-		m_NumberScore.setBackgroundResource(STAR_TWO[number_val]);
-		m_ColorScore.setBackgroundResource(STAR_TWO[color_val]);
     }
+    */
 
     private void showIntro() {
 		Handler handler = new Handler();
@@ -157,52 +191,179 @@ public class MainTheme extends Activity implements View.OnClickListener {
 	
 	@Override
 	public void onClick(View v) {
-//		Intent intent = new Intent(MainTheme.this, PopupActivity.class);
-		boolean isValid = true;
+		boolean isValid = false;
+		int clickedTheme = -1;
 		
 		switch(v.getId()) {
-		case R.id.ivAnimal:
+		case R.id.ivThemeAnimal:
 			m_Res.setTheme(Const.THEME_ANIMAL);
 			break;
 			
-		case R.id.ivNumber:
+		case R.id.ivThemeNumber:
 			m_Res.setTheme(Const.THEME_NUMBER);
 			break;
 			
-		case R.id.ivThing:
+		case R.id.ivThemeObject:
 			m_Res.setTheme(Const.THEME_TOY);
 			break;
 			
-		case R.id.ivColor:
+		case R.id.ivThemeColor:
 			m_Res.setTheme(Const.THEME_COLOR);
 			break;
 			
-		case R.id.ivFood:
+		case R.id.ivThemeFood:
 			m_Res.setTheme(Const.THEME_FOOD);
 			break;
 			
-		case R.id.ivGame:
+		case R.id.ivModeGame:
 		    if(m_Mode != MODE_GAME) {
 		        m_Mode = MODE_GAME;
 		        updatePlayMode(m_Mode, true);
 		    }
-			isValid = false;
+			isValid = true;
 			break;
 			
-		case R.id.ivStudy:
+		case R.id.ivModeStudy:
 		    if(m_Mode != MODE_STUDY) {
 		        m_Mode = MODE_STUDY;
 		        updatePlayMode(m_Mode, true);
 		    }
-			isValid = false;
+			isValid = true;
 			break;
 			
 		default:
 			Log.e(TAG," onClick()");
 		}
 		
+		if(v.getId() != R.id.ivModeGame && v.getId() != R.id.ivModeStudy) {
+			clickedTheme = v.getId();
+			if(m_CurrentTheme != clickedTheme) {
+				updateThemeMenuView(m_CurrentTheme, clickedTheme);
+				
+				m_CurrentTheme = clickedTheme;
+				changeCharacterLayout(m_CurrentTheme);
+			}
+		}
+		
 		if(isValid)
 			launchActivity();
+	}
+
+	/**
+	 * @param currTheme	selected View's ID
+	 */
+	private void changeCharacterLayout(int currTheme) {
+		
+		if(m_rlThemeChar.getVisibility() == View.VISIBLE) {
+			hideCharacterLayout();
+			//showCharacterLayout vis HandlerCallback
+		}
+		else {
+			showCharacterLayout();
+		}
+	}
+
+
+	private void showCharacterLayout() {
+		int bgResource = 0;
+		
+		bgResource = m_ThemeItemChar.get(m_CurrentTheme);
+		
+		m_Character.setBackgroundResource(bgResource);
+		m_rlThemeChar.startAnimation(m_CharacterInAni);
+	}
+
+
+	private void hideCharacterLayout() {
+		m_rlThemeChar.startAnimation(m_CharacterOutAni);
+	}
+	
+	private void setPlayModeEnable(boolean isEnable) {
+		m_ModeGame.setEnabled(isEnable);
+		m_ModeStudy.setEnabled(isEnable);
+	}
+	private void setAnimation() {
+		m_CharacterOutAni 	= AnimationUtils.loadAnimation(MainTheme.this, R.anim.char_right_out);
+		m_CharacterInAni 	= AnimationUtils.loadAnimation(MainTheme.this, R.anim.char_right_in);
+		
+		m_CharacterOutAni.setAnimationListener(new AnimationListener() {
+			
+			@Override
+			public void onAnimationStart(Animation animation) {
+				// TODO:Disable TouchButton and frameAnimation
+				setPlayModeEnable(false);
+			}
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				m_rlThemeChar.setVisibility(View.INVISIBLE);
+				m_Handler.sendEmptyMessage(HANDLER_MSG_ANIMATION_ENDED);
+			}
+		});
+		
+		m_CharacterInAni.setAnimationListener(new AnimationListener() {
+			
+			@Override
+			public void onAnimationStart(Animation animation) {
+				m_rlThemeChar.setVisibility(View.VISIBLE);
+			}
+			
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+			}
+			
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				// TODO:enable TouchButton and frameAnimation
+				setPlayModeEnable(true);
+			}
+		});
+	}
+
+
+
+	/**
+	 * 이전 테마 이미지를 원래대로 바꾸고 선택된 테마를 선택된 이미지로 변경한다.
+	 * @param prevTheme	이전 테마
+	 * @param currTheme 현재 클릭된 테마
+	 */
+	private void updateThemeMenuView(int prevTheme, int currTheme) {
+		Log.d(TAG, "updateThemeMenuView()");
+		Log.d(TAG, "updateThemeMenuView(), prevTheme: " + prevTheme);
+		Log.d(TAG, "updateThemeMenuView(), currTheme: " + currTheme);
+		
+		Drawable drawable;
+		ImageView previousView;
+		ImageView selectedView;
+		
+		previousView = (ImageView)findViewById(prevTheme);
+		selectedView = (ImageView)findViewById(currTheme);
+		
+		if(previousView != null) {
+			// restore normal button
+			
+			if (previousView.getTag() instanceof Drawable) {
+				drawable = (Drawable) previousView.getTag();
+				previousView.setBackgroundDrawable(drawable);
+			}
+			else {
+				Log.e(TAG, "ooooops!!!!");
+				return;
+			}
+		}
+		
+		if(selectedView != null) {
+			if(selectedView.getTag() == null) {
+				drawable = selectedView.getBackground();
+				selectedView.setTag(drawable);
+			}
+
+			// change to selected button view
+			selectedView.setBackgroundResource(m_ThemeItemSelBg.get(selectedView));
+		}
 	}
 
 	/**
@@ -211,19 +372,15 @@ public class MainTheme extends Activity implements View.OnClickListener {
 	 * @param bSound	true : play sound false : don't play sound
 	 */
 	private void updatePlayMode(int mMode, boolean bSound) {
+		//TODO: delete
 	    if(mMode == MODE_STUDY) {
-	        m_StudyMode.setBackgroundResource(R.drawable.btn_study);
-	        m_GameMode.setBackgroundResource(R.drawable.btn_play_d);
+	        m_ModeStudy.setBackgroundResource(R.drawable.btn_study_n);
+	        m_ModeGame.setBackgroundResource(R.drawable.btn_play_n);
 	    }
 	    else {
-	        m_GameMode.setBackgroundResource(R.drawable.btn_play);
-	        m_StudyMode.setBackgroundResource(R.drawable.btn_study_d);
+	        m_ModeGame.setBackgroundResource(R.drawable.btn_play_n);
+	        m_ModeStudy.setBackgroundResource(R.drawable.btn_study_n);
 	    }
-	    
-	    SharedPreferences.Editor editor = m_ModePreference.edit();
-	    editor.putInt(Const.PLAY_MODE, mMode);
-	    // Commit the edits!
-	    editor.commit();
 	    
 	    if(bSound)
 	    	Log.d(TAG, "Sound: " + m_SoundEffect.play(m_SoundEffectId, 1.0f, 1.0f, 0, 0, 1.0f));
@@ -257,7 +414,7 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		super.onResume();
 		Log.d(TAG, "onResume()");
 		
-		updateScore();
+//		updateScore();
 		updatePlayMode(m_Mode, false);
 		
 		if(m_IntroShow == true && !m_ThemeBGM.isPlaying()) 
@@ -271,31 +428,28 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		if(m_ThemeBGM.isPlaying()) 
 			m_ThemeBGM.release();
 		
+		m_ThemeItemChar.clear();
+		m_ThemeItemSelBg.clear();
 		m_SoundEffect.release();
 		m_SoundEffect 	= null;
 		
 		m_MainTheme 	= null;
 		m_IntroTheme 	= null;
 		
-		m_AnimalTheme 	= null;
-		m_NumberTheme 	= null;
-		m_ThingTheme 	= null;
-		m_ColorTheme 	= null;
-		m_FoodTheme 	= null;
+		m_ThemeAnimal 	= null;
+		m_ThemeNumber 	= null;
+		m_ThemeObject 	= null;
+		m_ThemeColor 	= null;
+		m_ThemeFood 	= null;
 		
-		m_AnimalScore   = null;
-		m_NumberScore   = null;
-		m_ThingScore    = null;
-		m_ColorScore    = null;
-		m_FoodScore     = null;
-		
-		m_GameMode		= null;
-		m_StudyMode		= null;
+		m_ModeGame		= null;
+		m_ModeStudy		= null;
 		
 		m_ThemeBGM		= null; 
 		
-		m_ScorePreference 	= null;
-		m_ModePreference 	= null;
+		m_ThemeItemChar		= null;
+		m_ThemeItemSelBg	= null;
+//		m_ScorePreference 	= null;
 		
 		System.gc();
 	}
