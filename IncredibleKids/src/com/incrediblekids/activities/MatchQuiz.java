@@ -438,7 +438,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		
 		m_Skip.setOnClickListener(this);
 		
-		m_QuizBGM.setLooping(true);
+		if(m_QuizBGM != null)
+			m_QuizBGM.setLooping(true);
 		
 		/* Get Sound Button Image Resource */
 		/** deleted
@@ -1205,7 +1206,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		Log.d(TAG, "onResume()");
 		super.onResume();
 		
-		if(!m_QuizBGM.isPlaying()) 
+		if(m_QuizBGM != null && !m_QuizBGM.isPlaying()) 
 			m_QuizBGM.start();
 	}
 	
@@ -1270,7 +1271,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	private void releaseMemory() {
 		Log.d(TAG, "releaseMemory()");
 		
-		if(m_QuizBGM.isPlaying()) 
+		if(m_QuizBGM != null && m_QuizBGM.isPlaying()) 
 			m_QuizBGM.release();
 		
 		m_SoundEffect.release();

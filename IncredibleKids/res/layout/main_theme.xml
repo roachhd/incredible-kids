@@ -26,18 +26,18 @@
 				
 				android:background="@drawable/theme_item_object_n"
 				
-				android:layout_marginTop="20dp"
+				android:layout_marginTop="21dp"
 				android:layout_gravity="center">
 			</ImageView>
 			
 			<ImageView
 				android:id="@+id/ivThemeAnimal"
 				android:layout_width="133dp" 
-				android:layout_height="25dp"
+				android:layout_height="33dp"
 				
 				android:background="@drawable/theme_item_animal_n"
 				
-				android:layout_marginTop="13dp"
+				android:layout_marginTop="10dp"
 				android:layout_gravity="center">
 			</ImageView>
 			
