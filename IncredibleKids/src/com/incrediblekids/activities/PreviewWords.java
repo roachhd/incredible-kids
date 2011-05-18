@@ -277,8 +277,19 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		System.gc();
 		super.onDestroy();
 	}
+	
+	
+	
+	
 
 	
+	@Override
+	public void onBackPressed() {
+		finish();
+		overridePendingTransition(R.anim.fade, R.anim.hold);
+		super.onBackPressed();
+	}
+
 	/****************************************************************
 	 * Main Activity onClick Method
 	 *  - 사진 다운로드시 3G 팝업 Dialog 에 대한 Positive Click 처리
