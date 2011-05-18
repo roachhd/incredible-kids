@@ -226,6 +226,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				Intent intent = new Intent(MatchQuiz.this, MatchQuiz.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 				startActivity(intent);
+				overridePendingTransition(R.anim.fade, R.anim.hold);
 			}
 			else if(resultCode == RESULT_CANCELED) {
 				Log.d(TAG, "resultCode:" + "RESULT_CANCELED");
@@ -235,6 +236,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
+				overridePendingTransition(R.anim.fade, R.anim.hold);
 			}
 		}
 	}
@@ -305,6 +307,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
+		overridePendingTransition(R.anim.fade, R.anim.hold);
 	}
 
 	/**
@@ -614,6 +617,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 					m_Hint.setClickable(false);
 					
 					startActivityForResult(m_PopupIntent, Const.RETRY_DIALOG_RESULT);
+					overridePendingTransition(R.anim.fade, R.anim.hold);
 				}
 			}
 		});
@@ -653,6 +657,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			m_Handler.removeCallbacks(m_Runnable);
 			setResult(RESULT_OK);
 			finish();
+            overridePendingTransition(R.anim.fade, R.anim.hold);
 		}
 		else {
 			ViewGroup parentView = (ViewGroup) v.getParent();
@@ -1238,6 +1243,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
+		overridePendingTransition(R.anim.fade, R.anim.hold);
 	}
 
 	@Override

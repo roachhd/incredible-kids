@@ -64,6 +64,8 @@ public class MainTheme extends Activity implements View.OnClickListener {
 	private SoundPool m_SoundEffect;
 	private int	m_SoundEffectId;
 	
+	private Runnable m_IntroRunnable;
+	
 	public static final int HANDLER_MSG_ANIMATION_ENDED = 0;
 	
 	private Handler m_Handler = new Handler() {
@@ -153,31 +155,9 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		m_ThemeItemSelBg.put(m_ThemeFood, R.drawable.theme_item_food_s);
 	}
 
-	/**
-	 * update Theme's score
-	 */
-	/*
-	private void updateScore() {
-	//TODO :delete
-		Log.d(TAG, "updateScore()");
-	    
-		// Restore preferences
-		if(m_ScorePreference == null) {
-		    Log.e(TAG, "updateScore() null");
-		}
-		
-		int animal_val    = m_ScorePreference.getInt(Const.THEME_ANIMAL, 0);
-		int toy_val       = m_ScorePreference.getInt(Const.THEME_TOY, 0);
-		int food_val      = m_ScorePreference.getInt(Const.THEME_FOOD, 0);
-		int number_val    = m_ScorePreference.getInt(Const.THEME_NUMBER, 0);
-		int color_val     = m_ScorePreference.getInt(Const.THEME_COLOR, 0);
-    }
-    */
-
     private void showIntro() {
-		Handler handler = new Handler();
 		
-		handler.postDelayed(new Runnable() {
+		m_IntroRunnable = new Runnable() {
 			
 			@Override
 			public void run() {
@@ -186,7 +166,9 @@ public class MainTheme extends Activity implements View.OnClickListener {
 				m_ThemeBGM.start();
 				m_IntroShow = true;
 			}
-		},  INTRO_TIME);
+		};
+		
+		m_Handler.postDelayed(m_IntroRunnable, INTRO_TIME);
 	}
 	
 	@Override
@@ -256,7 +238,7 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		
 		if(m_rlThemeChar.getVisibility() == View.VISIBLE) {
 			hideCharacterLayout();
-			//showCharacterLayout vis HandlerCallback
+			//showCharacterLayout via Handler
 		}
 		else {
 			showCharacterLayout();
@@ -396,17 +378,22 @@ public class MainTheme extends Activity implements View.OnClickListener {
 			intent = new Intent(MainTheme.this, GameStatusActivity.class);
 		}
 		
-		if(intent != null)
+		if(intent != null) {
 			startActivity(intent);
+            overridePendingTransition(R.anim.fade, R.anim.hold);
+		}
 	}
     
 	@Override
 	protected void onPause() {
 		super.onPause();
+		Log.d(TAG, "onPause()");
 		if(m_ThemeBGM != null) {
 			if(m_ThemeBGM.isPlaying()) 
 				m_ThemeBGM.pause();
 		}
+		m_Handler.removeCallbacks(m_IntroRunnable);
+		m_Handler.removeMessages(HANDLER_MSG_ANIMATION_ENDED);
 	}
 
 	@Override
@@ -414,7 +401,6 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		super.onResume();
 		Log.d(TAG, "onResume()");
 		
-//		updateScore();
 		updatePlayMode(m_Mode, false);
 		
 		if(m_IntroShow == true && !m_ThemeBGM.isPlaying()) 
@@ -424,6 +410,7 @@ public class MainTheme extends Activity implements View.OnClickListener {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		Log.d(TAG, "onDestroy()");
 		
 		if(m_ThemeBGM.isPlaying()) 
 			m_ThemeBGM.release();
@@ -446,6 +433,7 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		m_ModeStudy		= null;
 		
 		m_ThemeBGM		= null; 
+		m_IntroRunnable	= null;
 		
 		m_ThemeItemChar		= null;
 		m_ThemeItemSelBg	= null;
