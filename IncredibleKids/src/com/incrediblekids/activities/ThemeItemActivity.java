@@ -18,11 +18,14 @@ import org.anddev.andengine.engine.options.EngineOptions;
 import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.anddev.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
 import org.anddev.andengine.entity.scene.Scene;
+import org.anddev.andengine.entity.shape.IShape;
 import org.anddev.andengine.entity.shape.modifier.AlphaModifier;
+import org.anddev.andengine.entity.shape.modifier.IShapeModifier;
 import org.anddev.andengine.entity.shape.modifier.MoveModifier;
 import org.anddev.andengine.entity.shape.modifier.ParallelShapeModifier;
 import org.anddev.andengine.entity.shape.modifier.RotationModifier;
 import org.anddev.andengine.entity.shape.modifier.SequenceShapeModifier;
+import org.anddev.andengine.entity.shape.modifier.ShapeModifier;
 import org.anddev.andengine.entity.shape.modifier.ease.EaseElasticOut;
 import org.anddev.andengine.entity.shape.modifier.ease.EaseExponentialOut;
 import org.anddev.andengine.entity.shape.modifier.ease.EaseLinear;
@@ -38,6 +41,9 @@ import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
 import org.anddev.andengine.util.Debug;
+import org.anddev.andengine.util.modifier.IModifier;
+import org.anddev.andengine.util.modifier.IModifier.IModifierListener;
+
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -153,6 +159,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private ResourceClass m_ResourceClass;
 	
 	private String m_CurTheme;
+	private boolean m_bNowDrawingAlphabet = false;
 	
 	@Override
 	protected void onCreate(final Bundle pSavedInstanceState) {
@@ -649,7 +656,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				,CAMERA_HEIGHT/8, this.m_ItemTextureRegion){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-
+				if(m_bNowDrawingAlphabet)
+					return true;
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN && m_ItemSound!=null && m_bSoundOn == true && m_bFirstTouch == false){
 					m_ItemSound.play();
 					return true;
@@ -659,6 +667,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 						m_ItemSound.play();
 						drawAlphabet(pSceneTouchEvent);
 						m_bFirstTouch = false;
+						return true;
 				}
 				return false;
 			}
@@ -712,6 +721,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					this.m_arrAlphabetTexture[m_Idx], m_Idx, m_strAlphabet.charAt(m_Idx)) {
 				@Override
 				public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+					if(m_bNowDrawingAlphabet)
+						return true;
 					if (pSceneTouchEvent.getAction() == MotionEvent.ACTION_UP){
 
 						//Change to original Size
@@ -802,8 +813,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					//Set item size as 1.5times when user try to drag it.
 					else if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
 						m_CurrentTouchedAlphabetSprite = this;
-						Log.e(TAG, "alphabet:"+this.alphabet+".mp3");
-
+						Log.e(TAG, "alphabet:"+this.alphabet+".mp3");				
 						this.clearShapeModifiers();
 						m_AlphabetSound[this.sequence].setVolume(1.0f);
 						m_AlphabetSound[this.sequence].play();
@@ -854,14 +864,25 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	}
 
 	private void drawAlphabet(final TouchEvent touchEvent){
+		m_bNowDrawingAlphabet = true;
 		for(int l=0; l < m_strAlphabet.length(); l++){
 			m_playScene.getLayer(ENTITIES_LAYER).addEntity(m_arrAlphabetSprite[l]);
 		}
 		for(int j=0; j < m_strAlphabet.length(); j++){
 			m_arrAlphabetSprite[j].setPosition(touchEvent.getX(), touchEvent.getY());
-			m_arrAlphabetSprite[j].addShapeModifier(new ParallelShapeModifier(
+			IShapeModifier modifier = new ParallelShapeModifier(
 					new MoveModifier(1,touchEvent.getX(), m_RandomPoint.get(j).x, touchEvent.getY(), m_RandomPoint.get(j).y,EaseLinear.getInstance()),
-					new RotationModifier(1, 0, 360)));
+					new RotationModifier(1, 0, 360));
+			modifier.setModifierListener(new IModifierListener<IShape>(){
+
+				@Override
+				public void onModifierFinished(IModifier<IShape> pModifier,
+						IShape pItem) {
+					m_bNowDrawingAlphabet = false;				
+				}				
+			});
+			m_arrAlphabetSprite[j].addShapeModifier(modifier);
+			
 		}
 	}
 
