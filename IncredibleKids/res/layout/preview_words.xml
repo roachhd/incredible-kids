@@ -60,7 +60,7 @@
 	   		android:layout_alignParentRight="true"
 	   		android:layout_marginRight="5dip"
 	   		android:layout_marginTop="5dip"
-	   		android:src="@drawable/btn_showpic"
+	   		android:background="@drawable/btn_showpic_nor"
 	   		android:clickable="true"
 	   	/>
 	   <com.incrediblekids.util.PreviewGallery

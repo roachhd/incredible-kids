@@ -14,7 +14,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import android.R.color;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -25,6 +24,7 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -128,6 +128,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	private int m_iSelectedItem=0, m_iPhoto=0;
 	private float m_fPosX=0;
 	private static int repeat=0;
+	private boolean m_bTouchable = false;
 
 	
 	/****************************************************************
@@ -170,6 +171,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		/* Create Handle to receive Image loading complete */
 		m_Handler = new Handler() {
 			public void handleMessage(Message msg) {
+				m_bTouchable = true;
 				m_PhotoLoadingProgressBar.setVisibility(View.INVISIBLE);
 				m_PhotoImg.setImageBitmap(m_aBitmap[0]);
 			}
@@ -389,24 +391,33 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		m_PhotoImg = (ImageView) m_PhotoViewer.findViewById(R.id.photo);
 		
 		/* Setting Photo Viewer Button */
-		m_PhotoViewerBtn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				SharedPreferences preference = getSharedPreferences(Const.PREFERNCE, 0);
-				if(preference == null) {
-				    Log.e(TAG, "settings null");
+		m_PhotoViewerBtn.setOnTouchListener(new View.OnTouchListener() {
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_DOWN)
+					m_PhotoViewerBtn.setBackgroundResource(R.drawable.btn_showpic_sel);
+				else if (event.getAction() == MotionEvent.ACTION_UP) {
+					m_PhotoViewerBtn.setBackgroundResource(R.drawable.btn_showpic_nor);
+					SharedPreferences preference = getSharedPreferences(Const.PREFERNCE, 0);
+					if(preference == null) {
+					    Log.e(TAG, "settings null");
+					}
+					if (preference.getBoolean(Const.PHOTO_DOWNLOAD, false)) {
+						onPhotoViewerClick(m_ItemVector.get(m_iSelectedItem).strWordCharId);
+					} else {
+						new AlertDialog.Builder(PreviewWords.this) 
+						.setTitle("알림")
+						.setMessage("사진을 다운로드 합니다.\n3G인 경우 통신요금이 부과될 수 있습니다.\n접속 하시겠습니까?\n(다운 받은 사진은 재 다운로드 하지 않습니다.)")
+						.setIcon(R.drawable.icon)
+						.setPositiveButton("연결", PreviewWords.this)
+						.setNegativeButton("닫기", null)
+						.create()
+						.show();
+					}
+					
 				}
-				if (preference.getBoolean(Const.PHOTO_DOWNLOAD, false)) {
-					onPhotoViewerClick(m_ItemVector.get(m_iSelectedItem).strWordCharId);
-				} else {
-					new AlertDialog.Builder(PreviewWords.this) 
-					.setTitle("알림")
-					.setMessage("사진을 다운로드 합니다.\n3G인 경우 통신요금이 부과될 수 있습니다.\n접속 하시겠습니까?\n(다운 받은 사진은 재 다운로드 하지 않습니다.)")
-					.setIcon(R.drawable.icon)
-					.setPositiveButton("연결", PreviewWords.this)
-					.setNegativeButton("닫기", null)
-					.create()
-					.show();
-				}
+				return true;
 			}
 		});
 		
@@ -414,6 +425,11 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		m_PhotoViewer.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if (!v.equals(m_PhotoImg))
+					if (m_PhotoLoadingThread != null && m_PhotoLoadingThread.isAlive()) {
+						m_PhotoLoadingThread.interrupt();
+						if (DEBUG) Log.d(TAG, "m_PhotoLoadingThread.interrupted()");
+					}
+						
 					m_PhotoImg.setImageResource(R.drawable.photo_loading);
 					m_PhotoViewerPopupWindow.dismiss();
 			}
@@ -422,6 +438,8 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		/* Setting Photo Image */
 		m_PhotoImg.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
+				if (!m_bTouchable) 
+					return true;
 				if (DEBUG) Log.d(TAG, "Photo image is touched, event = " + event.getAction());
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					m_fPosX = event.getX();
@@ -455,6 +473,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 			if (!getFileDirectory())
 				Toast.makeText(PreviewWords.this, "사진을 저장할 SD 카드가 없습니다.", Toast.LENGTH_SHORT).show();
 			else {
+				m_bTouchable = false;
 				int i=0;
 				File mFile = new File(m_FileDirectory + "/" + expName + "_" + i + ".png");
 				while (mFile.exists()) {
@@ -722,7 +741,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		private String expName;
 		
 		public PhotoLoadingThread(Handler _mHandler, String _expName) {
-			if (DEBUG) Log.d(TAG, "ImageLoadingThread Contructor");	
+			if (DEBUG) Log.d(TAG, "PhotoLoadingThread Contructor");	
 			mHandler = _mHandler;
 			expName = _expName;
 		}
