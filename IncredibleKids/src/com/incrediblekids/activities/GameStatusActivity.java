@@ -2,24 +2,23 @@ package com.incrediblekids.activities;
 
 import java.io.IOException;
 
-import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
+import android.graphics.Matrix;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 
 import com.incrediblekids.util.Const;
@@ -28,10 +27,10 @@ public class GameStatusActivity extends Activity {
 
 	private final String TAG = "GameStatusActivity";
 	private Intent mIntent = null;
-	private ImageView ivLevel_1 = null;
-	private ImageView ivLevel_2 = null;
-	private ImageView ivLevel_3 = null;
-	private ImageView ivLevel_4 = null;
+	private Button ivLevel_1 = null;
+	private Button ivLevel_2 = null;
+	private Button ivLevel_3 = null;
+	private Button ivLevel_4 = null;
 
 	/* BGM */
 	private MediaPlayer m_ThemeBGM = null;
@@ -46,10 +45,7 @@ public class GameStatusActivity extends Activity {
 		setContentView(R.layout.game_status);
 
 		final Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
-		final AnimationSet animSet = new AnimationSet(true); 
-
-		Animation sel_anim = AnimationUtils.loadAnimation(this, R.anim.sel_anim);
-		animSet.addAnimation(sel_anim);
+		//final Animation sel_anim = AnimationUtils.loadAnimation(this, R.anim.sel_anim);*/
 
 		m_ResourceClass = ResourceClass.getInstance();
 		m_ResourceClass.vItems.size();		
@@ -61,19 +57,36 @@ public class GameStatusActivity extends Activity {
 		//set BG Image
 		setBGImage();
 
-		ivLevel_1 = (ImageView)findViewById(R.id.level_1);
-		ivLevel_2 = (ImageView)findViewById(R.id.level_2);
-		ivLevel_3 = (ImageView)findViewById(R.id.level_3);
-		ivLevel_4 = (ImageView)findViewById(R.id.level_4);
+		ivLevel_1 = (Button)findViewById(R.id.level_1);
+		ivLevel_2 = (Button)findViewById(R.id.level_2);
+		ivLevel_3 = (Button)findViewById(R.id.level_3);
+		ivLevel_4 = (Button)findViewById(R.id.level_4);
 
 		setImageResource(m_ResourceClass);
 
 		mIntent = new Intent(GameStatusActivity.this, ThemeItemActivity.class);		
+/*		ivLevel_1.setOnTouchListener(new OnTouchListener(){
+
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				int action = event.getAction();
+				if (action == MotionEvent.ACTION_DOWN){
+					ivLevel_1.startAnimation(sel_anim);
+				}else if (action == MotionEvent.ACTION_UP){
+					mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_1);
+					startActivity(mIntent);		
+					overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+				}
+				return false;
+			}
+			
+		});*/
 		ivLevel_1.setOnClickListener(new OnClickListener(){
 
 			@Override
 			public void onClick(View arg0) {
-				ivLevel_1.setVisibility(View.INVISIBLE);
+				//ivLevel_1.startAnimation(sel_anim);
+				//ivLevel_1.setVisibility(View.INVISIBLE);
 				mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_1);
 				startActivity(mIntent);		
 				overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
@@ -192,22 +205,22 @@ public class GameStatusActivity extends Activity {
 			ivLevel_2.setVisibility(View.VISIBLE);
 			ivLevel_3.setVisibility(View.VISIBLE);
 			ivLevel_4.setVisibility(View.VISIBLE);
-			ivLevel_1.setImageResource(R.drawable.level_animal_1);
-			ivLevel_2.setImageResource(R.drawable.level_locked_small);
-			ivLevel_3.setImageResource(R.drawable.level_locked_small);
-			ivLevel_4.setImageResource(R.drawable.level_locked_small);
+			//ivLevel_1.setImageResource(R.drawable.level_animal_1);
+			ivLevel_2.setBackgroundResource(R.drawable.level_locked_small);
+			ivLevel_3.setBackgroundResource(R.drawable.level_locked_small);
+			ivLevel_4.setBackgroundResource(R.drawable.level_locked_small);
 
 			if(curLevel == 1)
-				ivLevel_2.setImageResource(R.drawable.level_animal_2);
+				ivLevel_2.setBackgroundResource(R.drawable.level_animal_2);
 
 			if(curLevel == 2){
-				ivLevel_2.setImageResource(R.drawable.level_animal_2);
-				ivLevel_3.setImageResource(R.drawable.level_animal_3);
+				ivLevel_2.setBackgroundResource(R.drawable.level_animal_2);
+				ivLevel_3.setBackgroundResource(R.drawable.level_animal_3);
 			}
 			if(curLevel == 3 || curLevel == 4){
-				ivLevel_2.setImageResource(R.drawable.level_animal_2);
-				ivLevel_3.setImageResource(R.drawable.level_animal_3);
-				ivLevel_4.setImageResource(R.drawable.level_animal_4);
+				ivLevel_2.setBackgroundResource(R.drawable.level_animal_2);
+				ivLevel_3.setBackgroundResource(R.drawable.level_animal_3);
+				ivLevel_4.setBackgroundResource(R.drawable.level_animal_4);
 			}
 
 		}else if(m_CurTheme.equals(Const.THEME_TOY)){
@@ -216,53 +229,53 @@ public class GameStatusActivity extends Activity {
 			ivLevel_2.setVisibility(View.VISIBLE);
 			ivLevel_3.setVisibility(View.VISIBLE);
 			ivLevel_4.setVisibility(View.VISIBLE);
-			ivLevel_1.setImageResource(R.drawable.level_toy_1);
-			ivLevel_2.setImageResource(R.drawable.level_locked_small);
-			ivLevel_3.setImageResource(R.drawable.level_locked_small);
-			ivLevel_4.setImageResource(R.drawable.level_locked_small);
+			ivLevel_1.setBackgroundResource(R.drawable.level_toy_1);
+			ivLevel_2.setBackgroundResource(R.drawable.level_locked_small);
+			ivLevel_3.setBackgroundResource(R.drawable.level_locked_small);
+			ivLevel_4.setBackgroundResource(R.drawable.level_locked_small);
 
 			if(curLevel == 1)
-				ivLevel_2.setImageResource(R.drawable.level_toy_2);
+				ivLevel_2.setBackgroundResource(R.drawable.level_toy_2);
 			if(curLevel == 2){
-				ivLevel_2.setImageResource(R.drawable.level_toy_2);
-				ivLevel_3.setImageResource(R.drawable.level_toy_3);
+				ivLevel_2.setBackgroundResource(R.drawable.level_toy_2);
+				ivLevel_3.setBackgroundResource(R.drawable.level_toy_3);
 			}
 			if(curLevel == 3 || curLevel == 4){
-				ivLevel_2.setImageResource(R.drawable.level_toy_2);
-				ivLevel_3.setImageResource(R.drawable.level_toy_3);
-				ivLevel_4.setImageResource(R.drawable.level_toy_4);
+				ivLevel_2.setBackgroundResource(R.drawable.level_toy_2);
+				ivLevel_3.setBackgroundResource(R.drawable.level_toy_3);
+				ivLevel_4.setBackgroundResource(R.drawable.level_toy_4);
 			}
 		}else if(m_CurTheme.equals(Const.THEME_FOOD)){
 			curLevel = settings.getInt(Const.THEME_FOOD, 0);
 			ivLevel_1.setVisibility(View.VISIBLE);
 			ivLevel_2.setVisibility(View.VISIBLE);
-			ivLevel_1.setImageResource(R.drawable.level_food_1);
-			ivLevel_2.setImageResource(R.drawable.level_locked_big);
+			ivLevel_1.setBackgroundResource(R.drawable.level_food_1);
+			ivLevel_2.setBackgroundResource(R.drawable.level_locked_big);
 			ivLevel_3.setVisibility(View.GONE);
 			ivLevel_4.setVisibility(View.GONE);
 			if(curLevel == 1 || curLevel == 2)
-				ivLevel_2.setImageResource(R.drawable.level_food_2);
+				ivLevel_2.setBackgroundResource(R.drawable.level_food_2);
 
 		}else if(m_CurTheme.equals(Const.THEME_NUMBER)){
 			curLevel = settings.getInt(Const.THEME_NUMBER, 0);
 			ivLevel_1.setVisibility(View.VISIBLE);
 			ivLevel_2.setVisibility(View.VISIBLE);
-			ivLevel_1.setImageResource(R.drawable.level_number_1);
-			ivLevel_2.setImageResource(R.drawable.level_locked_big);
+			ivLevel_1.setBackgroundResource(R.drawable.level_number_1);
+			ivLevel_2.setBackgroundResource(R.drawable.level_locked_big);
 			ivLevel_3.setVisibility(View.GONE);
 			ivLevel_4.setVisibility(View.GONE);
 			if(curLevel == 1 || curLevel == 2)
-				ivLevel_2.setImageResource(R.drawable.level_number_2);
+				ivLevel_2.setBackgroundResource(R.drawable.level_number_2);
 		}else if(m_CurTheme.equals(Const.THEME_COLOR)){
 			curLevel = settings.getInt(Const.THEME_COLOR, 0);
 			ivLevel_1.setVisibility(View.VISIBLE);
 			ivLevel_2.setVisibility(View.VISIBLE);
-			ivLevel_1.setImageResource(R.drawable.level_color_1);
-			ivLevel_2.setImageResource(R.drawable.level_locked_big);
+			ivLevel_1.setBackgroundResource(R.drawable.level_color_1);
+			ivLevel_2.setBackgroundResource(R.drawable.level_locked_big);
 			ivLevel_3.setVisibility(View.GONE);
 			ivLevel_4.setVisibility(View.GONE);
 			if(curLevel == 1 || curLevel == 2)
-				ivLevel_2.setImageResource(R.drawable.level_color_2);
+				ivLevel_2.setBackgroundResource(R.drawable.level_color_2);
 		}
 		Log.e(TAG, "setImageResource() curLevel:"+curLevel);
 	}
