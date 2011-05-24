@@ -7,7 +7,7 @@
 		android:layout_height="fill_parent"
 		android:id="@+id/main_theme"
 		android:background="@drawable/bg_theme"
-		android:visibility="gone">
+		android:visibility="invisible">
 		
 		<!-- Theme Menu Item -->
 		<LinearLayout
@@ -84,7 +84,7 @@
 			
 			android:layout_alignParentRight="true"
 			
-			android:visibility="invisible" >
+			android:visibility="visible" >
 			
 			<!-- character -->
 			<RelativeLayout

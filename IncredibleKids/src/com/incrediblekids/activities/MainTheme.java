@@ -132,21 +132,31 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		showIntro();
 		initThemeHashMap();
 		setAnimation();
+		
+		setInitLayout();
 	}
 	
 
+
+	/**
+	 * set Init Theme and Menu
+	 */
+	private void setInitLayout() {
+		m_Res.setTheme(Const.THEME_ANIMAL);
+		updateThemeMenuView(m_CurrentTheme, R.id.ivThemeAnimal);
+		m_CurrentTheme = R.id.ivThemeAnimal;
+	}
 
 	/**
 	 * make ThemeItem Hashmap via View's ID and character's drawable resources
 	 * make ThemeItemSelBg Hashmap via View and selected drawable images
 	 */
 	private void initThemeHashMap() {
-		//TODO: fix m_ThemeItem
 		m_ThemeItemChar.put(R.id.ivThemeAnimal, R.drawable.theme_character_animal);
-		m_ThemeItemChar.put(R.id.ivThemeNumber, R.drawable.theme_character_animal);
-		m_ThemeItemChar.put(R.id.ivThemeObject, R.drawable.theme_character_animal);
-		m_ThemeItemChar.put(R.id.ivThemeColor, R.drawable.theme_character_animal);
-		m_ThemeItemChar.put(R.id.ivThemeFood, R.drawable.theme_character_animal);
+		m_ThemeItemChar.put(R.id.ivThemeNumber, R.drawable.theme_character_number);
+		m_ThemeItemChar.put(R.id.ivThemeObject, R.drawable.theme_character_object);
+		m_ThemeItemChar.put(R.id.ivThemeColor, R.drawable.theme_character_color);
+		m_ThemeItemChar.put(R.id.ivThemeFood, R.drawable.theme_character_food);
 		
 		m_ThemeItemSelBg.put(m_ThemeAnimal, R.drawable.theme_item_animal_s);
 		m_ThemeItemSelBg.put(m_ThemeNumber, R.drawable.theme_item_number_s);
@@ -264,6 +274,7 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		m_ModeGame.setEnabled(isEnable);
 		m_ModeStudy.setEnabled(isEnable);
 	}
+	
 	private void setAnimation() {
 		m_CharacterOutAni 	= AnimationUtils.loadAnimation(MainTheme.this, R.anim.char_right_out);
 		m_CharacterInAni 	= AnimationUtils.loadAnimation(MainTheme.this, R.anim.char_right_in);
@@ -335,6 +346,8 @@ public class MainTheme extends Activity implements View.OnClickListener {
 				Log.e(TAG, "ooooops!!!!");
 				return;
 			}
+		} else {	// init
+			Log.e(TAG, "previousView : null");
 		}
 		
 		if(selectedView != null) {
