@@ -227,7 +227,7 @@ public class MainTheme extends Activity implements View.OnClickListener {
 			Log.e(TAG," onClick()");
 		}
 		
-		if(v.getId() != R.id.ivModeGame && v.getId() != R.id.ivModeStudy) {
+		if(v.getId() != R.id.ivModeGame && v.getId() != R.id.ivModeStudy) synchronized(this) {
 			clickedTheme = v.getId();
 			if(m_CurrentTheme != clickedTheme) {
 				updateThemeMenuView(m_CurrentTheme, clickedTheme);
@@ -407,6 +407,7 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		}
 		m_Handler.removeCallbacks(m_IntroRunnable);
 		m_Handler.removeMessages(HANDLER_MSG_ANIMATION_ENDED);
+		
 	}
 
 	@Override
