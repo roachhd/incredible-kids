@@ -205,22 +205,22 @@ public class GameStatusActivity extends Activity {
 			ivLevel_2.setVisibility(View.VISIBLE);
 			ivLevel_3.setVisibility(View.VISIBLE);
 			ivLevel_4.setVisibility(View.VISIBLE);
-			//ivLevel_1.setImageResource(R.drawable.level_animal_1);
+			ivLevel_1.setBackgroundResource(R.drawable.sel_animal_level_1);
 			ivLevel_2.setBackgroundResource(R.drawable.level_locked_small);
 			ivLevel_3.setBackgroundResource(R.drawable.level_locked_small);
 			ivLevel_4.setBackgroundResource(R.drawable.level_locked_small);
 
 			if(curLevel == 1)
-				ivLevel_2.setBackgroundResource(R.drawable.level_animal_2);
+				ivLevel_2.setBackgroundResource(R.drawable.sel_animal_level_2);
 
 			if(curLevel == 2){
-				ivLevel_2.setBackgroundResource(R.drawable.level_animal_2);
-				ivLevel_3.setBackgroundResource(R.drawable.level_animal_3);
+				ivLevel_2.setBackgroundResource(R.drawable.sel_animal_level_3);
+				ivLevel_3.setBackgroundResource(R.drawable.sel_animal_level_4);
 			}
 			if(curLevel == 3 || curLevel == 4){
-				ivLevel_2.setBackgroundResource(R.drawable.level_animal_2);
-				ivLevel_3.setBackgroundResource(R.drawable.level_animal_3);
-				ivLevel_4.setBackgroundResource(R.drawable.level_animal_4);
+				ivLevel_2.setBackgroundResource(R.drawable.sel_animal_level_2);
+				ivLevel_3.setBackgroundResource(R.drawable.sel_animal_level_3);
+				ivLevel_4.setBackgroundResource(R.drawable.sel_animal_level_4);
 			}
 
 		}else if(m_CurTheme.equals(Const.THEME_TOY)){
@@ -229,53 +229,53 @@ public class GameStatusActivity extends Activity {
 			ivLevel_2.setVisibility(View.VISIBLE);
 			ivLevel_3.setVisibility(View.VISIBLE);
 			ivLevel_4.setVisibility(View.VISIBLE);
-			ivLevel_1.setBackgroundResource(R.drawable.level_toy_1);
+			ivLevel_1.setBackgroundResource(R.drawable.sel_toy_level_1);
 			ivLevel_2.setBackgroundResource(R.drawable.level_locked_small);
 			ivLevel_3.setBackgroundResource(R.drawable.level_locked_small);
 			ivLevel_4.setBackgroundResource(R.drawable.level_locked_small);
 
 			if(curLevel == 1)
-				ivLevel_2.setBackgroundResource(R.drawable.level_toy_2);
+				ivLevel_2.setBackgroundResource(R.drawable.sel_toy_level_2);
 			if(curLevel == 2){
-				ivLevel_2.setBackgroundResource(R.drawable.level_toy_2);
-				ivLevel_3.setBackgroundResource(R.drawable.level_toy_3);
+				ivLevel_2.setBackgroundResource(R.drawable.sel_toy_level_2);
+				ivLevel_3.setBackgroundResource(R.drawable.sel_toy_level_3);
 			}
 			if(curLevel == 3 || curLevel == 4){
-				ivLevel_2.setBackgroundResource(R.drawable.level_toy_2);
-				ivLevel_3.setBackgroundResource(R.drawable.level_toy_3);
-				ivLevel_4.setBackgroundResource(R.drawable.level_toy_4);
+				ivLevel_2.setBackgroundResource(R.drawable.sel_toy_level_2);
+				ivLevel_3.setBackgroundResource(R.drawable.sel_toy_level_3);
+				ivLevel_4.setBackgroundResource(R.drawable.sel_toy_level_4);
 			}
 		}else if(m_CurTheme.equals(Const.THEME_FOOD)){
 			curLevel = settings.getInt(Const.THEME_FOOD, 0);
 			ivLevel_1.setVisibility(View.VISIBLE);
 			ivLevel_2.setVisibility(View.VISIBLE);
-			ivLevel_1.setBackgroundResource(R.drawable.level_food_1);
+			ivLevel_1.setBackgroundResource(R.drawable.sel_food_level_1);
 			ivLevel_2.setBackgroundResource(R.drawable.level_locked_big);
 			ivLevel_3.setVisibility(View.GONE);
 			ivLevel_4.setVisibility(View.GONE);
 			if(curLevel == 1 || curLevel == 2)
-				ivLevel_2.setBackgroundResource(R.drawable.level_food_2);
+				ivLevel_2.setBackgroundResource(R.drawable.sel_food_level_2);
 
 		}else if(m_CurTheme.equals(Const.THEME_NUMBER)){
 			curLevel = settings.getInt(Const.THEME_NUMBER, 0);
 			ivLevel_1.setVisibility(View.VISIBLE);
 			ivLevel_2.setVisibility(View.VISIBLE);
-			ivLevel_1.setBackgroundResource(R.drawable.level_number_1);
+			ivLevel_1.setBackgroundResource(R.drawable.sel_number_level_1);
 			ivLevel_2.setBackgroundResource(R.drawable.level_locked_big);
 			ivLevel_3.setVisibility(View.GONE);
 			ivLevel_4.setVisibility(View.GONE);
 			if(curLevel == 1 || curLevel == 2)
-				ivLevel_2.setBackgroundResource(R.drawable.level_number_2);
+				ivLevel_2.setBackgroundResource(R.drawable.sel_number_level_2);
 		}else if(m_CurTheme.equals(Const.THEME_COLOR)){
 			curLevel = settings.getInt(Const.THEME_COLOR, 0);
 			ivLevel_1.setVisibility(View.VISIBLE);
 			ivLevel_2.setVisibility(View.VISIBLE);
-			ivLevel_1.setBackgroundResource(R.drawable.level_color_1);
+			ivLevel_1.setBackgroundResource(R.drawable.sel_color_level_1);
 			ivLevel_2.setBackgroundResource(R.drawable.level_locked_big);
 			ivLevel_3.setVisibility(View.GONE);
 			ivLevel_4.setVisibility(View.GONE);
 			if(curLevel == 1 || curLevel == 2)
-				ivLevel_2.setBackgroundResource(R.drawable.level_color_2);
+				ivLevel_2.setBackgroundResource(R.drawable.sel_color_level_2);
 		}
 		Log.e(TAG, "setImageResource() curLevel:"+curLevel);
 	}
