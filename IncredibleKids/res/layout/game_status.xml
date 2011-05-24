@@ -15,7 +15,7 @@
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:orientation="horizontal"
-			android:gravity="center"
+			android:gravity="center"			
 			>
 			<Button
 				android:id="@+id/level_1"
