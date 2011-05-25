@@ -97,7 +97,7 @@ public class GameStatusActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				if (curLevel >= 1){
-					ivLevel_2.setVisibility(View.INVISIBLE);
+					//ivLevel_2.setVisibility(View.INVISIBLE);
 					mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_2);
 					startActivity(mIntent);	
 					overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
@@ -111,7 +111,7 @@ public class GameStatusActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				if (curLevel >= 2){
-					ivLevel_3.setVisibility(View.INVISIBLE);
+					//ivLevel_3.setVisibility(View.INVISIBLE);
 					mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_3);
 					startActivity(mIntent);
 					overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
@@ -125,7 +125,7 @@ public class GameStatusActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				if (curLevel >= 3){
-					ivLevel_4.setVisibility(View.INVISIBLE);
+					//ivLevel_4.setVisibility(View.INVISIBLE);
 					mIntent.putExtra(Const.CUR_LEVEL, Const.LEVEL_4);
 					startActivity(mIntent);
 					overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
