@@ -121,9 +121,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private int m_iCurrentItemNum;
 
 	//Help Button Sprite
-	private Sprite m_Help;
+	private AnimatedSprite m_Help;
 	private Texture  m_HelpTexture;
-	private TextureRegion m_HelpTextureRegion;
+	private TiledTextureRegion m_HelpTextureRegion;
 
 	//Skip Button Sprite
 	private Sprite m_SkipSprite;
@@ -253,9 +253,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	public void myLoadResources(){
 		Log.e(TAG, "myLoadResources()");
 		m_playScene.getLayer(BASE_LAYER).addEntity(m_BackgroundSprite);
-		this.m_HelpTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_HelpTextureRegion = TextureRegionFactory.createFromResource(this.m_HelpTexture, this, R.drawable.btn_hint , 0, 0);
-		this.m_Help = new Sprite(m_HelpTextureRegion.getWidth()/4, m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion){
+		this.m_HelpTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_HelpTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_HelpTexture, this, R.drawable.btn_hint_anim , 0, 0, 2, 1);
+		this.m_Help = new AnimatedSprite(m_HelpTextureRegion.getWidth()/4, m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion){
 
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
@@ -335,6 +335,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			}
 		};
 		m_playScene.getLayer(BASE_LAYER).addEntity(m_Help);
+		m_Help.animate(800, true);
 
 		//Skip 		
 		this.m_SkipTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -538,7 +539,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					while(m_playScene.getLayer(ENTITIES_LAYER).getEntityCount()>0){
 						m_playScene.getLayer(ENTITIES_LAYER).removeEntity(0);
 					}				
-					m_playScene.clearUpdateHandlers();
+					//m_playScene.clearUpdateHandlers();
+					//m_playScene.unregisterUpdateHandler(handler);
 					m_iCurrentCollideBoxIdx = 0;
 					m_CurrentTouchedAlphabetSprite = null;
 					m_ItemTextureRegion = null;
@@ -724,6 +726,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					if(m_bNowDrawingAlphabet)
 						return true;
 					if (pSceneTouchEvent.getAction() == MotionEvent.ACTION_UP){
+						
+						m_playScene.unregisterUpdateHandler(handler);
 
 						//Change to original Size
 						this.setScale(1.0f);
@@ -812,6 +816,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					}
 					//Set item size as 1.5times when user try to drag it.
 					else if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+						m_playScene.registerUpdateHandler(handler);
 						m_CurrentTouchedAlphabetSprite = this;
 						Log.e(TAG, "alphabet:"+this.alphabet+".mp3");				
 						this.clearShapeModifiers();
@@ -837,32 +842,33 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		}
 
 		// The actual collision-checking.
-		m_playScene.registerUpdateHandler(new IUpdateHandler() {
-
-			public void reset() { }
-
-			public void onUpdate(final float pSecondsElapsed) {
-				for(int i=0; i < m_arrBoxSprite.length; i++ ){
-					if (m_CurrentTouchedAlphabetSprite == null){
-						m_arrBoxSprite[i].setColor(1, 1, 1);
-						continue;
-					}						
-					if(isCollide(m_CurrentTouchedAlphabetSprite,m_arrBoxSprite[i])){
-						m_arrBoxSprite[i].setColor(0, 0, 1);
-						m_iCurrentCollideBoxIdx = i;
-						if (m_CurrentTouchedAlphabetSprite != null)
-							m_CurrentTouchedAlphabetSprite.bCollied = true;					
-					} else if(m_iCurrentCollideBoxIdx == i && !isCollide(m_CurrentTouchedAlphabetSprite,m_arrBoxSprite[i])) {
-						m_arrBoxSprite[i].setColor(1, 1, 1);		
-						if (m_CurrentTouchedAlphabetSprite != null)
-							m_CurrentTouchedAlphabetSprite.bCollied = false;
-					}
-				}
-			}
-		});
+		//m_playScene.registerUpdateHandler(handler);
 		m_playScene.registerTouchArea(m_Item);	
 	}
 
+	private IUpdateHandler handler = new IUpdateHandler() {
+
+		public void reset() { }
+
+		public void onUpdate(final float pSecondsElapsed) {
+			for(int i=0; i < m_arrBoxSprite.length; i++ ){
+				if (m_CurrentTouchedAlphabetSprite == null){
+					m_arrBoxSprite[i].setColor(1, 1, 1);
+					continue;
+				}						
+				if(isCollide(m_CurrentTouchedAlphabetSprite,m_arrBoxSprite[i])){
+					m_arrBoxSprite[i].setColor(0, 0, 1);
+					m_iCurrentCollideBoxIdx = i;
+					if (m_CurrentTouchedAlphabetSprite != null)
+						m_CurrentTouchedAlphabetSprite.bCollied = true;					
+				} else if(m_iCurrentCollideBoxIdx == i && !isCollide(m_CurrentTouchedAlphabetSprite,m_arrBoxSprite[i])) {
+					m_arrBoxSprite[i].setColor(1, 1, 1);		
+					if (m_CurrentTouchedAlphabetSprite != null)
+						m_CurrentTouchedAlphabetSprite.bCollied = false;
+				}
+			}
+		}
+	};
 	private void drawAlphabet(final TouchEvent touchEvent){
 		m_bNowDrawingAlphabet = true;
 		for(int l=0; l < m_strAlphabet.length(); l++){
