@@ -160,6 +160,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	
 	private String m_CurTheme;
 	private boolean m_bNowDrawingAlphabet = false;
+	private boolean m_bNowReset = false;
+	private boolean m_bGamePaused = false;
 	
 	@Override
 	protected void onCreate(final Bundle pSavedInstanceState) {
@@ -346,6 +348,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			@Override 
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+					
+					if (m_bNowReset == true)
+						return true;
 
 					if (m_iCurrentItemNum < m_ItemVector.size()-1){
 						m_iCurrentItemNum++;
@@ -413,6 +418,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	@Override
 	protected void onPause(){
 		Log.e(TAG, "onPause()");
+		m_bGamePaused = true;
 		super.onPause();
 		if(m_Music != null && m_Music.isPlaying()) {
 			m_Music.pause();
@@ -421,7 +427,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	
 	@Override
 	protected void onResume(){
-		
+		m_bGamePaused = false;
 		super.onResume();
 		if (m_Music != null && !m_Music.isPlaying()){
 			Log.e(TAG, "onResume() Music start play()");
@@ -497,6 +503,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				});
 			}
 		}
+
 		if(requestCode == Const.RETRY_DIALOG_RESULT) {
 			if(resultCode == RESULT_OK) {
 				Log.d(TAG, "resultCode:" + "RESULT_OK");
@@ -516,7 +523,13 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	//Reset Screen - Remove all the entities from scene.
 	private void resetScreen(){
+		m_bNowReset = true;
+
 		Log.e(TAG, "resetScreen:m_iCurrentItemNum"+m_iCurrentItemNum);
+		
+		if (m_iCurrentItemNum > ((m_currentLevel+1) * ITEM_NUM_PER_STAGE)){
+			return ;
+		}
 		
 		if (m_iCurrentItemNum != 0 && this.m_iCurrentItemNum % ITEM_NUM_PER_STAGE == 0){
 			ArrayList<Item> m_quizItemList = new ArrayList<Item>();
@@ -530,7 +543,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 			finish();
 
-		}else{ 
+		}else if (!m_bGamePaused){ 
 			Log.e(TAG, "resetScreen()");
 			mEngine.runOnUpdateThread(new Runnable() {
 				@Override
@@ -844,6 +857,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		// The actual collision-checking.
 		//m_playScene.registerUpdateHandler(handler);
 		m_playScene.registerTouchArea(m_Item);	
+		m_bNowReset = false;
 	}
 
 	private IUpdateHandler handler = new IUpdateHandler() {
