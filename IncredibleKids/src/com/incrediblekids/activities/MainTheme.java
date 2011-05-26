@@ -407,7 +407,7 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		}
 		m_Handler.removeCallbacks(m_IntroRunnable);
 		m_Handler.removeMessages(HANDLER_MSG_ANIMATION_ENDED);
-		
+		m_IntroRunnable = null;
 	}
 
 	@Override
@@ -419,6 +419,15 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		
 		if(m_IntroShow == true && !m_ThemeBGM.isPlaying()) 
 			m_ThemeBGM.start();
+		
+		if(!m_IntroShow && m_IntroRunnable == null) {
+			if(m_IntroTheme.getVisibility() == View.VISIBLE) {
+				m_IntroTheme.setVisibility(View.GONE);
+				m_MainTheme.setVisibility(View.VISIBLE);
+				if(!m_ThemeBGM.isPlaying())
+					m_ThemeBGM.start();
+			}
+		}
 	}
 	
 	@Override
