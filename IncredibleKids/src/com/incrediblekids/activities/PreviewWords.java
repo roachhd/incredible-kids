@@ -166,7 +166,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		
 		setQuizImageListener();
 		
-		setButtonOnClickListener();
+		setButtonOnTouchListener();
 		
 		/* Create Handle to receive Image loading complete */
 		m_Handler = new Handler() {
@@ -310,19 +310,29 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	 * Set Left / Right Button Listener
 	 *  - 메인 Activity 의 좌우 버튼에 대한 Listener 등록
 	 ****************************************************************/
-	public void setButtonOnClickListener() {
-		/* Setting Left Button */
-		m_LeftBtn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				if(m_iSelectedItem != 0)
-					m_PreviewImgGallery.setSelection(m_iSelectedItem-1);
+	public void setButtonOnTouchListener() {
+		m_LeftBtn.setOnTouchListener(new View.OnTouchListener() {
+			public boolean onTouch(View v, MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_DOWN)
+					m_LeftBtn.setImageResource(R.drawable.btn_left_sel);
+				else if (event.getAction() == MotionEvent.ACTION_UP) {
+					if(m_iSelectedItem != 0)
+						m_PreviewImgGallery.setSelection(m_iSelectedItem-1);
+					m_LeftBtn.setImageResource(R.drawable.btn_left);
+				}
+				return true;
 			}
 		});
-		/* Setting Right Button */
-		m_RightBtn.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				if(m_iSelectedItem != m_PreviewImgGallery.getCount()-1)
-					m_PreviewImgGallery.setSelection(m_iSelectedItem+1);
+		m_RightBtn.setOnTouchListener(new View.OnTouchListener() {
+			public boolean onTouch(View v, MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_DOWN)
+					m_RightBtn.setImageResource(R.drawable.btn_right_sel);
+				else if (event.getAction() == MotionEvent.ACTION_UP) {
+					if(m_iSelectedItem != m_PreviewImgGallery.getCount()-1)
+						m_PreviewImgGallery.setSelection(m_iSelectedItem+1);
+					m_RightBtn.setImageResource(R.drawable.btn_right);
+				}
+				return true;
 			}
 		});
 	}
@@ -349,7 +359,8 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		m_LeftBtn = (ImageView) findViewById(R.id.preview_leftbtn);
 		m_RightBtn = (ImageView) findViewById(R.id.preview_rightbtn);
 		m_PhotoViewerBtn = (ImageView) findViewById(R.id.preview_picviewbtn);
-		
+		if (res.getCurrentTheme() == Const.THEME_COLOR || res.getCurrentTheme() == Const.THEME_NUMBER)
+			m_PhotoViewerBtn.setVisibility(View.GONE);
 		/* Get Sound Resource */
 		m_AssetManager = getResources().getAssets();
 		m_StudyBGM	= MediaPlayer.create(this, R.raw.studybgm);
@@ -587,7 +598,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	 ********************************/
 	public boolean getFileDirectory() {
 		if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-			m_FileDirectory = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/HelloWorldEnglish");
+			m_FileDirectory = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/.helloWorldEnglish");
 			if (!m_FileDirectory.exists()) {
 				m_FileDirectory.mkdir();
 			}
@@ -752,9 +763,9 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 
 			if (m_ImageUrlArr.size() != 0) { 
 				for (int count=0; count < m_ImageUrlArr.size(); count++){
-					if (DEBUG) Log.d(TAG, m_ImageUrlArr.get(count));
 					if(!Thread.currentThread().isInterrupted()) {
-						m_aBitmap[count] = Bitmap.createScaledBitmap(ImageManager.UrlToBitmap((m_ImageUrlArr.get(count))), 440, 380, false);
+						if (DEBUG) Log.d(TAG, m_ImageUrlArr.get(count));
+						m_aBitmap[count] = Bitmap.createScaledBitmap(ImageManager.UrlToBitmap((m_ImageUrlArr.get(count))), 420, 390, false);
 						StoreByteImage(expName, count);
 					}
 				}
