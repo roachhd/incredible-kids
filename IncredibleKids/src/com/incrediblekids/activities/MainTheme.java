@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -47,8 +48,8 @@ public class MainTheme extends Activity implements View.OnClickListener {
 	private HashMap<Integer, Integer> 	m_ThemeItemChar;
 	private HashMap<ImageView, Integer> m_ThemeItemSelBg;
 	
-	private ImageView m_ModeStudy;
-	private ImageView m_ModeGame;
+	private ImageButton m_ModeStudy;
+	private ImageButton m_ModeGame;
 	
 	private ResourceClass m_Res;
 	
@@ -102,8 +103,8 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		
 		m_Character		= (ImageView)findViewById(R.id.ivCharacter);
 		
-		m_ModeGame		= (ImageView)findViewById(R.id.ivModeGame);
-		m_ModeStudy		= (ImageView)findViewById(R.id.ivModeStudy);
+		m_ModeGame		= (ImageButton)findViewById(R.id.ivModeGame);
+		m_ModeStudy		= (ImageButton)findViewById(R.id.ivModeStudy);
 		
 		m_ThemeBGM		= MediaPlayer.create(this, R.raw.theme_bgm); 
 		m_SoundEffect	= new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
@@ -367,7 +368,8 @@ public class MainTheme extends Activity implements View.OnClickListener {
 	 * @param bSound	true : play sound false : don't play sound
 	 */
 	private void updatePlayMode(int mMode, boolean bSound) {
-		//TODO: delete
+		
+		/**
 	    if(mMode == MODE_STUDY) {
 	        m_ModeStudy.setBackgroundResource(R.drawable.btn_study_n);
 	        m_ModeGame.setBackgroundResource(R.drawable.btn_play_n);
@@ -376,6 +378,7 @@ public class MainTheme extends Activity implements View.OnClickListener {
 	        m_ModeGame.setBackgroundResource(R.drawable.btn_play_n);
 	        m_ModeStudy.setBackgroundResource(R.drawable.btn_study_n);
 	    }
+	    **/
 	    
 	    if(bSound)
 	    	Log.d(TAG, "Sound: " + m_SoundEffect.play(m_SoundEffectId, 1.0f, 1.0f, 0, 0, 1.0f));

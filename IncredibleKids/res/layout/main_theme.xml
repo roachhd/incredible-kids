@@ -110,28 +110,32 @@
 				android:background="@drawable/theme_mode_bg"
 				android:layout_alignParentTop="true" 
 				android:layout_alignParentRight="true" >
-				<ImageView
+				<ImageButton
 					android:id="@+id/ivModeGame"
-					android:layout_width="111dp" 
-					android:layout_height="27dp" 
+					android:layout_width="133dp" 
+					android:layout_height="94dp" 
 					
-					android:background="@drawable/btn_play_n"
+					android:clickable="true"
+					
+					android:background="@drawable/btn_play_selector"
 					android:layout_alignParentLeft="true" 
-					android:layout_marginTop="20dp"
-					android:layout_marginLeft="20dp"
+					android:layout_marginTop="-15dp"
+					android:layout_marginLeft="10dp"
 					>
-				</ImageView>
-				<ImageView
+				</ImageButton>
+				<ImageButton
 					android:id="@+id/ivModeStudy"
-					android:layout_width="111dp" 
-					android:layout_height="27dp" 
+					android:layout_width="133dp" 
+					android:layout_height="94dp" 
 					
-					android:background="@drawable/btn_study_n"
+					android:clickable="true"
 					
-					android:layout_marginTop="20dp"
-					android:layout_marginRight="20dp"
+					android:background="@drawable/btn_study_selector"
+					
+					android:layout_marginTop="-15dp"
+					android:layout_marginRight="10dp"
 					android:layout_alignParentRight="true" >
-				</ImageView>
+				</ImageButton>
 			</RelativeLayout>
 			
 		</RelativeLayout>

@@ -66,8 +66,9 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 	
 	private ArrayList<Item> m_ItemList;
 	
-	private ImageView m_Hint;
 	private ImageView m_Skip;
+	private ImageView m_Hint;
+	private AnimationDrawable 	m_HintFrameAnimation;
 	
 	private ImageView[] m_ItemImages;
 	private ImageView[] m_Questions;
@@ -272,6 +273,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			Log.d(TAG, "Game End");
 			pauseAnimation();
 			m_TimeFrameAnimation.stop();
+			m_HintFrameAnimation.stop();
 			
 			showGreatPopup();
 		}
@@ -417,8 +419,9 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			viewGroupValue  = viewGroupValue + 3;
 		}
 		
-		m_Hint				= (ImageView)findViewById(R.id.ivHint);
 		m_Skip				= (ImageView)findViewById(R.id.ivSkip);
+		m_Hint				= (ImageView)findViewById(R.id.ivHint);
+		m_Hint.setBackgroundResource(R.drawable.hint_frame);
 		
 		m_TimeFrameImage 	= (ImageView)findViewById(R.id.ivTimeFrame);
 		m_TimeFrameImage.setBackgroundResource(R.drawable.frame_transition);
@@ -579,6 +582,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		}
 		
 		m_TimeFrameAnimation 	= (AnimationDrawable)m_TimeFrameImage.getBackground();
+		m_HintFrameAnimation 	= (AnimationDrawable)m_Hint.getBackground();
 		
 		if(isRetry) {
 			m_TimeFlowAnimation	= new TranslateAnimation(m_StartPosition, m_EndPosition, 0.0f, 0.0f);
@@ -601,6 +605,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			@Override
 			public void onAnimationStart(Animation animation) {
 				m_TimeFrameAnimation.start();
+				m_HintFrameAnimation.start();
 			}
 			@Override
 			public void onAnimationRepeat(Animation animation) {
@@ -613,6 +618,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				}
 				else {	// Animation end. Time out.
 					m_TimeFrameAnimation.stop();
+					m_HintFrameAnimation.stop();
 					m_TimeFrameImage.setVisibility(View.INVISIBLE);
 					m_TimeFrameImageEnd.setVisibility(View.VISIBLE);
 					m_Hint.setClickable(false);
@@ -681,6 +687,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
     	
     	playSound(SOUND_HINT);
     	
+    	m_HintFrameAnimation.stop();
+    	
     	for(int i = 0; i < MAX_COUNT; i++) {
     		m_ItemImages[i].setVisibility(View.VISIBLE);
     		m_Questions[i].setVisibility(View.GONE);
@@ -713,7 +721,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 				clickEnable(true);
 				resumeAnimation();
 				m_Hint.setClickable(true);
-				
+				m_HintFrameAnimation.start();
 			}
 		};
 		
@@ -1233,6 +1241,8 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 			if(m_QuizBGM.isPlaying()) 
 				m_QuizBGM.pause();
 		}
+		
+		m_HintFrameAnimation.stop();
 	}
 	
 	@Override
@@ -1264,6 +1274,7 @@ public class MatchQuiz extends Activity implements View.OnClickListener {
 		m_PopupParentView		= null;
 		m_GreatPopupView		= null;
 		m_GreatFrameAnimation	= null;
+		m_HintFrameAnimation	= null;
 		
 		System.gc();
 	}

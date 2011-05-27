@@ -19,7 +19,7 @@
 			android:layout_height="43dp"
 			android:layout_marginTop="5dp"
 			android:layout_marginLeft="5dp"
-			android:background="@drawable/btn_hint">
+			android:background="@drawable/btn_hint_2">
 		</ImageView>
 		
 		<!-- dummy -->
@@ -38,7 +38,9 @@
 			android:layout_height="43dp"
 			android:layout_marginTop="5dp"
 			android:layout_marginRight="5dp"
-			android:background="@drawable/btn_skip">
+			
+			android:clickable="true"
+			android:background="@drawable/btn_skip_selector">
 		</ImageView>
     </LinearLayout>
     
