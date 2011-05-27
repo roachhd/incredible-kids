@@ -3,6 +3,7 @@ package com.incrediblekids.activities;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.Vector;
 import org.anddev.andengine.audio.music.Music;
@@ -45,15 +46,23 @@ import org.anddev.andengine.util.modifier.IModifier;
 import org.anddev.andengine.util.modifier.IModifier.IModifierListener;
 
 import android.content.Intent;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
+
+import com.incrediblekids.activities.PreviewWords.ImageLoadingThread;
 import com.incrediblekids.util.AlphabetSprite;
 import com.incrediblekids.util.Const;
 import com.incrediblekids.util.Item;
@@ -85,6 +94,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	public final static char EMPTY_ALPHABET = '0';
 
 	public final static int ITEM_NUM_PER_STAGE = 5;
+	public final static int ALPHABET_COUNT = 26;
 	// ===========================================================
 	// Fields
 	// ===========================================================
@@ -110,6 +120,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	//Alphabets
 	private String m_strAlphabet;
 	private Texture [] m_arrAlphabet;
+	private Texture m_AlphabetTexture;
 	private TiledTextureRegion [] m_arrAlphabetTexture;
 	private AlphabetSprite [] m_arrAlphabetSprite;
 	private AlphabetSprite m_CurrentTouchedAlphabetSprite;
@@ -145,7 +156,13 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private Sound m_DropToBoxSound;
 	private Sound m_HelpSound;
 	private Sound m_FailToDropSound;
-	private Sound [] m_AlphabetSound;
+	//private Sound [] m_AlphabetSound;
+	
+	private HashMap <String, Sound> arrAlphabetSound;
+	private SoundPool m_SoundEffect = null;
+	private int	m_SoundEffectId[] = null;
+	private AssetManager m_AssetManager;
+	private HashMap <String, TiledTextureRegion> arrAlphabetTextureRegion;
 
 	private Random randomX;
 	private Random randomY;
@@ -163,6 +180,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private boolean m_bNowReset = false;
 	private boolean m_bGamePaused = false;
 	
+	/* Thread */
+	private SoundLoadingThread m_SoundLoadingThread;
+	
+	private String [] m_strAlphabetSet = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
+	
 	@Override
 	protected void onCreate(final Bundle pSavedInstanceState) {
 
@@ -176,8 +198,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	public Engine onLoadEngine() {	
 		
 		m_ResourceClass = ResourceClass.getInstance();	
-		m_CurTheme = m_ResourceClass.getCurrentTheme();		
-
+		m_CurTheme = m_ResourceClass.getCurrentTheme();	
+		
+		m_SoundEffect = new SoundPool(ALPHABET_COUNT, AudioManager.STREAM_MUSIC, 0);
+		m_AssetManager = getResources().getAssets();
+		
 		this.m_iCurrentItemNum = (m_currentLevel) * 5;
 		this.m_bSoundOn = true;
 
@@ -215,7 +240,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	@Override
 	public void onLoadResources() {
 		Log.e(TAG, "onLoadResources()");
-
+		
+		m_SoundEffectId = new int[ALPHABET_COUNT];
+		
 		//Load Background
 		this.m_BackgroundTexture = new Texture(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		m_LoadingTexture = new Texture(1024,1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -349,8 +376,10 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
 					
-					if (m_bNowReset == true)
+					if (m_bNowReset == true){
+						Log.e(TAG, "now reseting...");
 						return true;
+					}
 
 					if (m_iCurrentItemNum < m_ItemVector.size()-1){
 						m_iCurrentItemNum++;
@@ -395,6 +424,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		//Load fail texture
 		this.m_FailTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_FailTextureRegion = TextureRegionFactory.createFromResource(this.m_FailTexture, this, R.drawable.fail_128, 0, 0);
+		
+		loadAlphabetTexture();
 	}
 
 	private ArrayList <Point> getAreaArray(){
@@ -491,7 +522,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 						m_iCurrentCollideBoxIdx = 0;
 						m_CurrentTouchedAlphabetSprite = null;
 						m_ItemTextureRegion = null;
-						m_arrAlphabetTexture = null;
+						//m_arrAlphabetTexture = null;
 						m_arrAlphabet = null;
 						m_Item = null;
 						m_arrBoxSprite = null;
@@ -523,11 +554,14 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	//Reset Screen - Remove all the entities from scene.
 	private void resetScreen(){
-		m_bNowReset = true;
+		
+		if (m_bNowReset)
+			return ;
 
-		Log.e(TAG, "resetScreen:m_iCurrentItemNum"+m_iCurrentItemNum);
+		Log.e(TAG, "m_iCurrentItemNum:"+m_iCurrentItemNum + " ((m_currentLevel+1) * ITEM_NUM_PER_STAGE):" +((m_currentLevel+1) * ITEM_NUM_PER_STAGE));
 		
 		if (m_iCurrentItemNum > ((m_currentLevel+1) * ITEM_NUM_PER_STAGE)){
+			Log.e(TAG, "resetScreen() return;");
 			return ;
 		}
 		
@@ -541,7 +575,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, m_quizItemList);
 			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
 			overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+			Log.e(TAG, "before call finish()");
 			finish();
+			Log.e(TAG, "after call finish()");
 
 		}else if (!m_bGamePaused){ 
 			Log.e(TAG, "resetScreen()");
@@ -557,7 +593,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					m_iCurrentCollideBoxIdx = 0;
 					m_CurrentTouchedAlphabetSprite = null;
 					m_ItemTextureRegion = null;
-					m_arrAlphabetTexture = null;
+					//m_arrAlphabetTexture = null;
 					m_arrAlphabet = null;
 					m_Item = null;
 					m_arrBoxSprite = null;
@@ -580,6 +616,17 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.mEngine.getTextureManager().loadTexture(this.m_ItemTexture);	
 		this.mEngine.getTextureManager().loadTexture(this.m_BoxTexture);
 	}
+		
+	private void loadAlphabetTexture(){
+		arrAlphabetTextureRegion = new HashMap<String, TiledTextureRegion>();
+		m_AlphabetTexture = new Texture(256,4096,TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.mEngine.getTextureManager().loadTexture(m_AlphabetTexture);
+		char [] m_charAlphabetSet = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
+		for (int i=0; i < ALPHABET_COUNT; i++){
+			Log.e(TAG, "ALPHABET_COUNT i:"+i);
+			arrAlphabetTextureRegion.put(m_strAlphabetSet[i], TextureRegionFactory.createTiledFromResource(m_AlphabetTexture, this, res.getAlphabetResourceId(m_charAlphabetSet[i]), 0, 128*i, 2, 1 ));
+		}
+	}
 	
 	protected void onDestroy() {
 		//Background Music and sound
@@ -596,12 +643,12 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			m_HelpSound.release();
 		if (m_FailToDropSound != null)
 			m_FailToDropSound.release();
-		if (m_AlphabetSound != null && m_AlphabetSound.length > 0){
+/*		if (m_AlphabetSound != null && m_AlphabetSound.length > 0){
 			for(int i = 0; i < m_AlphabetSound.length; i++){
 				if (m_AlphabetSound[i] != null)
 					m_AlphabetSound[i].release();
 			}
-		}
+		}*/
 		super.onDestroy();
 	}
 
@@ -642,10 +689,13 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	//Update scene with new entities.
 	private void updateScene(){
-		
+		m_bNowReset = true;
 		m_RandomPoint = this.getAreaArray();
 
 		loadEntityTexture();
+		
+		m_SoundLoadingThread = new SoundLoadingThread(m_strAlphabet);
+		m_SoundLoadingThread.start();
 
 		m_FailSprite.setVisible(true);
 
@@ -681,12 +731,16 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				if (pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN && m_bFirstTouch == true){
 						m_ItemSound.play();
 						drawAlphabet(pSceneTouchEvent);
+						for (int k = m_strAlphabet.length(); k > 0; k--){
+							m_playScene.registerTouchArea(m_arrAlphabetSprite[k-1]);
+						}
+						m_playScene.unregisterTouchArea(m_Item);
+						m_playScene.registerTouchArea(m_Item);
 						m_bFirstTouch = false;
 						return true;
 				}
 				return false;
-			}
-			
+			}			
 		};
 
 		m_Item.setScale(1.3f);
@@ -717,20 +771,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		for(int i=0; i<m_strAlphabet.length(); i++){
 			this.m_arrAlphabet[i] = new Texture(256,128,TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 			this.mEngine.getTextureManager().loadTexture(this.m_arrAlphabet[i]);
-			this.m_arrAlphabetTexture[i] = TextureRegionFactory.createTiledFromResource(this.m_arrAlphabet[i], this, res.getAlphabetResourceId(m_strAlphabet.charAt(i)), 0, 0, 2, 1 );//m_strAlphabet.charAt(i)+
+			this.m_arrAlphabetTexture[i] = arrAlphabetTextureRegion.get(Character.toString(m_strAlphabet.charAt(i)));//m_strAlphabet.charAt(i)+
 			this.m_arrAlphabetTexture[i].setCurrentTileIndex(0);
 		}
 
-		m_AlphabetSound = new Sound[m_strAlphabet.length()];
-
 		for(int m_Idx=0; m_Idx < m_strAlphabet.length(); m_Idx++){
-			try {
-				m_AlphabetSound[m_Idx] = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, this.m_strAlphabet.charAt(m_Idx)+".mp3");
-			} catch (IllegalStateException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 
 			m_arrAlphabetSprite[m_Idx] = new AlphabetSprite(0,0,
 					this.m_arrAlphabetTexture[m_Idx], m_Idx, m_strAlphabet.charAt(m_Idx)) {
@@ -833,8 +878,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 						m_CurrentTouchedAlphabetSprite = this;
 						Log.e(TAG, "alphabet:"+this.alphabet+".mp3");				
 						this.clearShapeModifiers();
-						m_AlphabetSound[this.sequence].setVolume(1.0f);
-						m_AlphabetSound[this.sequence].play();
+						
+						m_SoundEffect.play(m_SoundEffectId[this.sequence], 1.0f, 1.0f, 0, 0, 1.0f);
 						this.setScale(1.5f);
 						return true;
 					}
@@ -848,16 +893,36 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				}			
 			};	
 
-		}
-
-		for (int k = m_strAlphabet.length(); k > 0; k--){
-			m_playScene.registerTouchArea(m_arrAlphabetSprite[k-1]);
-		}
+		}		
 
 		// The actual collision-checking.
 		//m_playScene.registerUpdateHandler(handler);
 		m_playScene.registerTouchArea(m_Item);	
 		m_bNowReset = false;
+	}
+
+	
+	/********************************
+	 * SoundLoadingThread
+	 ********************************/
+	class SoundLoadingThread extends Thread {
+		private String strAlphabetSet = null;
+		public SoundLoadingThread(String str){
+			strAlphabetSet = str;
+		}
+		public void run() {
+
+			for(int i=0 ; i< strAlphabetSet.length() ; ++i) {		
+				if(!Thread.currentThread().isInterrupted()) {
+					try {
+						m_SoundEffectId[i] = m_SoundEffect.load(m_AssetManager.openFd("mfx/"+ strAlphabetSet.charAt(i)+".mp3"), 1);
+					} catch (IOException e) {
+						Log.d(TAG, "Sound not found");
+						e.printStackTrace();
+					}
+				}
+			}
+		}
 	}
 
 	private IUpdateHandler handler = new IUpdateHandler() {
@@ -871,12 +936,12 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					continue;
 				}						
 				if(isCollide(m_CurrentTouchedAlphabetSprite,m_arrBoxSprite[i])){
-					m_arrBoxSprite[i].setColor(0, 0, 1);
+					//m_arrBoxSprite[i].setColor(0, 0, 1);
 					m_iCurrentCollideBoxIdx = i;
 					if (m_CurrentTouchedAlphabetSprite != null)
 						m_CurrentTouchedAlphabetSprite.bCollied = true;					
 				} else if(m_iCurrentCollideBoxIdx == i && !isCollide(m_CurrentTouchedAlphabetSprite,m_arrBoxSprite[i])) {
-					m_arrBoxSprite[i].setColor(1, 1, 1);		
+					//m_arrBoxSprite[i].setColor(1, 1, 1);		
 					if (m_CurrentTouchedAlphabetSprite != null)
 						m_CurrentTouchedAlphabetSprite.bCollied = false;
 				}
