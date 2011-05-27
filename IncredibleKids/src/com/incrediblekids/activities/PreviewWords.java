@@ -771,7 +771,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 				for (count=0; count < m_ImageUrlArr.size(); count++){
 					if(!Thread.currentThread().isInterrupted()) {
 						if (DEBUG) Log.d(TAG, m_ImageUrlArr.get(count));
-						m_aBitmap[count] = Bitmap.createScaledBitmap(ImageManager.UrlToBitmap((m_ImageUrlArr.get(count))), 420, 390, false);
+						m_aBitmap[count] = Bitmap.createScaledBitmap(ImageManager.UrlToBitmap((m_ImageUrlArr.get(count))), 430, 400, false);
 						StoreByteImage(expName, count);
 					}
 				}
