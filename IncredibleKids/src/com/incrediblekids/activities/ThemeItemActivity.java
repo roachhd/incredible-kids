@@ -386,7 +386,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.m_SkipTexture = new Texture(128, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_SkipTextureRegion = TextureRegionFactory.createTiledFromResource(m_SkipTexture, this, R.drawable.btn_skip_anim, 0, 0, 2, 1);
 
-		this.m_SkipSprite = new AnimatedSprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth()/2,
+		this.m_SkipSprite = new AnimatedSprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth()/2 - m_SkipTextureRegion.getWidth()/8,
 				m_SkipTextureRegion.getHeight()/4, this.m_SkipTextureRegion){
 			@Override 
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
@@ -406,9 +406,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					m_playScene.clearTouchAreas();			 
 					resetScreen();
 					return true;
-				}
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+				}else if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
 					m_SkipTextureRegion.setCurrentTileIndex(1);
+					return true;
 				}
 				return false;
 			}
@@ -604,9 +604,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			mEngine.runOnUpdateThread(new Runnable() {
 				@Override
 				public void run() {
-					m_SoundLoadingThread = new SoundLoadingThread(m_strAlphabet);
-					m_SoundLoadingThread.start();
-
+					
 					while(m_playScene.getLayer(ENTITIES_LAYER).getEntityCount()>0){
 						m_playScene.getLayer(ENTITIES_LAYER).removeEntity(0);
 					}				
@@ -685,43 +683,21 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private void createBaseSprite(){
 
 		loadBaseTexture();
-/*
-		this.m_SkipSprite = new AnimatedSprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
-				m_SkipTextureRegion.getHeight()/4, this.m_SkipTextureRegion){
-			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_UP){
-					m_SkipTextureRegion.setCurrentTileIndex(1);
-					if (m_iCurrentItemNum < m_ItemVector.size()-1){
-						m_iCurrentItemNum++;
-						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
-					}else{
-						m_iCurrentItemNum++;
-					}
-					m_playScene.clearTouchAreas();			
-					resetScreen();
-					return true;
-				}
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-					m_SkipTextureRegion.setCurrentTileIndex(0);
-				}
-				return false;
-
-			}
-		};
-		
-		m_playScene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);*/
 
 		this.m_FailSprite = new Sprite(
 				CAMERA_WIDTH/2-(this.m_FailTextureRegion.getWidth()/2),
 				CAMERA_HEIGHT/2 - (this.m_FailTextureRegion.getHeight()/2),
 				this.m_FailTextureRegion);
 
-		m_playScene.getLayer(BASE_LAYER).addEntity(m_Help);
+//		m_playScene.getLayer(BASE_LAYER).addEntity(m_Help);
 	}
 
 	//Update scene with new entities.
 	private void updateScene(){
+		
+		m_SoundLoadingThread = new SoundLoadingThread(m_strAlphabet);
+		m_SoundLoadingThread.start();
+		
 		m_bNowReset = true;
 		m_RandomPoint = this.getAreaArray();
 
@@ -909,7 +885,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 						m_CurrentTouchedAlphabetSprite = this;
 						Log.e(TAG, "alphabet:"+this.alphabet+".mp3");				
 						this.clearShapeModifiers();
-						
+						Log.e(TAG, "alphabet this.sequence:"+this.sequence);		
 						m_SoundEffect.play(m_SoundEffectId[this.sequence], 1.0f, 1.0f, 0, 0, 1.0f);
 						this.setScale(1.5f);
 						return true;
@@ -946,6 +922,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			for(int i=0 ; i< strAlphabet.length() ; ++i) {		
 				if(!Thread.currentThread().isInterrupted()) {
 					try {
+						Log.d(TAG, "m_SoundEffect.load:" + strAlphabet.charAt(i)+".mp3");
 						m_SoundEffectId[i] = m_SoundEffect.load(m_AssetManager.openFd("mfx/"+ strAlphabet.charAt(i)+".mp3"), 1);
 					} catch (IOException e) {
 						Log.d(TAG, "Sound not found");
