@@ -386,12 +386,12 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.m_SkipTexture = new Texture(128, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_SkipTextureRegion = TextureRegionFactory.createTiledFromResource(m_SkipTexture, this, R.drawable.btn_skip_anim, 0, 0, 2, 1);
 
-		this.m_SkipSprite = new AnimatedSprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
+		this.m_SkipSprite = new AnimatedSprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth()/2,
 				m_SkipTextureRegion.getHeight()/4, this.m_SkipTextureRegion){
 			@Override 
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-					
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_UP){
+					m_SkipTextureRegion.setCurrentTileIndex(0);
 					if (m_bNowReset == true){
 						Log.e(TAG, "now reseting...");
 						return true;
@@ -406,6 +406,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					m_playScene.clearTouchAreas();			 
 					resetScreen();
 					return true;
+				}
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+					m_SkipTextureRegion.setCurrentTileIndex(1);
 				}
 				return false;
 			}
@@ -682,7 +685,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private void createBaseSprite(){
 
 		loadBaseTexture();
-
+/*
 		this.m_SkipSprite = new AnimatedSprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
 				m_SkipTextureRegion.getHeight()/4, this.m_SkipTextureRegion){
 			@Override
@@ -707,7 +710,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			}
 		};
 		
-		m_playScene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);
+		m_playScene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);*/
 
 		this.m_FailSprite = new Sprite(
 				CAMERA_WIDTH/2-(this.m_FailTextureRegion.getWidth()/2),
