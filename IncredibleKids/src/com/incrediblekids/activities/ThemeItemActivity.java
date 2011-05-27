@@ -26,7 +26,6 @@ import org.anddev.andengine.entity.shape.modifier.MoveModifier;
 import org.anddev.andengine.entity.shape.modifier.ParallelShapeModifier;
 import org.anddev.andengine.entity.shape.modifier.RotationModifier;
 import org.anddev.andengine.entity.shape.modifier.SequenceShapeModifier;
-import org.anddev.andengine.entity.shape.modifier.ShapeModifier;
 import org.anddev.andengine.entity.shape.modifier.ease.EaseElasticOut;
 import org.anddev.andengine.entity.shape.modifier.ease.EaseExponentialOut;
 import org.anddev.andengine.entity.shape.modifier.ease.EaseLinear;
@@ -44,25 +43,19 @@ import org.anddev.andengine.ui.activity.BaseGameActivity;
 import org.anddev.andengine.util.Debug;
 import org.anddev.andengine.util.modifier.IModifier;
 import org.anddev.andengine.util.modifier.IModifier.IModifierListener;
-
 import android.content.Intent;
 import android.content.res.AssetManager;
-import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
-
-import com.incrediblekids.activities.PreviewWords.ImageLoadingThread;
 import com.incrediblekids.util.AlphabetSprite;
 import com.incrediblekids.util.Const;
 import com.incrediblekids.util.Item;
@@ -158,7 +151,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private Sound m_FailToDropSound;
 	//private Sound [] m_AlphabetSound;
 	
-	private HashMap <String, Sound> arrAlphabetSound;
+	private HashMap <String, Sound> arrItemSound;
 	private SoundPool m_SoundEffect = null;
 	private int	m_SoundEffectId[] = null;
 	private AssetManager m_AssetManager;
@@ -200,6 +193,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		m_ResourceClass = ResourceClass.getInstance();	
 		m_CurTheme = m_ResourceClass.getCurrentTheme();	
 		
+		arrItemSound = new HashMap <String, Sound>();
 		m_SoundEffect = new SoundPool(ALPHABET_COUNT, AudioManager.STREAM_MUSIC, 0);
 		m_AssetManager = getResources().getAssets();
 		
@@ -280,7 +274,26 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	
 
 	public void myLoadResources(){
+		SoundFactory.setAssetBasePath("mfx/");
 		Log.e(TAG, "myLoadResources()");
+		int startIdx = m_currentLevel * ITEM_NUM_PER_STAGE;
+		int endIdx = (m_currentLevel + 1) * ITEM_NUM_PER_STAGE;
+		for (int i= startIdx ; i < endIdx ; i++){
+			String item = m_ItemVector.get(i).strWordCharId;
+			Sound sound = null;
+			try {
+				sound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, item+".mp3");
+			} catch (IllegalStateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			sound.setVolume(1.0f);
+			arrItemSound.put(item, sound);
+		}
+		
 		m_playScene.getLayer(BASE_LAYER).addEntity(m_BackgroundSprite);
 		this.m_HelpTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_HelpTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_HelpTexture, this, R.drawable.btn_hint_anim , 0, 0, 2, 1);
@@ -399,7 +412,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.mEngine.getTextureManager().loadTexture(this.m_HelpTexture);
 		this.mEngine.getTextureManager().loadTexture(this.m_SkipTexture);
 
-		SoundFactory.setAssetBasePath("mfx/");
 
 		try {
 			this.m_DropToBoxSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "drop_to_box.ogg");//m_strAlphabet+".mp3");
@@ -568,22 +580,19 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		if (m_iCurrentItemNum != 0 && this.m_iCurrentItemNum % ITEM_NUM_PER_STAGE == 0){
 			ArrayList<Item> m_quizItemList = new ArrayList<Item>();
 			m_quizItemList.addAll(this.m_ItemVector.subList(m_iCurrentItemNum - ITEM_NUM_PER_STAGE, m_iCurrentItemNum));
-			Log.e(TAG, "m_ItemVector.subList m_iCurrentItemNum:" + m_iCurrentItemNum);
-			Log.e(TAG, "m_quizItemList:"+ m_quizItemList.get(0).strWordCharId);
 			Intent intent = new Intent(this, MatchQuiz.class);
 			intent.putExtra(Const.CUR_LEVEL, m_currentLevel);
 			intent.putParcelableArrayListExtra(Const.MATCH_QUIZ, m_quizItemList);
 			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
 			overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-			Log.e(TAG, "before call finish()");
 			finish();
-			Log.e(TAG, "after call finish()");
-
 		}else if (!m_bGamePaused){ 
 			Log.e(TAG, "resetScreen()");
 			mEngine.runOnUpdateThread(new Runnable() {
 				@Override
 				public void run() {
+					m_SoundLoadingThread = new SoundLoadingThread(m_strAlphabet);
+					m_SoundLoadingThread.start();
 
 					while(m_playScene.getLayer(ENTITIES_LAYER).getEntityCount()>0){
 						m_playScene.getLayer(ENTITIES_LAYER).removeEntity(0);
@@ -649,6 +658,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					m_AlphabetSound[i].release();
 			}
 		}*/
+		if (m_SoundEffect != null){
+			m_SoundEffect.release();
+			m_SoundEffect = null;
+		}
+		
 		super.onDestroy();
 	}
 
@@ -694,24 +708,22 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		loadEntityTexture();
 		
-		m_SoundLoadingThread = new SoundLoadingThread(m_strAlphabet);
-		m_SoundLoadingThread.start();
-
 		m_FailSprite.setVisible(true);
 
 		//re regist touch area for help and pause btn
 		m_playScene.registerTouchArea(m_Help);
 		m_playScene.registerTouchArea(m_SkipSprite);
 		
-		//Load Sound
+/*		//Load Sound
 		try {
-			this.m_ItemSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, m_strAlphabet+".mp3");
+			this.m_ItemSound = SoundFactory.createSoundFromAss et(this.mEngine.getSoundManager(), this, m_strAlphabet+".mp3");
 			this.m_ItemSound.setVolume(1.0f);
 		} catch (final IOException e) {
 			Debug.e("Error", e);
 		}
-
+*/
 		Log.e(TAG, "updateScene()");
+		m_ItemSound = arrItemSound.get(m_strAlphabet);
 
 		//Add ThemeItem Sprite to Scene
 		this.m_ItemTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_ItemTexture, this, m_ItemVector.get(m_iCurrentItemNum).iItemImgId, 0, 0, 2, 1);
@@ -769,8 +781,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		m_arrAlphabetSprite = new AlphabetSprite[m_strAlphabet.length()];
 
 		for(int i=0; i<m_strAlphabet.length(); i++){
-			this.m_arrAlphabet[i] = new Texture(256,128,TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-			this.mEngine.getTextureManager().loadTexture(this.m_arrAlphabet[i]);
+/*			this.m_arrAlphabet[i] = new Texture(256,128,TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+			this.mEngine.getTextureManager().loadTexture(this.m_arrAlphabet[i]);*/
 			this.m_arrAlphabetTexture[i] = arrAlphabetTextureRegion.get(Character.toString(m_strAlphabet.charAt(i)));//m_strAlphabet.charAt(i)+
 			this.m_arrAlphabetTexture[i].setCurrentTileIndex(0);
 		}
@@ -906,16 +918,16 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	 * SoundLoadingThread
 	 ********************************/
 	class SoundLoadingThread extends Thread {
-		private String strAlphabetSet = null;
+		private String strAlphabet = null;
 		public SoundLoadingThread(String str){
-			strAlphabetSet = str;
+			strAlphabet = str;
 		}
 		public void run() {
 
-			for(int i=0 ; i< strAlphabetSet.length() ; ++i) {		
+			for(int i=0 ; i< strAlphabet.length() ; ++i) {		
 				if(!Thread.currentThread().isInterrupted()) {
 					try {
-						m_SoundEffectId[i] = m_SoundEffect.load(m_AssetManager.openFd("mfx/"+ strAlphabetSet.charAt(i)+".mp3"), 1);
+						m_SoundEffectId[i] = m_SoundEffect.load(m_AssetManager.openFd("mfx/"+ strAlphabet.charAt(i)+".mp3"), 1);
 					} catch (IOException e) {
 						Log.d(TAG, "Sound not found");
 						e.printStackTrace();
