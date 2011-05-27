@@ -24,7 +24,6 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
-import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -76,7 +75,6 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	private final String FLICKR_KEY = "edce333ce82dfc77c47fce4bfb7a2803";
 	private final String FLICKR_SEC = "e48bbb5063ef5943";
 	private final String FLICKR_UID = "24882827@N04";
-	private final int m_ImgBG[] = {R.drawable.bg_animal_play, R.drawable.bg_color_play, R.drawable.bg_food_play, R.drawable.bg_number_play, R.drawable.bg_toy_play};
 	
 	/********************************
 	 * Member Variables
@@ -171,9 +169,15 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		/* Create Handle to receive Image loading complete */
 		m_Handler = new Handler() {
 			public void handleMessage(Message msg) {
-				m_bTouchable = true;
-				m_PhotoLoadingProgressBar.setVisibility(View.INVISIBLE);
-				m_PhotoImg.setImageBitmap(m_aBitmap[0]);
+				if (msg.what == 0) {
+					m_bTouchable = true;
+					m_PhotoLoadingProgressBar.setVisibility(View.GONE);
+					m_PhotoImg.setImageBitmap(m_aBitmap[0]);
+				} else if (msg.what == 1) {
+					Toast.makeText(PreviewWords.this, "서버 접속 실패입니다. \n네트웍이 불안정 하거나 Flickr 서버의 일시 장애 입니다. \n나중에 다시 시도 해주세요. ^^", Toast.LENGTH_LONG).show();
+					m_PhotoLoadingProgressBar.setVisibility(View.GONE);
+					m_PhotoViewerPopupWindow.dismiss();
+				}
 			}
 		};
 	}
@@ -371,7 +375,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		try {
 			m_SoundEffectId[0] = m_SoundEffect.load(m_AssetManager.openFd("mfx/"+m_ItemVector.get(0).strWordCharId+".mp3"), 1);
 		} catch (IOException e) {
-			Log.d(TAG, "Sound not found");
+			Log.e(TAG, "Sound not found");
 			e.printStackTrace();
 		}
 		
@@ -442,6 +446,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 					}
 						
 					m_PhotoImg.setImageResource(R.drawable.photo_loading);
+					m_PhotoLoadingProgressBar.setVisibility(View.GONE);
 					m_PhotoViewerPopupWindow.dismiss();
 			}
 		});
@@ -497,11 +502,11 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 					for (i=0 ; i<3 ; ++i) {
 						mFile = new File(m_FileDirectory + "/" + expName + "_" + i + ".png");
 						m_aBitmap[i] = BitmapFactory.decodeFile(mFile.getPath().toString());
-						Log.d(TAG, "mFile = " + mFile.getPath().toString() + " i = " + i);
+						if (DEBUG) Log.d(TAG, "mFile = " + mFile.getPath().toString() + " i = " + i);
 					}
 					m_Handler.sendEmptyMessage(0);
 				} else {
-					Toast.makeText(PreviewWords.this, "사진을 다운 받고 있습니다. \n sdcard/HelloWorldEnglish에 저장됩니다.", Toast.LENGTH_SHORT).show();
+					Toast.makeText(PreviewWords.this, "사진을 다운 받고 있습니다. \n sdcard/.helloWorldEnglish에 저장됩니다.", Toast.LENGTH_SHORT).show();
 					m_PhotoLoadingThread = new PhotoLoadingThread(m_Handler, expName);
 					m_PhotoLoadingThread.start();
 					m_PhotoLoadingProgressBar.setVisibility(View.VISIBLE);
@@ -736,7 +741,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 					try {
 						m_SoundEffectId[i] = m_SoundEffect.load(m_AssetManager.openFd("mfx/"+m_ItemVector.get(i).strWordCharId+".mp3"), 1);
 					} catch (IOException e) {
-						Log.d(TAG, "Sound not found");
+						Log.e(TAG, "Sound not found");
 						e.printStackTrace();
 					}
 				}
@@ -750,6 +755,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	class PhotoLoadingThread extends Thread {
 		private Handler mHandler;
 		private String expName;
+		private int count;
 		
 		public PhotoLoadingThread(Handler _mHandler, String _expName) {
 			if (DEBUG) Log.d(TAG, "PhotoLoadingThread Contructor");	
@@ -762,16 +768,20 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 			m_aBitmap = new Bitmap[m_ImageUrlArr.size()];
 
 			if (m_ImageUrlArr.size() != 0) { 
-				for (int count=0; count < m_ImageUrlArr.size(); count++){
+				for (count=0; count < m_ImageUrlArr.size(); count++){
 					if(!Thread.currentThread().isInterrupted()) {
 						if (DEBUG) Log.d(TAG, m_ImageUrlArr.get(count));
 						m_aBitmap[count] = Bitmap.createScaledBitmap(ImageManager.UrlToBitmap((m_ImageUrlArr.get(count))), 420, 390, false);
 						StoreByteImage(expName, count);
 					}
 				}
-				mHandler.sendEmptyMessage(0);
-			} else
+				if (!Thread.currentThread().isInterrupted()) {
+					mHandler.sendEmptyMessage(0);
+				}
+			} else {
+				mHandler.sendEmptyMessage(1);
 				Log.e(TAG, "Image Url Arr is 0");
+			}
 		}
 	}
 	
@@ -811,7 +821,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	 * Get Image URLs (from Wooram Jung)
 	 ********************************/
 	public ArrayList <String> getImageURLs(String searchText, int perPage, int pageNum){
-		Log.e(TAG, "getImageURLs for term " + searchText);
+		if (DEBUG) Log.d(TAG, "getImageURLs for term " + searchText);
 		ArrayList <String> urlArray = new ArrayList <String>();
 		Transport rest;
 		try {
@@ -836,7 +846,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 			else{
 				Log.e(TAG, "photo list is null");
 			}
-			Log.e(TAG, "getPhotosInterface() photoList.size = "+photoList.size());
+			if (DEBUG) Log.d(TAG, "getPhotosInterface() photoList.size = "+photoList.size());
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}  catch (SAXException e) {
