@@ -403,7 +403,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					}else{
 						m_iCurrentItemNum++;
 					}
-					m_playScene.clearTouchAreas();			 
+					m_playScene.clearTouchAreas();	
+					m_bNowReset = true;
 					resetScreen();
 					return true;
 				}else if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
@@ -579,9 +580,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	//Reset Screen - Remove all the entities from scene.
 	private void resetScreen(){
-		
-		if (m_bNowReset)
-			return ;
 
 		Log.e(TAG, "m_iCurrentItemNum:"+m_iCurrentItemNum + " ((m_currentLevel+1) * ITEM_NUM_PER_STAGE):" +((m_currentLevel+1) * ITEM_NUM_PER_STAGE));
 		
@@ -698,7 +696,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		m_SoundLoadingThread = new SoundLoadingThread(m_strAlphabet);
 		m_SoundLoadingThread.start();
 		
-		m_bNowReset = true;
 		m_RandomPoint = this.getAreaArray();
 
 		loadEntityTexture();
