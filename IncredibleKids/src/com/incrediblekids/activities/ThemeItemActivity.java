@@ -56,6 +56,8 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
+import android.widget.Button;
+
 import com.incrediblekids.util.AlphabetSprite;
 import com.incrediblekids.util.Const;
 import com.incrediblekids.util.Item;
@@ -130,9 +132,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private TiledTextureRegion m_HelpTextureRegion;
 
 	//Skip Button Sprite
-	private Sprite m_SkipSprite;
+	private AnimatedSprite m_SkipSprite;
 	private Texture  m_SkipTexture;
-	private TextureRegion m_SkipTextureRegion;
+	private TiledTextureRegion m_SkipTextureRegion;
 	
 	//Loading Sprite
 	private Sprite m_LoadingSprite;
@@ -380,10 +382,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		m_Help.animate(800, true);
 
 		//Skip 		
-		this.m_SkipTexture = new Texture(64, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.m_SkipTextureRegion = TextureRegionFactory.createFromResource(m_SkipTexture, this, R.drawable.btn_skip, 0, 0);
 
-		this.m_SkipSprite = new Sprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
+		this.m_SkipTexture = new Texture(128, 64, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.m_SkipTextureRegion = TextureRegionFactory.createTiledFromResource(m_SkipTexture, this, R.drawable.btn_skip_anim, 0, 0, 2, 1);
+
+		this.m_SkipSprite = new AnimatedSprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
 				m_SkipTextureRegion.getHeight()/4, this.m_SkipTextureRegion){
 			@Override 
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
@@ -460,12 +463,19 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	@Override
 	protected void onPause(){
-		Log.e(TAG, "onPause()");
+
+		Log.e(TAG, "onPause() start");
 		m_bGamePaused = true;
-		super.onPause();
+		if (m_SoundLoadingThread != null && m_SoundLoadingThread.isAlive()) {
+			m_SoundLoadingThread.interrupt();			
+		}
+		
 		if(m_Music != null && m_Music.isPlaying()) {
 			m_Music.pause();
 		}
+		Log.e(TAG, "onPause() end");
+		super.onPause();	
+		Log.e(TAG, "onPause() real end");
 	}
 	
 	@Override
@@ -638,6 +648,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	}
 	
 	protected void onDestroy() {
+		Log.e(TAG, "onDestroy start()");
 		//Background Music and sound
 /*		if (m_Music != null){
 			if (m_Music.isPlaying()){
@@ -662,8 +673,9 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			m_SoundEffect.release();
 			m_SoundEffect = null;
 		}
-		
+		Log.e(TAG, "onDestroy end()");
 		super.onDestroy();
+		Log.e(TAG, "onDestroy real end()");
 	}
 
 	//Create base object
@@ -671,12 +683,12 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		loadBaseTexture();
 
-		this.m_SkipSprite = new Sprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
+		this.m_SkipSprite = new AnimatedSprite(CAMERA_WIDTH - m_SkipTextureRegion.getWidth() - m_SkipTextureRegion.getWidth()/4,
 				m_SkipTextureRegion.getHeight()/4, this.m_SkipTextureRegion){
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
-
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_UP){
+					m_SkipTextureRegion.setCurrentTileIndex(1);
 					if (m_iCurrentItemNum < m_ItemVector.size()-1){
 						m_iCurrentItemNum++;
 						m_strAlphabet = m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
@@ -687,10 +699,14 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					resetScreen();
 					return true;
 				}
+				if(pSceneTouchEvent.getAction() == MotionEvent.ACTION_DOWN){
+					m_SkipTextureRegion.setCurrentTileIndex(0);
+				}
 				return false;
 
 			}
 		};
+		
 		m_playScene.getLayer(BASE_LAYER).addEntity(m_SkipSprite);
 
 		this.m_FailSprite = new Sprite(
