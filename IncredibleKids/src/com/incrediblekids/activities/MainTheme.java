@@ -216,6 +216,7 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		    }
 		    **/
 		    
+			m_Mode = MODE_GAME;
 		    updatePlayMode(m_Mode, true);
 			isValid = true;
 			break;
@@ -227,6 +228,8 @@ public class MainTheme extends Activity implements View.OnClickListener {
 		        updatePlayMode(m_Mode, true);
 		    }
 		    **/
+			
+			m_Mode = MODE_STUDY;
 		    updatePlayMode(m_Mode, true);
 			isValid = true;
 			break;
