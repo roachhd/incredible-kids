@@ -209,18 +209,25 @@ public class MainTheme extends Activity implements View.OnClickListener {
 			break;
 			
 		case R.id.ivModeGame:
+			/**
 		    if(m_Mode != MODE_GAME) {
 		        m_Mode = MODE_GAME;
 		        updatePlayMode(m_Mode, true);
 		    }
+		    **/
+		    
+		    updatePlayMode(m_Mode, true);
 			isValid = true;
 			break;
 			
 		case R.id.ivModeStudy:
+			/**
 		    if(m_Mode != MODE_STUDY) {
 		        m_Mode = MODE_STUDY;
 		        updatePlayMode(m_Mode, true);
 		    }
+		    **/
+		    updatePlayMode(m_Mode, true);
 			isValid = true;
 			break;
 			
