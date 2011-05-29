@@ -69,6 +69,7 @@ import com.incrediblekids.util.Item;
  * @author Nicolas Gramlich
  */
 public class ThemeItemActivity extends BaseGameActivity implements AnimationListener{
+	
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -76,23 +77,24 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	public int CAMERA_WIDTH;
 	public int CAMERA_HEIGHT;
 
-	public final static int CENTER_OFFSET = 70;	//OFFSET for collision detect: larger is less sensitive
-	public final static int BASE_LAYER = 0;		//Base layer for non-changable sprite
-	public final static int ENTITIES_LAYER = 1;	//entiti layer for changable sprite
+	public final static int CENTER_OFFSET 	= 70;	//OFFSET for collision detect: larger is less sensitive
+	public final static int BASE_LAYER 		= 0;	//Base layer for non-changable sprite
+	public final static int ENTITIES_LAYER	= 1;	//entiti layer for changable sprite
 
-	public final static int SOUND_ON = 0;
-	public final static int SOUND_OFF = 1;
+	public final static int SOUND_ON	 	= 0;
+	public final static int SOUND_OFF 		= 1;
 
-	public final static int ITEM_IMG_FIRST = 0;
+	public final static int ITEM_IMG_FIRST 	= 0;
 	public final static int ITEM_IMG_SECOND = 1;
 
-	public final static int MENU_RESET = 0;
-	public final static int MENU_QUIT = MENU_RESET + 1;
-	public final static String TAG = "ThemeItemActivity";
+	public final static int MENU_RESET 		= 0;
+	public final static int MENU_QUIT 		= MENU_RESET + 1;
+	public final static String TAG 			= "ThemeItemActivity";
 	public final static char EMPTY_ALPHABET = '0';
 
-	public final static int ITEM_NUM_PER_STAGE = 5;
-	public final static int ALPHABET_COUNT = 26;
+	public final static int ITEM_NUM_PER_STAGE 	= 5;
+	public final static int ALPHABET_COUNT 		= 26;
+	
 	// ===========================================================
 	// Fields
 	// ===========================================================
@@ -110,7 +112,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private AlphabetSprite [] m_arrBoxSprite;
 	private int m_iCurrentCollideBoxIdx;
 
-	//Pass
+	//Fail 
 	private Texture m_FailTexture;
 	private TextureRegion m_FailTextureRegion;
 	private Sprite m_FailSprite;
@@ -142,6 +144,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private Sprite m_LoadingSprite;
 	private Texture m_LoadingTexture;
 	private TextureRegion m_LoadingTextureRegion;
+	private Scene m_LoadingScene;
 
 	//Pause
 	private Scene m_playScene;
@@ -153,17 +156,16 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private Sound m_DropToBoxSound;
 	private Sound m_HelpSound;
 	private Sound m_FailToDropSound;
-	//private Sound [] m_AlphabetSound;
-
 	private HashMap <String, Sound> arrItemSound;
-	private SoundPool m_SoundEffect = null;
-	private int	m_SoundEffectId[] = null;
+	private SoundPool m_SoundEffect;
+	private int	m_SoundEffectId[];
 	private AssetManager m_AssetManager;
 	private HashMap <String, TiledTextureRegion> arrAlphabetTextureRegion;
 
 	private Random randomX;
 	private Random randomY;
 
+	//Resources
 	private ResourceClass res;
 	private Vector<Item> m_ItemVector;
 	private ArrayList<Point> m_RandomPoint;
@@ -175,20 +177,16 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private String m_CurTheme;
 	private boolean m_bNowDrawingAlphabet = false;
 	private boolean m_bNowReset = false;
-//	private boolean m_bGamePaused = false;
-
-	private Thread m_loadingThread = null;
 
 	private SoundLoadingThread m_SoundLoadingThread;
 	private String [] m_strAlphabetSet = {"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"};
 
 	private long m_CurrentMillis = 0;
+	
 	@Override
 	protected void onCreate(final Bundle pSavedInstanceState) {
-
 		Intent intent = getIntent();
 		m_currentLevel = intent.getIntExtra(Const.CUR_LEVEL, 0);
-		Log.e("WOORAM", "onCreate() m_currentLevel:"+m_currentLevel); 
 		super.onCreate(pSavedInstanceState);
 	}
 
@@ -196,7 +194,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	public Engine onLoadEngine() {	
 		
 		m_CurrentMillis = System.currentTimeMillis();
-
 		m_ResourceClass = ResourceClass.getInstance();	
 		m_CurTheme = m_ResourceClass.getCurrentTheme();	
 
@@ -218,6 +215,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		Log.e(TAG, "getLCDHeight():"+getLCDHeight());
 		Log.e(TAG, "densityDpi:"+dm.densityDpi);
 
+		//To make compatable with hdpi and mdpi device
 		if (dm.densityDpi == DisplayMetrics.DENSITY_HIGH){
 			this.CAMERA_WIDTH = 800;
 			this.CAMERA_HEIGHT = 480;
@@ -225,23 +223,23 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			this.CAMERA_WIDTH = 480;
 			this.CAMERA_HEIGHT = 320;
 		}
-
+		
+		//Init resources
 		this.res = ResourceClass.getInstance();
 		this.m_ItemVector = res.getvItems();
-		Log.e("WOORAM", "m_iCurrentItemNum:" + m_iCurrentItemNum);
 		this.m_strAlphabet = this.m_ItemVector.get(m_iCurrentItemNum).strWordCharId;
-
 		this.m_iCurrentCollideBoxIdx = 0;
+		
+		//Camera instance
 		this.m_Camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 
 		return new Engine(new EngineOptions(true, ScreenOrientation.LANDSCAPE,
 				new FillResolutionPolicy(), this.m_Camera).setNeedsMusic(true).setNeedsSound(true));
 	}
-	//FillResolutionPolicy
+	
 	@Override
 	public void onLoadResources() {
 		Log.e(TAG, "onLoadResources()");
-
 		m_SoundEffectId = new int[ALPHABET_COUNT];
 
 		//Load Background
@@ -278,11 +276,14 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		this.mEngine.getTextureManager().loadTexture(this.m_LoadingTexture);
 	}
 
+	//Load resources during Loading screen displayed
 	public void myLoadResources(){
+		
 		SoundFactory.setAssetBasePath("mfx/");
-		Log.e(TAG, "myLoadResources()");
+		
 		int startIdx = m_currentLevel * ITEM_NUM_PER_STAGE;
 		int endIdx = (m_currentLevel + 1) * ITEM_NUM_PER_STAGE;
+		
 		for (int i= startIdx ; i < endIdx ; i++){
 			String item = m_ItemVector.get(i).strWordCharId;
 			Sound sound = null;
@@ -298,6 +299,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		}
 
 		m_playScene.getLayer(BASE_LAYER).addEntity(m_BackgroundSprite);
+		
 		this.m_HelpTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_HelpTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_HelpTexture, this, R.drawable.btn_hint_anim , 0, 0, 2, 1);
 		this.m_Help = new AnimatedSprite(m_HelpTextureRegion.getWidth()/4, m_HelpTextureRegion.getHeight()/4, this.m_HelpTextureRegion){
@@ -455,19 +457,18 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			Debug.e("Error", e);
 		}
 
-		//Load Box
+		//Load Textures
 		this.m_BoxTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_BoxTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_BoxTexture, this, R.drawable.box, 0, 0, 1, 1);
-
 		this.m_ItemTexture = new Texture(1024, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-
-		//Load fail texture
 		this.m_FailTexture = new Texture(128, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.m_FailTextureRegion = TextureRegionFactory.createFromResource(this.m_FailTexture, this, R.drawable.fail_128, 0, 0);
 
+		//Load all Alphabet Textures
 		loadAlphabetTexture();
 	}
 
+	//get random x,y areas to display alphabet image randomly
 	private ArrayList <Point> getAreaArray(){
 		ArrayList <Point> area = new ArrayList<Point>();
 		int areaWidth = (CAMERA_WIDTH- 2*m_BoxTextureRegion.getWidth())/3;
@@ -498,14 +499,11 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		if(m_Music != null && m_Music.isPlaying()) {
 			m_Music.pause();
 		}
-		Log.e(TAG, "onPause() end");
 		super.onPause();	
-		Log.e(TAG, "onPause() real end");
 	}
 
 	@Override
 	protected void onResume(){
-		//m_bGamePaused = false;
 		super.onResume();
 		if (m_Music != null && !m_Music.isPlaying()){
 			Log.e(TAG, "onResume() Music start play()");
@@ -515,14 +513,15 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	@Override
 	public Scene onLoadScene() {
-		Log.e(TAG, "onLoadScene()");
 		this.mEngine.registerUpdateHandler(new FPSLogger());
-		final Scene loadingScene = new Scene(1);
-		loadingScene.getTopLayer().addEntity(m_BackgroundSprite);
+		
+		m_LoadingScene = new Scene(1);
+		
+		//Show loading scene until all the resources is loaded.
+		m_LoadingScene.getTopLayer().addEntity(m_BackgroundSprite);
 		m_LoadingSprite = new Sprite(0 ,0,this.m_LoadingTextureRegion);
-		loadingScene.getTopLayer().addEntity(m_LoadingSprite);
-
-		loadingScene.registerUpdateHandler(new IUpdateHandler(){
+		m_LoadingScene.getTopLayer().addEntity(m_LoadingSprite);
+		m_LoadingScene.registerUpdateHandler(new IUpdateHandler(){
 
 			@Override
 			public void onUpdate(float pSecondsElapsed) {
@@ -539,6 +538,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 				updateScene();
 				m_playScene.setTouchAreaBindingEnabled(true);	
+				
+				//Change the scene from loading to play
 				mEngine.setScene(m_playScene);
 				Log.e(TAG, "end loading resources");							
 			}
@@ -548,7 +549,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				
 			}
 		});
-		return loadingScene;
+		return m_LoadingScene;
 	}
 
 	@Override
@@ -563,6 +564,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 	}
 
+	//Retry activity
 	public void onActivityResult(int requestCode, int resultCode, Intent intent){
 		super.onActivityResult(requestCode, resultCode, intent);
 		if (requestCode == Const.MATCH_QUIZ_RESULT){
@@ -669,13 +671,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	}
 
 	protected void onDestroy() {
-		Log.e(TAG, "onDestroy start()");
-		//Background Music and sound
-		/*		if (m_Music != null){
-			if (m_Music.isPlaying()){
-				m_Music.release();
-			}			
-		}*/
 		if (m_ItemSound != null)
 			m_ItemSound.release();
 		if (m_DropToBoxSound != null)
@@ -688,9 +683,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			m_SoundEffect.release();
 			m_SoundEffect = null;
 		}
-		Log.e(TAG, "onDestroy end()");
 		super.onDestroy();
-		Log.e(TAG, "onDestroy real end()");
 	}
 
 	//Create base object
@@ -722,7 +715,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		//Add ThemeItem Sprite to Scene
 		this.m_ItemTextureRegion = TextureRegionFactory.createTiledFromResource(this.m_ItemTexture, this, m_ItemVector.get(m_iCurrentItemNum).iItemImgId, 0, 0, 2, 1);
 		this.m_ItemTextureRegion.setCurrentTileIndex(ITEM_IMG_FIRST);
-		Log.e("WOORAM", "m_ItemTextureRegion.getWidth():"+m_ItemTextureRegion.getWidth());
 		this.m_Item = new AnimatedSprite((CAMERA_WIDTH - m_ItemTextureRegion.getWidth()/2)/2
 				,CAMERA_HEIGHT/8, this.m_ItemTextureRegion){
 			@Override
@@ -899,11 +891,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		}		
 
-		// The actual collision-checking.
-		//m_playScene.registerUpdateHandler(handler);
 		m_playScene.registerTouchArea(m_Item);	
-
-		//re regist touch area for help and pause btn
 		m_playScene.registerTouchArea(m_Help);
 		m_playScene.registerTouchArea(m_SkipSprite);
 		m_bNowReset = false;
@@ -934,6 +922,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		}
 	}
 
+	//Updatehandler for collision detect
 	private IUpdateHandler handler = new IUpdateHandler() {
 
 		public void reset() { }
@@ -945,18 +934,18 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 					continue;
 				}						
 				if(isCollide(m_CurrentTouchedAlphabetSprite,m_arrBoxSprite[i])){
-					//m_arrBoxSprite[i].setColor(0, 0, 1);
 					m_iCurrentCollideBoxIdx = i;
 					if (m_CurrentTouchedAlphabetSprite != null)
 						m_CurrentTouchedAlphabetSprite.bCollied = true;					
-				} else if(m_iCurrentCollideBoxIdx == i && !isCollide(m_CurrentTouchedAlphabetSprite,m_arrBoxSprite[i])) {
-					//m_arrBoxSprite[i].setColor(1, 1, 1);		
+				} else if(m_iCurrentCollideBoxIdx == i && !isCollide(m_CurrentTouchedAlphabetSprite,m_arrBoxSprite[i])) {	
 					if (m_CurrentTouchedAlphabetSprite != null)
 						m_CurrentTouchedAlphabetSprite.bCollied = false;
 				}
 			}
 		}
 	};
+	
+	//Draw alphabet sprite with animation.
 	private void drawAlphabet(final TouchEvent touchEvent){
 		m_bNowDrawingAlphabet = true;
 		for(int l=0; l < m_strAlphabet.length(); l++){
@@ -967,8 +956,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			IShapeModifier modifier = new ParallelShapeModifier(
 					new MoveModifier(1,touchEvent.getX(), m_RandomPoint.get(j).x, touchEvent.getY(), m_RandomPoint.get(j).y,EaseLinear.getInstance()),
 					new RotationModifier(1, 0, 360));
+			
 			modifier.setModifierListener(new IModifierListener<IShape>(){
-
 				@Override
 				public void onModifierFinished(IModifier<IShape> pModifier,
 						IShape pItem) {
@@ -1060,12 +1049,10 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 			@Override
 			public void onAnimationEnd(AnimatedSprite pAnimatedSprite) {
-				// TODO Auto-generated method stub
 				m_ItemSound.play();	
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				resetScreen();
@@ -1075,24 +1062,20 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	@Override
 	public void onAnimationEnd(Animation animation) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void onAnimationRepeat(Animation animation) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void onAnimationStart(Animation animation) {
-		// TODO Auto-generated method stub
 
 	}
 	@Override
 	public void onLoadComplete() {
-		// TODO Auto-generated method stub
 
 	}
 }
