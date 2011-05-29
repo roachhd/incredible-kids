@@ -175,7 +175,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private String m_CurTheme;
 	private boolean m_bNowDrawingAlphabet = false;
 	private boolean m_bNowReset = false;
-	private boolean m_bGamePaused = false;
+//	private boolean m_bGamePaused = false;
 
 	private Thread m_loadingThread = null;
 
@@ -490,7 +490,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	protected void onPause(){
 
 		Log.e(TAG, "onPause() start");
-		m_bGamePaused = true;
+		//m_bGamePaused = true;
 		if (m_SoundLoadingThread != null && m_SoundLoadingThread.isAlive()) {
 			m_SoundLoadingThread.interrupt();			
 		}
@@ -505,7 +505,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	@Override
 	protected void onResume(){
-		m_bGamePaused = false;
+		//m_bGamePaused = false;
 		super.onResume();
 		if (m_Music != null && !m_Music.isPlaying()){
 			Log.e(TAG, "onResume() Music start play()");
@@ -574,7 +574,6 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 						while(m_playScene.getLayer(ENTITIES_LAYER).getEntityCount()>0){
 							m_playScene.getLayer(ENTITIES_LAYER).removeEntity(0);
 						}				
-						m_playScene.clearUpdateHandlers();
 						m_iCurrentCollideBoxIdx = 0;
 						m_CurrentTouchedAlphabetSprite = null;
 						m_ItemTextureRegion = null;
@@ -625,7 +624,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 			startActivityForResult(intent, Const.MATCH_QUIZ_RESULT);
 			overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 			finish();
-		}else if (!m_bGamePaused){ 
+		}else{ 
 			Log.e(TAG, "resetScreen()");
 			mEngine.runOnUpdateThread(new Runnable() {
 				@Override
