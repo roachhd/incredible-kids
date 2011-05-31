@@ -21,6 +21,7 @@ import org.anddev.andengine.engine.options.EngineOptions;
 import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.anddev.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
 import org.anddev.andengine.entity.scene.Scene;
+import org.anddev.andengine.entity.scene.Scene.IOnSceneTouchListener;
 import org.anddev.andengine.entity.shape.IShape;
 import org.anddev.andengine.entity.shape.modifier.AlphaModifier;
 import org.anddev.andengine.entity.shape.modifier.IShapeModifier;
@@ -68,7 +69,7 @@ import com.incrediblekids.util.Item;
 /**
  * @author Nicolas Gramlich
  */
-public class ThemeItemActivity extends BaseGameActivity implements AnimationListener{
+public class ThemeItemActivity extends BaseGameActivity implements AnimationListener, IOnSceneTouchListener{
 	
 	// ===========================================================
 	// Constants
@@ -1076,6 +1077,21 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	}
 	@Override
 	public void onLoadComplete() {
-
+		Log.e(TAG,"When I called?");
 	}
+	
+	@Override
+	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
+            Log.i(TAG, "touch");
+            if (pScene == m_playScene && pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+                    Log.i(TAG, "m_playScene Touched");
+                    return true;
+                   
+            }else if (pScene == m_LoadingScene && pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+                    Log.i(TAG, "m_LoadingScene Touched");                    
+                    return true;
+                   
+            }
+           return false;
+    }
 }
