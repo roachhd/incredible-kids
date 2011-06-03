@@ -520,13 +520,19 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		
 		//Show loading scene until all the resources is loaded.
 		m_LoadingScene.getTopLayer().addEntity(m_BackgroundSprite);
-		m_LoadingSprite = new Sprite(0 ,0,this.m_LoadingTextureRegion);
+		m_LoadingSprite = new Sprite(0 ,0,this.m_LoadingTextureRegion){
+			@Override
+			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {				
+				return false;
+			}			
+		};
 		m_LoadingScene.getTopLayer().addEntity(m_LoadingSprite);
 		m_LoadingScene.registerUpdateHandler(new IUpdateHandler(){
 
 			@Override
 			public void onUpdate(float pSecondsElapsed) {
 				Log.e(TAG, "start loading resources");
+				mEngine.unregisterUpdateHandler(this);
 				m_playScene = new Scene(2);
 				myLoadResources();
 				createBaseSprite();
@@ -541,7 +547,10 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 				m_playScene.setTouchAreaBindingEnabled(true);	
 				
 				//Change the scene from loading to play
-				mEngine.setScene(m_playScene);
+				
+				mEngine.setScene(m_playScene);	
+				
+				touchHandler.sendEmptyMessageDelayed(0, 1000);
 				Log.e(TAG, "end loading resources");							
 			}
 
@@ -552,7 +561,12 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		});
 		return m_LoadingScene;
 	}
-
+	private Handler touchHandler = new Handler() {
+		public void handleMessage(Message msg) {
+			m_playScene.registerTouchArea(m_Item);				
+		}
+	};
+	
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
@@ -892,7 +906,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 		}		
 
-		m_playScene.registerTouchArea(m_Item);	
+		if (m_iCurrentItemNum % 5 != 0)
+			m_playScene.registerTouchArea(m_Item);	
 		m_playScene.registerTouchArea(m_Help);
 		m_playScene.registerTouchArea(m_SkipSprite);
 		m_bNowReset = false;
