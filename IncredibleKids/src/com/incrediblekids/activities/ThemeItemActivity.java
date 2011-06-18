@@ -673,6 +673,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private void loadEntityTexture(){
 		this.mEngine.getTextureManager().loadTexture(this.m_ItemTexture);	
 		this.mEngine.getTextureManager().loadTexture(this.m_BoxTexture);
+		this.mEngine.getTextureManager().loadTexture(this.m_AlphabetTexture);
 	}
 
 	private void loadAlphabetTexture(){
