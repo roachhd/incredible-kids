@@ -176,7 +176,10 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 				} else if (msg.what == 1) {
 					Toast.makeText(PreviewWords.this, "서버 접속 실패입니다. \n네트웍이 불안정 하거나 Flickr 서버의 일시 장애 입니다. \n나중에 다시 시도 해주세요. ^^", Toast.LENGTH_LONG).show();
 					m_PhotoLoadingProgressBar.setVisibility(View.GONE);
-					m_PhotoViewerPopupWindow.dismiss();
+					if (m_PhotoViewerPopupWindow != null) {
+						m_PhotoViewerPopupWindow.dismiss();
+						m_PhotoViewerPopupWindow = null;
+					}
 				}
 			}
 		};
@@ -207,7 +210,6 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		/* Create Photo Viewer Layout */
 		m_PhotoViewerLayout = (LinearLayout)findViewById(R.id.linear);
 		m_PhotoViewer = View.inflate(this, R.layout.picture_viewer, null);
-		m_PhotoViewerPopupWindow = new PopupWindow(m_PhotoViewer, m_Width, m_Height, true);
 		m_PhotoLoadingProgressBar = (ProgressBar)m_PhotoViewer.findViewById(R.id.photo_loading_progress);
 	}
 	
@@ -447,7 +449,10 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 						
 					m_PhotoImg.setImageResource(R.drawable.photo_loading);
 					m_PhotoLoadingProgressBar.setVisibility(View.GONE);
-					m_PhotoViewerPopupWindow.dismiss();
+					if (m_PhotoViewerPopupWindow != null) {
+						m_PhotoViewerPopupWindow.dismiss();
+						m_PhotoViewerPopupWindow = null;
+					}
 			}
 		});
 		
@@ -511,6 +516,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 					m_PhotoLoadingThread.start();
 					m_PhotoLoadingProgressBar.setVisibility(View.VISIBLE);
 				}
+				m_PhotoViewerPopupWindow = new PopupWindow(m_PhotoViewer, m_Width, m_Height, true);
 				m_PhotoViewerPopupWindow.showAtLocation(m_PhotoViewerLayout, Gravity.CENTER, 0, 0);
 			}
 		}
