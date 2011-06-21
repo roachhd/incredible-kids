@@ -33,7 +33,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,11 +41,10 @@ import android.view.ViewGroup.OnHierarchyChangeListener;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.Gallery;
 import android.widget.ImageSwitcher;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -80,8 +78,11 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	 * Member Variables
 	 ********************************/
 	/* Main */
+	private FrameLayout m_PreviewFrameLayout;
+	private RelativeLayout m_PreviewLayout;
 	private ImageView m_LeftBtn, m_RightBtn, m_PhotoViewerBtn;
 	private ImageView m_WordImg, m_QuizImg;
+	private ImageView m_LoadingImg;
 	private WordImgAnimation m_WordImgAnimation;
 	private Timer m_QuizImgAnimationTimer;
 	private String m_Theme;
@@ -93,10 +94,8 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	private int[] IMAGE_SIZE=null; 
 	
 	/* PhotoViewer */
-	private LinearLayout m_PhotoViewerLayout;
-	private PopupWindow m_PhotoViewerPopupWindow;
-	private View m_PhotoViewer;
-	private ImageView m_PhotoImg;
+	private RelativeLayout m_PhotoViewerLayout;
+	private ImageView m_PhotoViewer;
 	private ProgressBar m_PhotoLoadingProgressBar;
 	
 	/* Photo Loading and Save */
@@ -140,6 +139,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		
 		/* Set content view */
 		setContentView(R.layout.preview_words);
+		m_PreviewFrameLayout = (FrameLayout) findViewById(R.id.preview_frame_layout);
 		
 		/* Get Image, Sound Resource */
 		getResource();
@@ -156,7 +156,6 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 			IMAGE_SIZE = new int[]{136, 102, 85, 68, 51, 34};
 		
 		/* Set Photo Viewer */
-		setPhotoViewerLayout();
 		setPhotoViewerListener();
 		
 		/* Set Preview Gallery*/
@@ -169,48 +168,47 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		/* Create Handle to receive Image loading complete */
 		m_Handler = new Handler() {
 			public void handleMessage(Message msg) {
+				if (DEBUG) Log.d(TAG, "handleMessage(), msg = " + msg);
 				if (msg.what == 0) {
-					m_bTouchable = true;
-					m_PhotoLoadingProgressBar.setVisibility(View.GONE);
-					m_PhotoImg.setImageBitmap(m_aBitmap[0]);
-				} else if (msg.what == 1) {
 					Toast.makeText(PreviewWords.this, "서버 접속 실패입니다. \n네트웍이 불안정 하거나 Flickr 서버의 일시 장애 입니다. \n나중에 다시 시도 해주세요. ^^", Toast.LENGTH_LONG).show();
 					m_PhotoLoadingProgressBar.setVisibility(View.GONE);
-					if (m_PhotoViewerPopupWindow != null) {
-						m_PhotoViewerPopupWindow.dismiss();
-						m_PhotoViewerPopupWindow = null;
-					}
+					m_PreviewLayout.setVisibility(View.VISIBLE);
+					m_PhotoViewerLayout.setVisibility(View.INVISIBLE);
+				} else if (msg.what == 1 || msg.what == 2) {
+					Toast.makeText(PreviewWords.this, "( " + msg.what + " / 3 ) 다운로드 완료", Toast.LENGTH_LONG).show();
+				} else if (msg.what == 3) {
+					m_bTouchable = true;
+					m_PhotoLoadingProgressBar.setVisibility(View.GONE);
+					m_PhotoViewer.setImageBitmap(m_aBitmap[0]);
+				} else if (msg.what == 4) {
+					m_LoadingImg.setVisibility(View.GONE);
+					m_PreviewLayout.setVisibility(View.VISIBLE);
 				}
 			}
 		};
+		
+		/* Get Thumbnail Image resource by thread */
+		m_ImgLoadingThread = new ImageLoadingThread(m_Handler);
+		m_ImgLoadingThread.start();
 	}
 	
 	public void setThemeBackGround() {
-		RelativeLayout mMainBG = (RelativeLayout) findViewById(R.id.preview_relative_layout);
-
 		if (m_Theme.equals(Const.THEME_ANIMAL)) {
-			mMainBG.setBackgroundResource(R.drawable.bg_animal_play);
+			m_PreviewFrameLayout.setBackgroundResource(R.drawable.bg_animal_play);
+			//m_PhotoViewerLayout.setBackgroundResource(R.drawable.bg_animal_play);
 		} else if (m_Theme.equals(Const.THEME_COLOR)) {
-			mMainBG.setBackgroundResource(R.drawable.bg_color_play);
+			m_PreviewFrameLayout.setBackgroundResource(R.drawable.bg_color_play);
+			//m_PhotoViewerLayout.setBackgroundResource(R.drawable.bg_color_play);
 		} else if (m_Theme.equals(Const.THEME_FOOD)) {
-			mMainBG.setBackgroundResource(R.drawable.bg_food_play);
+			m_PreviewFrameLayout.setBackgroundResource(R.drawable.bg_food_play);
+			//m_PhotoViewerLayout.setBackgroundResource(R.drawable.bg_food_play);
 		} else if (m_Theme.equals(Const.THEME_NUMBER)) {
-			mMainBG.setBackgroundResource(R.drawable.bg_number_play);
+			m_PreviewFrameLayout.setBackgroundResource(R.drawable.bg_number_play);
+			//m_PhotoViewerLayout.setBackgroundResource(R.drawable.bg_number_play);
 		} else if (m_Theme.equals(Const.THEME_TOY)) {
-			mMainBG.setBackgroundResource(R.drawable.bg_toy_play);
-		}
-			
-			
-	}
-	/****************************************************************
-	 * Set Photo Viewer Layout
-	 *  - PopupWindow를 이용하여 Photo Viewer 만듬.
-	 ****************************************************************/
-	public void setPhotoViewerLayout() {
-		/* Create Photo Viewer Layout */
-		m_PhotoViewerLayout = (LinearLayout)findViewById(R.id.linear);
-		m_PhotoViewer = View.inflate(this, R.layout.picture_viewer, null);
-		m_PhotoLoadingProgressBar = (ProgressBar)m_PhotoViewer.findViewById(R.id.photo_loading_progress);
+			m_PreviewFrameLayout.setBackgroundResource(R.drawable.bg_toy_play);
+			//m_PhotoViewerLayout.setBackgroundResource(R.drawable.bg_toy_play);
+		}	
 	}
 	
 	/********************************
@@ -286,16 +284,16 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		super.onDestroy();
 	}
 	
-	
-	
-	
-
-	
 	@Override
 	public void onBackPressed() {
-		finish();
-		overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-		super.onBackPressed();
+		if (m_PhotoViewerLayout.isShown()) {
+			m_PreviewLayout.setVisibility(View.VISIBLE);
+			m_PhotoViewerLayout.setVisibility(View.INVISIBLE);
+		} else {
+			finish();
+			overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+			super.onBackPressed();
+		}
 	}
 
 	/****************************************************************
@@ -360,13 +358,20 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		m_Theme = res.getCurrentTheme();
 		
 		/* Assign from Resource */
+		m_LoadingImg = (ImageView) findViewById(R.id.preview_loading);
+		m_PreviewLayout = (RelativeLayout) findViewById(R.id.preview_relative_layout);
 		m_QuizImg = (ImageView) findViewById(R.id.preview_center_image);
 		m_WordImg = (ImageView) findViewById(R.id.preview_word_image);
 		m_LeftBtn = (ImageView) findViewById(R.id.preview_leftbtn);
 		m_RightBtn = (ImageView) findViewById(R.id.preview_rightbtn);
+		
+		m_PhotoViewerLayout = (RelativeLayout) findViewById(R.id.photo_viewer_layout);
+		m_PhotoViewer = (ImageView) findViewById(R.id.preview_photo_viewer);
+		m_PhotoLoadingProgressBar = (ProgressBar) findViewById(R.id.photo_loading_progress);
 		m_PhotoViewerBtn = (ImageView) findViewById(R.id.preview_picviewbtn);
 		if (res.getCurrentTheme() == Const.THEME_COLOR || res.getCurrentTheme() == Const.THEME_NUMBER)
 			m_PhotoViewerBtn.setVisibility(View.GONE);
+		
 		/* Get Sound Resource */
 		m_AssetManager = getResources().getAssets();
 		m_StudyBGM	= MediaPlayer.create(this, R.raw.studybgm);
@@ -391,10 +396,6 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 			m_LeftImgVector.add(Bitmap.createBitmap(bit, 0, 0, bit.getWidth()/2, bit.getHeight()));
 			m_RightImgVector.add(Bitmap.createBitmap(bit, bit.getWidth()/2, 0, bit.getWidth()/2, bit.getHeight()));
 		}
-		
-		/* Get Thumbnail Image resource by thread */
-		m_ImgLoadingThread = new ImageLoadingThread();
-		m_ImgLoadingThread.start();
 	}
 	
 	
@@ -404,13 +405,8 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	 *    Preference 를 참조하여 Image 다운로드 여부를 물음.
 	 ****************************************************************/
 	public void setPhotoViewerListener() {
-		
-		m_PhotoImg = (ImageView) m_PhotoViewer.findViewById(R.id.photo);
-		
 		/* Setting Photo Viewer Button */
 		m_PhotoViewerBtn.setOnTouchListener(new View.OnTouchListener() {
-			
-			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_DOWN)
 					m_PhotoViewerBtn.setBackgroundResource(R.drawable.btn_showpic_sel);
@@ -439,25 +435,23 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 		});
 		
 		/* Setting Photo Image */
-		m_PhotoViewer.setOnClickListener(new View.OnClickListener() {
+		/*m_PhotoViewer.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				if (!v.equals(m_PhotoImg))
-					if (m_PhotoLoadingThread != null && m_PhotoLoadingThread.isAlive()) {
-						m_PhotoLoadingThread.interrupt();
-						if (DEBUG) Log.d(TAG, "m_PhotoLoadingThread.interrupted()");
-					}
-						
-					m_PhotoImg.setImageResource(R.drawable.photo_loading);
-					m_PhotoLoadingProgressBar.setVisibility(View.GONE);
-					if (m_PhotoViewerPopupWindow != null) {
-						m_PhotoViewerPopupWindow.dismiss();
-						m_PhotoViewerPopupWindow = null;
-					}
-			}
-		});
+				if (m_PhotoLoadingThread != null && m_PhotoLoadingThread.isAlive()) {
+					m_PhotoLoadingThread.interrupt();
+					if (DEBUG) Log.d(TAG, "m_PhotoLoadingThread.interrupted()");
+				}
+					
+				m_PhotoImg.setImageResource(R.drawable.photo_loading);
+				m_PhotoLoadingProgressBar.setVisibility(View.GONE);
+				if (m_PhotoViewerPopupWindow != null) {
+					m_PhotoViewerPopupWindow.dismiss();
+					m_PhotoViewerPopupWindow = null;
+				}
+		});*/
 		
 		/* Setting Photo Image */
-		m_PhotoImg.setOnTouchListener(new View.OnTouchListener() {
+		m_PhotoViewer.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
 				if (!m_bTouchable) 
 					return true;
@@ -468,11 +462,11 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 					if ((m_fPosX - event.getX()) < -50) { // Moving left
 						if (m_iPhoto == 0)
 							m_iPhoto = m_aBitmap.length;
-						m_PhotoImg.setImageBitmap(m_aBitmap[--m_iPhoto]);
+						m_PhotoViewer.setImageBitmap(m_aBitmap[--m_iPhoto]);
 					} else { // if ((m_fPosX - event.getX()) > 50) { // Moving right, click
 						if (m_iPhoto == m_aBitmap.length-1)
 							m_iPhoto = -1;
-						m_PhotoImg.setImageBitmap(m_aBitmap[++m_iPhoto]);
+						m_PhotoViewer.setImageBitmap(m_aBitmap[++m_iPhoto]);
 					} 
 				}
 				return true;
@@ -498,26 +492,27 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 				int i=0;
 				File mFile = new File(m_FileDirectory + "/" + expName + "_" + i + ".png");
 				while (mFile.exists()) {
-					++i;
+					if (mFile.length() != 0)
+						++i;
 					mFile = new File(m_FileDirectory + "/" + expName + "_" + i + ".png");
 				}
 				
-				if (i == 3) { // 이미지 3장 모두 저장확인.
+				if (i == 3) { // 이미지 3장 모두 저장확인. 바로 보여주기
 					m_aBitmap = new Bitmap[3];
 					for (i=0 ; i<3 ; ++i) {
 						mFile = new File(m_FileDirectory + "/" + expName + "_" + i + ".png");
 						m_aBitmap[i] = BitmapFactory.decodeFile(mFile.getPath().toString());
 						if (DEBUG) Log.d(TAG, "mFile = " + mFile.getPath().toString() + " i = " + i);
 					}
-					m_Handler.sendEmptyMessage(0);
+					m_Handler.sendEmptyMessage(3);
 				} else {
 					Toast.makeText(PreviewWords.this, "사진을 다운 받고 있습니다. \n sdcard/.helloWorldEnglish에 저장됩니다.", Toast.LENGTH_SHORT).show();
 					m_PhotoLoadingThread = new PhotoLoadingThread(m_Handler, expName);
 					m_PhotoLoadingThread.start();
 					m_PhotoLoadingProgressBar.setVisibility(View.VISIBLE);
 				}
-				m_PhotoViewerPopupWindow = new PopupWindow(m_PhotoViewer, m_Width, m_Height, true);
-				m_PhotoViewerPopupWindow.showAtLocation(m_PhotoViewerLayout, Gravity.CENTER, 0, 0);
+				m_PhotoViewerLayout.setVisibility(View.VISIBLE);
+				m_PreviewLayout.setVisibility(View.INVISIBLE);
 			}
 		}
 	}
@@ -731,6 +726,13 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	 * Image Loading Thread
 	 ********************************/
 	class ImageLoadingThread extends Thread {
+		private Handler mHandler;
+		
+		public ImageLoadingThread(Handler _mHandler) {
+			if (DEBUG) Log.d(TAG, "ImageLoadingThread Contructor");	
+			mHandler = _mHandler;
+		}
+		
 		public void run() {
 			for(int i=5 ; i<m_ItemVector.size() ; ++i) {
 				if (DEBUG) Log.d(TAG, "ItemVector = " + i);
@@ -752,6 +754,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 					}
 				}
 			}
+			mHandler.sendEmptyMessage(4);
 		}
 	}
 
@@ -779,13 +782,11 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 						if (DEBUG) Log.d(TAG, m_ImageUrlArr.get(count));
 						m_aBitmap[count] = Bitmap.createScaledBitmap(ImageManager.UrlToBitmap((m_ImageUrlArr.get(count))), 430, 400, false);
 						StoreByteImage(expName, count);
+						mHandler.sendEmptyMessage(count+1);
 					}
 				}
-				if (!Thread.currentThread().isInterrupted()) {
-					mHandler.sendEmptyMessage(0);
-				}
 			} else {
-				mHandler.sendEmptyMessage(1);
+				mHandler.sendEmptyMessage(0);
 				Log.e(TAG, "Image Url Arr is 0");
 			}
 		}
