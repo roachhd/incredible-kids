@@ -120,7 +120,8 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 
 	//Alphabets
 	private String m_strAlphabet;
-	private Texture m_AlphabetTexture;
+	//private Texture m_AlphabetTexture;
+	private Texture [] m_arrAlphabetTexture;
 	private TiledTextureRegion [] m_arrAlphabetTiledTextureRegion;
 	private AlphabetSprite [] m_arrAlphabetSprite;
 	private AlphabetSprite m_CurrentTouchedAlphabetSprite;
@@ -673,16 +674,19 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 	private void loadEntityTexture(){
 		this.mEngine.getTextureManager().loadTexture(this.m_ItemTexture);	
 		this.mEngine.getTextureManager().loadTexture(this.m_BoxTexture);
-		this.mEngine.getTextureManager().loadTexture(this.m_AlphabetTexture);
+
 	}
 
 	private void loadAlphabetTexture(){
 		arrAlphabetTextureRegion = new HashMap<String, TiledTextureRegion>();
-		m_AlphabetTexture = new Texture(256,4096,TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.mEngine.getTextureManager().loadTexture(m_AlphabetTexture);
+		//m_AlphabetTexture = new Texture(256,4096,TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		m_arrAlphabetTexture = new Texture[ALPHABET_COUNT];
+		//this.mEngine.getTextureManager().loadTexture(m_AlphabetTexture);
 		char [] charAlphabetSet = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
 		for (int i=0; i < ALPHABET_COUNT; i++){
-			arrAlphabetTextureRegion.put(m_strAlphabetSet[i], TextureRegionFactory.createTiledFromResource(m_AlphabetTexture, this, res.getAlphabetResourceId(charAlphabetSet[i]), 0, 128*i, 2, 1 ));
+			m_arrAlphabetTexture[i] = new Texture(256, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+			arrAlphabetTextureRegion.put(m_strAlphabetSet[i], TextureRegionFactory.createTiledFromResource(m_arrAlphabetTexture[i], this, res.getAlphabetResourceId(charAlphabetSet[i]), 0, 0, 2, 1 ));
+			this.mEngine.getTextureManager().loadTexture(m_arrAlphabetTexture[i]);
 		}
 	}
 
@@ -968,6 +972,7 @@ public class ThemeItemActivity extends BaseGameActivity implements AnimationList
 		for(int l=0; l < m_strAlphabet.length(); l++){
 			m_playScene.getLayer(ENTITIES_LAYER).addEntity(m_arrAlphabetSprite[l]);
 		}
+		//this.mEngine.getTextureManager().loadTexture(this.m_AlphabetTexture);
 		for(int j=0; j < m_strAlphabet.length(); j++){
 			m_arrAlphabetSprite[j].setPosition(touchEvent.getX(), touchEvent.getY());
 			IShapeModifier modifier = new ParallelShapeModifier(
