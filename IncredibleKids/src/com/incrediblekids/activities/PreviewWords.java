@@ -175,7 +175,7 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 					m_PreviewLayout.setVisibility(View.VISIBLE);
 					m_PhotoViewerLayout.setVisibility(View.INVISIBLE);
 				} else if (msg.what == 1 || msg.what == 2) {
-					Toast.makeText(PreviewWords.this, "( " + msg.what + " / 3 ) 다운로드 완료", Toast.LENGTH_LONG).show();
+					Toast.makeText(PreviewWords.this, "( " + msg.what + " / 3 ) 다운로드 완료", Toast.LENGTH_SHORT).show();
 				} else if (msg.what == 3) {
 					m_bTouchable = true;
 					m_PhotoLoadingProgressBar.setVisibility(View.GONE);
@@ -287,6 +287,11 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 	@Override
 	public void onBackPressed() {
 		if (m_PhotoViewerLayout.isShown()) {
+			if (m_PhotoLoadingThread != null && m_PhotoLoadingThread.isAlive()) {
+				m_PhotoLoadingThread.interrupt();
+				if (DEBUG) Log.d(TAG, "m_PhotoLoadingThread.interrupted()");
+			}
+			m_PhotoViewer.setImageResource(R.drawable.photo_loading);
 			m_PreviewLayout.setVisibility(View.VISIBLE);
 			m_PhotoViewerLayout.setVisibility(View.INVISIBLE);
 		} else {
@@ -492,8 +497,9 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 				int i=0;
 				File mFile = new File(m_FileDirectory + "/" + expName + "_" + i + ".png");
 				while (mFile.exists()) {
-					if (mFile.length() != 0)
-						++i;
+					if (mFile.length() == 0)
+						break;
+					++i;
 					mFile = new File(m_FileDirectory + "/" + expName + "_" + i + ".png");
 				}
 				
@@ -781,8 +787,12 @@ public class PreviewWords extends Activity implements ViewSwitcher.ViewFactory, 
 					if(!Thread.currentThread().isInterrupted()) {
 						if (DEBUG) Log.d(TAG, m_ImageUrlArr.get(count));
 						m_aBitmap[count] = Bitmap.createScaledBitmap(ImageManager.UrlToBitmap((m_ImageUrlArr.get(count))), 430, 400, false);
-						StoreByteImage(expName, count);
-						mHandler.sendEmptyMessage(count+1);
+						if (m_aBitmap[count] != null) {
+							StoreByteImage(expName, count);
+							mHandler.sendEmptyMessage(count+1);
+						} else {
+							
+						}
 					}
 				}
 			} else {
